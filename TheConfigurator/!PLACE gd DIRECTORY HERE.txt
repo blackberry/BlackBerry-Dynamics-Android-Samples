@@ -1,0 +1,2 @@
+Copy your gd (Good Dynamics SDK directory) at this level.
+Refer to the README.MD for more information.
