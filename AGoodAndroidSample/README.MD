@@ -16,6 +16,12 @@ Contributing
 
 To contribute code to this repository you must be signed up as an official contributor.
 
+This sample was tested with the following environment:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Android Studio 2.1.2
+Android 6.0.1
+
+
 How To Open the Project
 ~~~~~~~~~~~~~~~~~~~~~~~
 
