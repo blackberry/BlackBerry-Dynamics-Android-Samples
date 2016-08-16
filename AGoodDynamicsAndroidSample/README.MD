@@ -2,7 +2,9 @@ AGoodDynamicsAndroidSample
 This sample pairs with AGoodAndroidSample to provide examples of an Android application before and
 after integrating with the Good Dynamics SDK.  This sample provides examples of features commonly used
 in an application that require modification for integrate with the Good Dynamics SDK, including
-file storage, SQLite usage and HTTP and socket communication.
+file storage, SQLite usage and HTTP and socket communication.  This sample requires the Good Dynamics
+SDK for Android to be installed.  Refer to the Getting Started guide for instructions on how to install
+and configure it.  https://community.good.com/community/gdn/get-started
 
 Applies To
 

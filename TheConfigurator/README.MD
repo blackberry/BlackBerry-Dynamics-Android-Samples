@@ -2,7 +2,10 @@ TheConfigurator
 This sample pairs deomonstrates how to use a custom App Policy uploaded into the Good Control Console (GCC),
 which can be used to remotely configure an application.  After adding this sample to your GCC, you'll need to uploaded
 the included policy file "The Configurator App Policy.xml".  For more information refer to the following post on the 
-BlackBerry Developer Blog:  
+BlackBerry Developer Blog:  http://devblog.blackberry.com/2016/08/custom-app-policies-in-good-dynamics-applications/
+
+This sample requires the Good Dynamics SDK for Android to be installed.  Refer to the Getting Started guide for 
+instructions on how to install and configure it.  https://community.good.com/community/gdn/get-started
 
 Applies To
 
