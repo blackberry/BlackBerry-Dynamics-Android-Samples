@@ -1,8 +1,0 @@
-{
-    "GDLibraryMode": "GDEnterprise",
-    "GDApplicationID":"PLACE YOUR GD APPLICATION ID HERE",
-    "GDApplicationVersion":"1.0.0.0",
-    "GDConsoleLogger": [
-        "GDFilterNone"
-    ]
-}

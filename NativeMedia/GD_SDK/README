@@ -1,5 +1,0 @@
-Copy a GD SDK release into this directory 
-
-(so /debug_tools, /libs etc folders will be in this folder) 
-
-The build then ensures that this SDK is used to link both the Java code (which is a GD app and uses the GD SDK) and the native app (which uses the GD Posix APIs)
