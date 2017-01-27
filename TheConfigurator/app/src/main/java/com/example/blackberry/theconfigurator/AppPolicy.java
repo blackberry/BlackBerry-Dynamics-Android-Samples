@@ -63,7 +63,13 @@ public class AppPolicy
         //If the policy has been set (not null), extract the enableSound value.
         if (policy != null)
         {
-            return ((Boolean)policy.get("enableSound")).booleanValue();
+            if (policy.containsKey("enableSound")) {
+                return ((Boolean) policy.get("enableSound")).booleanValue();
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {
@@ -78,7 +84,14 @@ public class AppPolicy
         //If the policy has been set (not null), extract the enableAutoPlaySound value.
         if (policy != null)
         {
-            return ((Boolean)policy.get("enableAutoPlaySound")).booleanValue();
+            if (policy.containsKey("enableAutoPlaySound"))
+            {
+                return ((Boolean) policy.get("enableAutoPlaySound")).booleanValue();
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {
@@ -92,7 +105,13 @@ public class AppPolicy
         //If the policy has been set (not null), extract the isConvertible value.
         if (policy != null)
         {
-            return ((Boolean)policy.get("isConvertible")).booleanValue();
+            if (policy.containsKey("isConvertible")) {
+                return ((Boolean) policy.get("isConvertible")).booleanValue();
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {
@@ -109,7 +128,7 @@ public class AppPolicy
         {
             Vector displayElements = (Vector)policy.get("visibleElements");
 
-            if (displayElements.contains("name"))
+            if (displayElements != null && displayElements.contains("name"))
             {
                 return true;
             }
@@ -134,7 +153,7 @@ public class AppPolicy
         {
             Vector displayElements = (Vector)policy.get("visibleElements");
 
-            if (displayElements.contains("image"))
+            if (displayElements != null && displayElements.contains("image"))
             {
                 return true;
             }
@@ -158,7 +177,7 @@ public class AppPolicy
         {
             Vector displayElements = (Vector)policy.get("visibleElements");
 
-            if (displayElements.contains("description"))
+            if (displayElements != null && displayElements.contains("description"))
             {
                 return true;
             }
