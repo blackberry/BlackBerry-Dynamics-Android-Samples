@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+Copyright (c) 2012, 2013  BlackBerry Limited.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+  -->
+
+<RelativeLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_main"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.msohm.blackberry.samples.presencedemo.MainActivity">
+
+    <Button
+        android:text="@string/go"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/getSPButton"
+        android:onClick="getServiceProviders"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"/>
+
+    <TextView
+        android:text="@string/get_docs_service_providers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+        android:layout_alignBaseline="@+id/getSPButton"
+        android:layout_alignBottom="@+id/getSPButton"
+        android:layout_alignParentStart="true"/>
+
+    <ScrollView
+        android:id="@+id/ScrollView01"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_below="@+id/getSPButton"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="43dp"
+        android:paddingTop="10dp">
+
+        <TextView
+            android:text="@string/output"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/outputTextView"
+            android:focusable="true"
+            android:scrollbars="vertical"
+            android:minLines="15"
+            android:textIsSelectable="true"/>
+    </ScrollView>
+
+    <Button
+        android:text="@string/browse_docs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/browsePresenceRichButton"
+        android:onClick="onBrowsePresenceRich"
+        android:layout_alignBaseline="@+id/browsePresenceRawButton"
+        android:layout_alignBottom="@+id/browsePresenceRawButton"
+        android:layout_alignParentStart="true"/>
+
+    <Button
+        android:text="@string/browse_presence"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/browsePresenceRawButton"
+        android:onClick="onBrowsePresenceRaw"
+        android:layout_below="@+id/getSPButton"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="31dp"/>
+
+</RelativeLayout>
+
+

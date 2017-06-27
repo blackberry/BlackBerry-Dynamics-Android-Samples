@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">BEMS Presence Demo</string>
+    <string name="browse_presence">Raw Presence</string>
+    <string name="output">Output</string>
+    <string name="browse_docs">Rich Presence</string>
+    <string name="get_presence_service_providers">Get Presence Service Providers</string>
+    <string name="go">Go!</string>
+    <string name="get_docs_service_providers">Get Service Providers</string>
+    <string name="title_activity_docs">Presence Sample - Rich</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_presence">Presence Sample - Raw Data</string>
+</resources>

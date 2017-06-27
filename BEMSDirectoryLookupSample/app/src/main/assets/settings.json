@@ -1,0 +1,6 @@
+{
+  "GDLibraryMode": "GDEnterprise",
+  "GDApplicationID": "com.yourcompany.your.app.id",
+  "GDApplicationVersion": "1.0.0.0",
+  "GDConsoleLogger": [ "GDFilterNone" ]
+}

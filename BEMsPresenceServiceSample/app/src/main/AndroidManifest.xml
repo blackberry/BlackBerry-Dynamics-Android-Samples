@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest package="com.msohm.blackberry.samples.presencedemo"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="false"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name="com.msohm.blackberry.samples.presencedemo.MainActivity"
+            android:alwaysRetainTaskState="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.msohm.blackberry.samples.presencedemo.PresenceActivityRich"
+            android:label="@string/title_activity_docs"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:alwaysRetainTaskState="true">
+        </activity>
+        <activity
+            android:name="com.msohm.blackberry.samples.presencedemo.PresenceActivityRaw"
+            android:label="@string/title_activity_presence"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:alwaysRetainTaskState="true">
+        </activity>
+
+
+    </application>
+
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+</manifest>
