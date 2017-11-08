@@ -18,8 +18,8 @@ To contribute code to this repository you must be signed up as an official contr
 
 This sample was tested with the following environment:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Android Studio 2.1.2
-Android 6.0.1
+Android Studio 3.0
+Android 7.1.1
 
 
 How To Open the Project

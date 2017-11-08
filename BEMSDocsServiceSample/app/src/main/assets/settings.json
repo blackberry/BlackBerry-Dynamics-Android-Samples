@@ -1,6 +1,6 @@
 {
   "GDLibraryMode": "GDEnterprise",
-  "GDApplicationID": "com.msohm.solar.blackberry.samples.bemsdocsservicesample",
+  "GDApplicationID": "com.sample.blackberry.bemsdocsservice",
   "GDApplicationVersion": "1.0.0.0",
   "GDConsoleLogger": [ "GDFilterNone" ]
 }

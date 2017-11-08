@@ -214,8 +214,5 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
     public void onUpdateServices() {  }
 
     @Override
-    public void onUpdateDataPlan() {  }
-
-    @Override
     public void onUpdateEntitlements() {  }
 }

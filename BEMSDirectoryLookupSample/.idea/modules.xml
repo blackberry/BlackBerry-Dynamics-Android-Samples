@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/BEMSDirectoryLookupSample.iml" filepath="$PROJECT_DIR$/BEMSDirectoryLookupSample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../Github/BlackBerry-Dynamics-Android-Samples/BEMSDirectoryLookupSample/BEMSDirectoryLookupSample.iml" filepath="$PROJECT_DIR$/../../../Github/BlackBerry-Dynamics-Android-Samples/BEMSDirectoryLookupSample/BEMSDirectoryLookupSample.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$USER_HOME$/AppData/Local/Android/sdk/extras/good/dynamics_sdk/libs/handheld/gd/gd.iml" filepath="$USER_HOME$/AppData/Local/Android/sdk/extras/good/dynamics_sdk/libs/handheld/gd/gd.iml" />
+      <module fileurl="file://$USER_HOME$/AppData/Local/Android/sdk/extras/blackberry/dynamics_sdk/libs/handheld/gd/gd.iml" filepath="$USER_HOME$/AppData/Local/Android/sdk/extras/blackberry/dynamics_sdk/libs/handheld/gd/gd.iml" />
+      <module fileurl="file://C:\Users\msohm\AppData\Local\Android\sdk\extras\good\dynamics_sdk\libs\handheld\gd\gd.iml" filepath="C:\Users\msohm\AppData\Local\Android\sdk\extras\good\dynamics_sdk\libs\handheld\gd\gd.iml" />
     </modules>
   </component>
 </project>

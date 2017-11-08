@@ -21,9 +21,9 @@ To contribute code to this repository you must be signed up as an official contr
 
 This sample was tested with the following environment:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Good Dynamics SDK 	2.3.1279
-Android Studio 2.1.2
-Android 6.0.1
+Good Dynamics SDK 3.3.0.3073
+Android Studio 3.0
+Android 7.1.1
 
 
 How To Open the Project
@@ -32,15 +32,11 @@ How To Open the Project
 **Note that you must install the Good Dynamics SDK for Android in order to build this sample.**
 
 1. Clone the repo to your computer.
-2. Copy your Good Dynamics (gd) SDK directory into the project folder (same level this file is located).  The gd SDK directory is located in 
-   a sub-directory of your Android home directory with the following path: sdk/extras/good/dynamics_sdk/libs/handheld/gd/  
-   The Android home directory is by default located in the following directories
-	Windows:  C:\Users\[username]\AppData\Local\Android
-	Mac: /Users/[username]/Library/Android/sdk
-
-3. Launch Android Studio.
-4. Click on File menu, Open.
-5. Navigate to the directory you saved the project and click OK.
+2. Launch Android Studio.
+3. Click on File menu, Open.
+4. Navigate to the directory you saved the project and click OK.
+5. Open the settings.grade file and update the gd projectDir to point to the BlackBerry Dynamics SDK location on your computer.
+6. Open the settings.json file in the assets directory and update the GDApplicationID to be unique.
 
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
