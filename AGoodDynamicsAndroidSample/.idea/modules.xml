@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AGoodDynamicsAndroidSample.iml" filepath="$PROJECT_DIR$/AGoodDynamicsAndroidSample.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/gd/gd.iml" filepath="$PROJECT_DIR$/gd/gd.iml" />
+      <module fileurl="file://$USER_HOME$/AppData/Local/Android/sdk/extras/blackberry/dynamics_sdk/libs/handheld/gd/gd.iml" filepath="$USER_HOME$/AppData/Local/Android/sdk/extras/blackberry/dynamics_sdk/libs/handheld/gd/gd.iml" />
     </modules>
   </component>
 </project>

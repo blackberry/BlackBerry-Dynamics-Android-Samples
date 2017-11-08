@@ -294,9 +294,6 @@ public class DirectorySearch extends AppCompatActivity implements GDStateListene
     public void onUpdateServices() { }
 
     @Override
-    public void onUpdateDataPlan() {  }
-
-    @Override
     public void onUpdateEntitlements() { }
 
     @Override

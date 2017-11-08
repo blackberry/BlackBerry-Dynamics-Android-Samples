@@ -206,11 +206,6 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
     }
 
     @Override
-    public void onUpdateDataPlan() {
-
-    }
-
-    @Override
     public void onUpdateEntitlements() {
 
     }

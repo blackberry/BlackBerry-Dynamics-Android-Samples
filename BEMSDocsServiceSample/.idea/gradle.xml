@@ -8,7 +8,7 @@
         <option name="gradleHome" value="C:\Program Files\Android\Android Studio\gradle\gradle-2.14.1" />
         <option name="modules">
           <set>
-            <option value="$USER_HOME$/AppData/Local/Android/sdk/extras/good/dynamics_sdk/libs/handheld/gd" />
+            <option value="$USER_HOME$/AppData/Local/Android/sdk/extras/blackberry/dynamics_sdk/libs/handheld/gd" />
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
           </set>
