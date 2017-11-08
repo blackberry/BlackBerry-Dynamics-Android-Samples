@@ -449,8 +449,5 @@ public class PresenceActivityRaw extends AppCompatActivity implements GDStateLis
     public void onUpdateServices() {  }
 
     @Override
-    public void onUpdateDataPlan() {  }
-
-    @Override
     public void onUpdateEntitlements() {  }
 }

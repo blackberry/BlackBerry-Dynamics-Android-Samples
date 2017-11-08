@@ -1,1 +1,2 @@
 include ':app', ':gd'
+project(':gd').projectDir = new File('C:\\Users\\msohm\\AppData\\Local\\Android\\sdk\\extras\\blackberry\\dynamics_sdk\\libs\\handheld\\gd')

@@ -15,9 +15,9 @@ To contribute code to this repository you must be signed up as an official contr
 
 This sample was tested with the following environment:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-BlackBerry Dynamics SDK	3.0.0.3015 & 3.1.0.3016
-Android Studio 2.3.1
-Android 6.0.1, 7.0 & 7.1.1
+Good Dynamics SDK 3.3.0.3073
+Android Studio 3.0
+Android 7.1.1
 
 
 How To Open the Project
