@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.gghangura.adminconsole.DeviceDetails">
+
+    <com.good.gd.widget.GDTextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="50dp"
+        android:text="Model"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="50dp" />
+
+    <com.good.gd.widget.GDTextView
+        android:id="@+id/textView10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:text="IT Policy Sent"
+        app:layout_constraintLeft_toLeftOf="@+id/textView19"
+        app:layout_constraintRight_toRightOf="@+id/textView19"
+        app:layout_constraintTop_toBottomOf="@+id/textView19" />
+
+    <com.good.gd.widget.GDTextView
+        android:id="@+id/textView12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:text="IMEI"
+        app:layout_constraintLeft_toLeftOf="@+id/textView10"
+        app:layout_constraintRight_toRightOf="@+id/textView10"
+        app:layout_constraintTop_toBottomOf="@+id/textView10"
+        app:layout_constraintHorizontal_bias="0.526" />
+
+    <com.good.gd.widget.GDTextView
+        android:id="@+id/textView13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:text="Last Contact Date"
+        app:layout_constraintLeft_toLeftOf="@+id/textView12"
+        app:layout_constraintRight_toRightOf="@+id/textView12"
+        app:layout_constraintTop_toBottomOf="@+id/textView12"
+        app:layout_constraintHorizontal_bias="0.512" />
+
+    <com.good.gd.widget.GDTextView
+        android:id="@+id/modelText"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="50dp"
+        android:text="Data Unavailable"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.good.gd.widget.GDTextView
+        android:id="@+id/platformVersionText"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="25dp"
+        android:text="Data Unavailable"
+        app:layout_constraintLeft_toLeftOf="@+id/modelText"
+        app:layout_constraintRight_toRightOf="@+id/modelText"
+        app:layout_constraintTop_toBottomOf="@+id/modelText" />
+
+    <com.good.gd.widget.GDTextView
+        android:id="@+id/itPolicyText"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="25dp"
+        android:text="Data Unavailable"
+        app:layout_constraintLeft_toLeftOf="@+id/platformVersionText"
+        app:layout_constraintRight_toRightOf="@+id/platformVersionText"
+        app:layout_constraintTop_toBottomOf="@+id/platformVersionText" />
+
+    <com.good.gd.widget.GDTextView
+        android:id="@+id/imeiText"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="25dp"
+        android:text="Data Unavailable"
+        app:layout_constraintLeft_toLeftOf="@+id/itPolicyText"
+        app:layout_constraintRight_toRightOf="@+id/itPolicyText"
+        app:layout_constraintTop_toBottomOf="@+id/itPolicyText" />
+
+    <com.good.gd.widget.GDTextView
+        android:id="@+id/lastContactText"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="25dp"
+        android:text="Data Unavailable"
+        app:layout_constraintLeft_toLeftOf="@+id/imeiText"
+        app:layout_constraintRight_toRightOf="@+id/imeiText"
+        app:layout_constraintTop_toBottomOf="@+id/imeiText" />
+
+    <Button
+        android:id="@+id/deleteDevice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="Delete Device"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView13" />
+
+    <com.good.gd.widget.GDTextView
+        android:id="@+id/textView19"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:text="Platform Version"
+        app:layout_constraintHorizontal_bias="0.473"
+        app:layout_constraintLeft_toLeftOf="@+id/textView3"
+        app:layout_constraintRight_toRightOf="@+id/textView3"
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+</android.support.constraint.ConstraintLayout>
