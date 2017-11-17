@@ -1,0 +1,11 @@
+<menu xmlns:androclass="http://schemas.android.com/apk/res/android">
+
+    <item
+        androclass:id="@+id/restApi"
+        androclass:title="Use REST Api"/>
+
+    <item
+        androclass:id="@+id/soapApi"
+        androclass:title="Use SOAP Api"/>
+
+</menu>
