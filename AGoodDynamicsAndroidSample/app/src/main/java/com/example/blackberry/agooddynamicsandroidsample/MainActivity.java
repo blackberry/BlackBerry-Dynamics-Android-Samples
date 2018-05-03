@@ -1,4 +1,4 @@
-/* Copyright (c) 2016 BlackBerry Ltd.
+/* Copyright (c) 2018 BlackBerry Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import android.support.v7.widget.Toolbar;
 
 import com.good.gd.GDAndroid;
 import com.good.gd.GDStateListener;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.util.Map;
 
@@ -50,11 +49,7 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
