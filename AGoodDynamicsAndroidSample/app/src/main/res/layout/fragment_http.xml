@@ -1,4 +1,4 @@
-<!-- Copyright (c) 2016 BlackBerry Ltd.
+<!-- Copyright (c) 2018 BlackBerry Ltd.
     *
     * Licensed under the Apache License, Version 2.0 (the "License");
     * you may not use this file except in compliance with the License.
@@ -35,26 +35,19 @@
         android:paddingBottom="5dp"/>
 
 
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
-
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/theUrl"
             android:text="https://developer.blackberry.com/"/>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Go!"
-            android:id="@+id/loadButton"/>
 
-    </LinearLayout>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Go!"
+        android:id="@+id/loadButton"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
