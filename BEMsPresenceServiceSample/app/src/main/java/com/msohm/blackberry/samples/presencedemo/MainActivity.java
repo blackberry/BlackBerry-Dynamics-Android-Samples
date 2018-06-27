@@ -27,6 +27,7 @@ import com.good.gd.GDAppServer;
 import com.good.gd.GDServiceDetail;
 import com.good.gd.GDServiceProvider;
 import com.good.gd.GDServiceProviderType;
+import com.good.gd.GDServiceType;
 import com.good.gd.GDStateListener;
 
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
     {
         Vector<GDServiceProvider> providers = GDAndroid.getInstance().getServiceProvidersFor(
                 PRESENCE_SERVICE,
-                "1.0.0.0", GDServiceProviderType.GDSERVICEPROVIDERSERVER);
+                "1.0.0.0", GDServiceType.GD_SERVICE_TYPE_SERVER);
 
         String serviceDetails = parseServiceDetails(providers);
 
@@ -142,11 +143,11 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
                 sb.append('\n');
                 sb.append("Service Type: ");
 
-                if (serviceDetail.getProviderType() == GDServiceProviderType.GDSERVICEPROVIDERAPPLICATION)
+                if (serviceDetail.getServiceType() == GDServiceType.GD_SERVICE_TYPE_APPLICATION)
                 {
                     sb.append("Application");
                 }
-                else if (serviceDetail.getProviderType() == GDServiceProviderType.GDSERVICEPROVIDERSERVER)
+                else if (serviceDetail.getServiceType() == GDServiceType.GD_SERVICE_TYPE_SERVER)
                 {
                     sb.append("Server");
                 }
