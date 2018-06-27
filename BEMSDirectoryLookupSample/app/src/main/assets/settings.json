@@ -1,6 +1,6 @@
 {
   "GDLibraryMode": "GDEnterprise",
-  "GDApplicationID": "com.sample.blackberry.bemsdirectorylookupservice",
+  "GDApplicationID": "com.msohm.attlab.testapp",
   "GDApplicationVersion": "1.0.0.0",
   "GDConsoleLogger": [ "GDFilterNone" ]
 }
