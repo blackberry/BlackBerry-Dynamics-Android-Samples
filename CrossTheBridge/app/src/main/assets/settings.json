@@ -1,0 +1,6 @@
+{
+  "GDLibraryMode": "GDEnterprise",
+  "GDApplicationID": "com.msohm.sample.crossthebridge",
+  "GDApplicationVersion": "1.0.0.0",
+  "GDConsoleLogger": [ "GDFilterNone" ]
+}
