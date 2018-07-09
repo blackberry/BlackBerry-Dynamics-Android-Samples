@@ -15,8 +15,8 @@ To contribute code to this repository you must be signed up as an official contr
 
 This sample was tested with the following environment:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Good Dynamics SDK 3.3.0.3073
-Android Studio 3.0
+Good Dynamics SDK 4.0.0.5079
+Android Studio 3.1.2
 Android 7.1.1
 
 
