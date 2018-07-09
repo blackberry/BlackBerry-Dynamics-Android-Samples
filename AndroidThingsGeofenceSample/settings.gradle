@@ -1,0 +1,11 @@
+
+include ':app', ':gd', ':gd_backup_support'
+
+project(':gd').projectDir = new File('/Users/eboyd/Library/Android/sdk/extras/blackberry/' +
+        'dynamics_sdk/sdk/libs/handheld/gd')
+
+project(':gd_backup_support').projectDir = new File('/Users/eboyd/Library/Android/sdk/extras/' +
+        'blackberry/dynamics_sdk/sdk/libs/handheld/gd_backup_support')
+
+
+
