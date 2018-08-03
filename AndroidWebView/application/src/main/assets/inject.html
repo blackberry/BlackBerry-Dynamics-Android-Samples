@@ -1,0 +1,660 @@
+<!-- Copyright (c) 2018 BlackBerry Ltd.
+    *
+    * Licensed under the Apache License, Version 2.0 (the "License");
+    * you may not use this file except in compliance with the License.
+    * You may obtain a copy of the License at
+    *
+    * http://www.apache.org/licenses/LICENSE-2.0
+    *
+    * Unless required by applicable law or agreed to in writing, software
+    * distributed under the License is distributed on an "AS IS" BASIS,
+    * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    * See the License for the specific language governing permissions and
+    * limitations under the License.
+    *
+    */
+-->
+
+<!DOCTYPE HTML>
+<script>
+var bridge;
+
+/*
+ *  This file contains Good Sample Code subject to the BlackBerry Dynamics SDK Terms and Conditions.
+ *  (c) 2018 BlackBerry Limited. All rights reserved.
+ */
+
+(function() {
+
+    bridge.postMessage(JSON.stringify({
+        'trace': 'inject html 0',
+        'cookie': document.cookie,
+        'location': window.location
+    }));
+
+    function postMessage(messageDict) {
+        console.log('postMessage(' + JSON.stringify(messageDict) + ') "' +
+                    bridge.postMessage(JSON.stringify(messageDict)) + '"');
+    }
+
+
+    // returns collection of origin API functions of FormData, XMLHttpRequest, HTMLFormElement
+    function OriginAPIsCollection() {
+        var options = {};
+
+        options._oldFormDataConstructor = FormData;
+        options._oldFormDataAppend = FormData.prototype.append;
+        options._oldXHRConstructor = XMLHttpRequest;
+        options._oldXHRSend = XMLHttpRequest.prototype.send;
+        options._oldXHROpen = XMLHttpRequest.prototype.open;
+        options._oldHTMLSubmit = HTMLFormElement.prototype.submit;
+
+        Object.defineProperties(this, {
+            'FormData': {
+                get: function() { return options._oldFormDataConstructor; }
+            },
+            'formDataAppend': {
+                get: function() { return options._oldFormDataAppend; }
+            },
+            'XMLHttpRequest': {
+                get: function() { return options._oldXHRConstructor; }
+            },
+            'xhrOpen': {
+                get: function() { return options._oldXHROpen; }
+            },
+            'xhrSend': {
+                get: function() { return options._oldXHRSend; }
+            },
+            'htmlSubmit': {
+                get: function() { return options._oldHTMLSubmit; }
+            }
+        });
+    };
+
+    var constants = {
+        METHODS_DONT_SUPPORT_BODY: ['GET', 'HEAD'],
+        FORM_DATA: 'multipart\/form-data',
+        URL_ENCODE: 'application\/x-www-form-urlencoded',
+        BOUNDARY_PREFIX: '-------GDWebKitFormBoundary',
+        GD_HEADER: 'X-GD-UUID'
+    };
+
+    var originAPIs = new OriginAPIsCollection();
+
+    ///////////////////////////////////////////////////////////////////
+    // Intercept XMLHttpRequest API
+    ///////////////////////////////////////////////////////////////////
+    function GDXMLHttpRequest() {
+        var options = {},
+            originXhr = new originAPIs.XMLHttpRequest();
+
+        if (originXhr.hasOwnProperty('shadowXMLHttpRequest')) {
+            return originXhr;
+        }
+
+        Object.defineProperty(originXhr, 'shadowXMLHttpRequest', {
+            get: function() {
+                return options;
+            }
+        });
+        // add custom property to origin XMLHttpRequest object and return origin object
+        return originXhr;
+    };
+
+    function open() {
+        // apply origin open method
+        originAPIs.xhrOpen.apply(this, arguments);
+        // save request method and requested url in custom object
+        this.shadowXMLHttpRequest.method = arguments[0];
+        this.shadowXMLHttpRequest.url = arguments[1];
+    };
+
+    function send() {
+        var body = arguments[0] || '';
+        // check if body can be sent
+        if (!constants.METHODS_DONT_SUPPORT_BODY.includes(
+                this.shadowXMLHttpRequest.method.toUpperCase())) {
+            var uuid = generateUUID();
+            // Convert local page request into absolute with full path
+            // demo_post.asp -> https://www.w3schools.com/js/demo_post.asp
+            //
+            var aTemp = window.document.createElement('a'),
+                type = '';
+
+            aTemp.href = this.shadowXMLHttpRequest.url;
+
+            var origAction = aTemp.href,
+                // Remember absolute URL with uuid
+                uniqueAction = addParam(this.shadowXMLHttpRequest.url, "gd_uuid_gd", uuid),
+
+                // Remember original absolute URL (GDSDK uses it for real request to network)
+                targetAction = origAction;
+
+            // recieved FormData object
+            if (body.shadowFormData) {
+                // send control to FormData object. Stop method execution
+                body.shadowFormData.sendFormData(this);
+
+                return;
+            } else if (body.constructor == Blob) {
+                sendBlob(body, this);
+
+                return;
+            } else if (body.constructor == ArrayBuffer) {
+                body = arrayBufferToString(body);
+                type = 'ArrayBuffer';
+            }
+
+            // Pass information to GDSDK
+            //window.webkit.messageHandlers.observe.
+            postMessage({
+                'uniqueAction': uniqueAction,
+                'origAction': targetAction,
+                'requestBody': body,
+                'sourceMessage': 'XMLHttpRequest',
+                'type': type
+            });
+
+            // Mark request with uuid Header
+            this.setRequestHeader(constants.GD_HEADER, uniqueAction);
+        }
+        // apply origin send method after the body is registered
+        originAPIs.xhrSend.apply(this, arguments);
+    };
+
+    if (!XMLHttpRequest.prototype.__patched) {
+        // path XMLHttpRequest prototype
+        XMLHttpRequest.prototype.open = open;
+        XMLHttpRequest.prototype.send = send;
+
+        Object.defineProperty(XMLHttpRequest.prototype, '__patched', {
+            value: true
+        });
+    }
+    // replace constructor function with our own
+    XMLHttpRequest = GDXMLHttpRequest;
+
+    ///////////////////////////////////////////////////////////////////
+    // Intercept FormData API
+    ///////////////////////////////////////////////////////////////////
+
+    function GDFormData() {
+        // call origin constructor. Will stop method execution if malformed params recieved
+        var origin = arguments[0] ? new originAPIs.FormData(arguments[0]) : new originAPIs.FormData(),
+            options = {};
+        // define custom function which can complete XMLHttpRequest sending
+        options.sendFormData = function(xhr) {
+            sendFormData.call(options.entries, xhr);
+        }
+        options.entries = [];
+        // start serialization if HTMLForm recieved
+        if (arguments[0]) {
+            options.form = arguments[0];
+            options.entries = convertFormToEntriesArray(options.form, true);
+        }
+        // define custom object to collect FormData entries and function to send XMLHttpRequest
+        Object.defineProperty(origin, 'shadowFormData', {
+            get: function() {
+                return options;
+            }
+        });
+        // return origin object
+        return origin;
+    };
+
+    function append(name, value, filename) {
+        // call origin append method. Will stop method execution if malformed params recieved
+        originAPIs.formDataAppend.apply(this, arguments);
+        var fileName;
+        if (!this.shadowFormData.entries) { this.shadowFormData.entries = []; }
+
+        if (typeof value === 'object') {
+            // Blob or File recieved
+            var valueType, fileReader = new FileReader();
+
+            if (value.constructor === Blob) {
+                // according to MDN documentation fileName is 'blob' if filename arguments isn't specifyed
+                fileName = filename || 'blob';
+                valueType = 'blob';
+            } else if (value.constructor === File) {
+                fileName = value.name;
+                valueType = 'file';
+            }
+
+            var newEntry = {
+                name: name,
+                value: value,
+                fileName: fileName,
+                loaded: false,
+                dataURL: null
+            }
+
+            this.shadowFormData.entries.push(newEntry);
+
+            newEntry.reader = fileReader;
+
+            fileReader.onload = function() {
+                newEntry.dataURL = this.result;
+                newEntry.loaded = true;
+            }
+            // start reading content of recieved entry
+            fileReader.readAsDataURL(newEntry.value);
+        } else {
+            // text entry recieved
+            this.shadowFormData.entries.push({
+                name: name,
+                value: value,
+                loaded: true
+            });
+        }
+    };
+
+    function sendFormData(xhr) {
+        var shouldSkipSending = false,
+            self = this;
+
+        this.forEach(function(entry) {
+            if (!entry.loaded) {
+                // file detected
+                if (entry.reader.readyState === FileReader.DONE) {
+                    // file is read
+                    entry.loaded = true;
+                    entry.dataURL = entry.reader.result;
+                } else if (!entry.reader.patched) {
+                    // file isn't read. Add event listener to file reader which completes XMLHttpRequest sending
+                    entry.reader.addEventListener('load', function() {
+                        sendFormData.call(self, xhr);
+                    });
+
+                    entry.reader.patched = true;
+                }
+            }
+        });
+        // check for unread files
+        shouldSkipSending = checkEntriesToLoadedState.apply(self);
+
+        if (shouldSkipSending) { return; }
+
+        var sBoundary = constants.BOUNDARY_PREFIX + Date.now().toString(16),
+            aTemp = window.document.createElement('a');
+        aTemp.href = xhr.shadowXMLHttpRequest.url;
+
+        var origAction = aTemp.href,
+            uuid = generateUUID();
+
+        // Remember absolute URL with uuid
+        var uniqueAction = addParam(xhr.shadowXMLHttpRequest.url, "gd_uuid_gd", uuid);
+        xhr.setRequestHeader(constants.GD_HEADER, uniqueAction);
+        // register the body
+        //window.webkit.messageHandlers.observe.
+        postMessage({
+            'uniqueAction': uniqueAction,
+            'origAction': xhr.shadowXMLHttpRequest.url,
+            'requestBody': recollectData.call(self),
+            'sourceMessage': 'XMLHttpRequest',
+            'boundary': sBoundary,
+            'contentType': constants.FORM_DATA
+        });
+        // mark request with custom 'Content-Type' header value.
+        // Developers often use custom FormData string representation for text fields.
+        // Prevent grabbing these requests.
+        xhr.setRequestHeader('Content-Type', 'gd-form-data');
+        // complete XMLHttpRequest sending
+        originAPIs.xhrSend.call(xhr);
+    };
+
+    function convertFormToEntriesArray(webForm, isFormData) {
+        var elements = webForm.elements,
+            entriesArray = [];
+
+        for (var idx = 0, count = elements.length; idx < count; idx++) {
+            var currElement = elements[idx],
+                name = currElement.hasAttribute('name') ? currElement.getAttribute('name') : false;
+
+            // skip feilds without a name property
+            if (!name) { continue; }
+
+            var fieldType = currElement.nodeName.toUpperCase() === 'INPUT' ?
+                currElement.getAttribute('type').toUpperCase() :
+                'TEXT';
+
+            if (fieldType !== 'RADIO' && fieldType !== 'CHECKBOX' && fieldType !== 'FILE' && fieldType !== 'SUBMIT') {
+                // handle text field. Mark as loaded
+                entriesArray.push({
+                    name: name,
+                    value: currElement.value,
+                    loaded: true
+                });
+            } else if (fieldType === 'FILE') {
+                if (currElement.files.length > 0) {
+                    var filesList = currElement.files;
+
+                    for (var fileIndex = 0, filesCount = filesList.length; fileIndex < filesCount; fileIndex++) {
+                        var currentFile = filesList[fileIndex];
+                        if (isFormData) {
+                            // start file serialization if enctype is multipart/form-data
+                            serializeFile.call(entriesArray, currentFile, name);
+                        } else {
+                            // set only field name and file name as key and value
+                            entriesArray.push({
+                                name: name,
+                                value: currentFile.name,
+                                loaded: true
+                            });
+                        }
+                    }
+                } else {
+                    if (isFormData) {
+                        // according to the behavior, empty input field with 'file' type
+                        // are recognized as an empty octet-stream
+                        entriesArray.push({
+                            name: name,
+                            value: { size: true, type: 'application/octet-stream' },
+                            fileName: '',
+                            loaded: true,
+                            dataURL: ''
+                        })
+                    } else {
+                        entriesArray.push({
+                            name: name,
+                            value: '',
+                            loaded: true
+                        });
+                    }
+                }
+            }
+        }
+        return entriesArray;
+    };
+
+    function serializeFile(file, name) {
+        var valueType, fileReader = new FileReader();
+
+        var newEntry = {
+            name: name,
+            value: file,
+            fileName: file.name,
+            loaded: false,
+            dataURL: null
+        }
+
+        this.push(newEntry);
+
+        newEntry.reader = fileReader;
+
+        fileReader.onload = function() {
+            newEntry.dataURL = this.result;
+            newEntry.loaded = true;
+        };
+        // start file content reading
+        fileReader.readAsDataURL(newEntry.value);
+    };
+
+    function createStringBodyFromFormWithEnctype() {
+        // create string body according to the enctype
+        var form = this,
+            entries = convertFormToEntriesArray(form, false),
+            separator = form.enctype === constants.URL_ENCODE ? '&' : '\n\r';
+
+        return entries.map(function(entry) {
+            return encodeURIComponent(entry.name) + '=' + encodeURIComponent(entry.value);
+        }).join(separator);
+    };
+
+    if (!FormData.prototype.__patched) {
+        // patch FormData API
+        FormData.prototype.append = append;
+
+        Object.defineProperty(FormData.prototype, '__patched', {
+            value: true
+        });
+    }
+    // replace FormData constructor with our own
+    FormData = GDFormData;
+
+
+    function checkEntriesToLoadedState() {
+        //collect unloaded entries. Return true if any
+        return this.filter(function(entry) {
+            return !entry.loaded
+        }).length > 0;
+    };
+
+    // https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+    function generateUUID() {
+        var buf = new Uint32Array(4);
+        window.crypto.getRandomValues(buf);
+        var idx = -1;
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            idx++;
+            var r = (buf[idx >> 3] >> ((idx % 8) * 4)) & 15,
+                v = c == 'x' ? r : (r & 0x3 | 0x8);
+
+            return v.toString(16);
+        });
+    };
+
+    function addParam(url, param, value) {
+        param = encodeURIComponent(param);
+        var a = window.document.createElement('a');
+        param += (value ? "=" + encodeURIComponent(value) : "");
+        a.href = url;
+        a.search += (a.search ? "&" : "") + param;
+        return a.href;
+    };
+
+    function recollectData() {
+        // recollect entries. Remove unsused properties. Encode keys and values
+        return this.map(function(entry) {
+            var fileContent = entry.reader ? entry.reader.result : '';
+            // filter complex objects like FileReader. Collect files content.
+            return {
+                name: entry.name,
+                fileName: entry.fileName || '',
+                value: entry.value.size ? '' : entry.value,
+                mimetype: entry.value.type || '',
+                fileContent: fileContent
+            }
+        });
+    };
+
+    function handleSubmitEvent(strDbg) {
+        var form = this.target;
+
+        if (!form.action) { return; }
+
+        if (form.__isDefaultPrevented ||
+            constants.METHODS_DONT_SUPPORT_BODY.includes(
+                form.method.toUpperCase()
+            )
+        ) {
+
+            return true;
+        }
+
+        var uniqueAction = addParam(form.action, "gd_uuid_gd", generateUUID());
+
+        submitForm.call(form, {
+            strDbg: strDbg,
+            uniqueAction: uniqueAction,
+            event: this
+        });
+
+        return true;
+    };
+
+    function submitForm(params) {
+        var form = this;
+
+        if (form.enctype === constants.FORM_DATA) {
+            // FormData recieved
+            var entries = convertFormToEntriesArray(form, true);
+            performFormSubmitWithFormData.call(entries, form, params)
+        } else {
+            var originAction = form.action,
+                contentType = form.enctype === constants.URL_ENCODE ? constants.URL_ENCODE : 'text\/plain'
+            form.setAttribute('action', params.uniqueAction);
+            // register string body for the request
+            //window.webkit.messageHandlers.observe.
+            postMessage({
+                'uniqueAction': params.uniqueAction,
+                'origAction': originAction,
+                'requestBody': createStringBodyFromFormWithEnctype.call(this),
+                'sourceMessage': params.strDbg,
+                'contentType': contentType
+            });
+
+            if (params.strDbg == 'js_submit') {
+                originAPIs.htmlSubmit.call(form);
+            }
+        }
+    };
+
+    function performFormSubmitWithFormData(form, params) {
+        var shouldSkipSending = false,
+            self = this;
+
+        this.forEach(function(entry) {
+            if (!entry.loaded) {
+                // file detected. Prevent default event. Wait for the file is loaded
+                if (params.event.preventDefault) {
+                    // html_submit recieved
+                    params.event.preventDefault();
+                    params.event.__forceCallSubmit = true;
+                }
+                // entry loaded. Update entry
+                if (entry.reader.readyState === FileReader.DONE) {
+                    entry.loaded = true;
+                    entry.dataURL = entry.reader.result;
+                } else if (!entry.reader.patched) {
+                    entry.reader.addEventListener('load', function() {
+                        performFormSubmitWithFormData.call(self, form, params);
+                    });
+                    // mark reader as patched
+                    entry.reader.patched = true;
+                }
+            }
+        });
+
+        shouldSkipSending = checkEntriesToLoadedState.apply(self);
+        // skip submitting. There are unloaded files
+        if (shouldSkipSending) { return; }
+
+        var sBoundary = constants.BOUNDARY_PREFIX + Date.now().toString(16),
+            aTemp = window.document.createElement('a');
+        aTemp.href = form.target;
+
+        var origAction = aTemp.href,
+            uuid = generateUUID(),
+            originAction = form.action;
+
+        // Remember absolute URL with uuid
+        var uniqueAction = addParam(form.action, "gd_uuid_gd", uuid);
+
+        form.setAttribute("action", uniqueAction);
+        // prevent recursive
+        if (form.__sent) { return; }
+        // register body for the request
+        //window.webkit.messageHandlers.observe.
+        postMessage({
+            'uniqueAction': uniqueAction,
+            'origAction': originAction,
+            'requestBody': recollectData.call(self),
+            'sourceMessage': params.strDbg,
+            'boundary': sBoundary,
+            'contentType': constants.FORM_DATA
+        });
+
+        form.__sent = true;
+
+        if (params.event.__forceCallSubmit || params.strDbg == 'js_submit') {
+            // apply origin submit. Submit was manualy prevented in a case of 'html_submit'
+            // in a case of 'js_submit' we should force call native 'submit'
+            originAPIs.htmlSubmit.apply(form);
+        }
+    };
+
+    ///////////////////////////////////////////////////////////////////
+    // Intercept HTML submit
+    ///////////////////////////////////////////////////////////////////
+    function interceptHTML(e) {
+        return handleSubmitEvent.call(e, 'html_submit');
+    };
+
+    window.document.addEventListener("submit", interceptHTML, false);
+
+    // Handle case if user's 'onsubmit' function returns false.
+    // This will mean, that we must not process handleSubmitEvent.
+    function beforeOnSubmitHandler(event) {
+        var target = event.target;
+        if (target.onsubmit && !target.alreadyHooked) {
+            target.alreadyHooked = true;
+            var originOnsubmit = target.onsubmit;
+            target.onsubmit = function() {
+                var result = originOnsubmit.call(target);
+                target.__isDefaultPrevented = !result;
+                return result;
+            }
+        }
+    };
+
+    window.document.addEventListener("submit", beforeOnSubmitHandler, { capture: true });
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Intercept JS submit
+    ///////////////////////////////////////////////////////////////////
+    function interceptJS(e) {
+        e = { target: this }
+        handleSubmitEvent.call(e, 'js_submit');
+    };
+
+    if (!HTMLFormElement.prototype.__patched) {
+        // patch HTMLFormElement prototype
+        HTMLFormElement.prototype.submit = interceptJS;
+
+        Object.defineProperty(HTMLFormElement.prototype, '__patched', {
+            value: true
+        });
+    }
+
+    function sendBlob(blob, xhr) {
+        var reader = new FileReader();
+
+        reader.addEventListener('load', function() {
+            var aTemp = window.document.createElement('a');
+            aTemp.href = xhr.shadowXMLHttpRequest.url;
+
+            var origAction = aTemp.href,
+                uuid = generateUUID();
+
+            // Remember absolute URL with uuid
+            var uniqueAction = addParam(xhr.shadowXMLHttpRequest.url, "gd_uuid_gd", uuid);
+            xhr.setRequestHeader(constants.GD_HEADER, uniqueAction);
+
+            // register the body
+            //window.webkit.messageHandlers.observe.
+            postMessage({
+                'uniqueAction': uniqueAction,
+                'origAction': xhr.shadowXMLHttpRequest.url,
+                'requestBody': reader.result,
+                'sourceMessage': 'XMLHttpRequest',
+                'contentType': blob.type,
+                'type': 'Blob'
+            });
+
+            // complete XMLHttpRequest sending
+            originAPIs.xhrSend.call(xhr);
+        });
+
+        reader.readAsDataURL(blob);
+    };
+
+    function arrayBufferToString(arr) {
+        var res = new Uint8Array(arr);
+        return res.toString();
+    };
+
+    bridge.postMessage("{'trace':'inject html 1'}");
+})();
+</script>
