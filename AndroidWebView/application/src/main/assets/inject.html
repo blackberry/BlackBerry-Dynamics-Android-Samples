@@ -16,7 +16,7 @@
 -->
 
 <!DOCTYPE HTML>
-<script>
+<script nonce="Placeholder to be replaced by ResponseBuilder.">
 var bridge;
 (function(){function l(b){console.log("postMessage("+JSON.stringify(b)+') "'+bridge.postMessage(JSON.stringify(b))+'"')}function x(){f.xhrOpen.apply(this,arguments);this.shadowXMLHttpRequest.method=arguments[0];this.shadowXMLHttpRequest.url=arguments[1]}function y(){var b=arguments[0]||"";if(!e.METHODS_DONT_SUPPORT_BODY.includes(this.shadowXMLHttpRequest.method.toUpperCase())){var a=k(),c=window.document.createElement("a"),d="";c.href=this.shadowXMLHttpRequest.url;c=c.href;a=p(this.shadowXMLHttpRequest.url,"gd_uuid_gd",
 a);if(b.shadowFormData){b.shadowFormData.sendFormData(this);return}if(b.constructor==Blob){z(b,this);return}b.constructor==ArrayBuffer&&(b=(new Uint8Array(b)).toString(),d="ArrayBuffer");l({uniqueAction:a,origAction:c,requestBody:b,sourceMessage:"XMLHttpRequest",type:d});this.setRequestHeader(e.GD_HEADER,a)}f.xhrSend.apply(this,arguments)}function A(b,a,c){f.formDataAppend.apply(this,arguments);this.shadowFormData.entries||(this.shadowFormData.entries=[]);if("object"===typeof a){var d=new FileReader;
