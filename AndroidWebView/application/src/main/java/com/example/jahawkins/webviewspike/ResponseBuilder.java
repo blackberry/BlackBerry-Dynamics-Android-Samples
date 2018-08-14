@@ -30,6 +30,9 @@ import com.good.gd.net.GDHttpClient;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.security.SecureRandom;
 import java.util.HashMap;
 
 // Kind of an extra class to work around the fact that a WebResourceResponse can't be created
@@ -38,6 +41,15 @@ class ResponseBuilder {
     private static final String TAG = ResponseBuilder.class.getSimpleName();
 
     private static final String headerContentLength = "Content-Length";
+    private static final String headerCSP = "Content-Security-Policy";
+
+    private static final char onceChars[] = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+        'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+        'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
+    };
 
     private String logStr(String value) {
         if (value == null) {
@@ -63,12 +75,15 @@ class ResponseBuilder {
 
     private String injectAsset = null;
     private long injectLength = -1;
+    private byte[] injectOnce = null;
+    private int injectOnceIndex = -1;
+    private final static String onceDelimiter = "\"";
+    private final static String oncePrefix = "nonce=" + onceDelimiter;
     public boolean setInjectAsset(String assetFilename) {
         InputStream inputStream = null;
         boolean ok = true;
-        if (assetFilename != null && (
-            this.injectAsset == null ||
-                !this.injectAsset.equals(assetFilename))
+        if (assetFilename != null &&
+            (this.injectAsset == null || !this.injectAsset.equals(assetFilename))
         ) {
             this.injectAsset = new String(assetFilename);
             try {
@@ -85,12 +100,42 @@ class ResponseBuilder {
         }
         if (inputStream != null) {
             this.injectLength = 0;
+            this.injectOnce = null;
+            this.injectOnceIndex = -1;
             byte[] bytes = new byte[1024];
+            // Assume the injected asset file is encoded in UTF-8.
+            Charset charset = Charset.forName("UTF-8");
+            StringBuilder beforeOnce = new StringBuilder("");
             int read;
             try {
                 read = inputStream.read(bytes);
                 while (read >= 0) {
+                    if (beforeOnce != null) {
+                        beforeOnce.append(new String(bytes, charset));
+                        int prefixIndex = beforeOnce.indexOf(oncePrefix);
+                        if (prefixIndex >= 0) {
+                            int endIndex = beforeOnce.indexOf(
+                                onceDelimiter, prefixIndex + oncePrefix.length());
+                            if (endIndex < 0) {
+                                Log.d(TAG, "Found once prefix at " + prefixIndex +
+                                    " but no end delimiter.");
+                            }
+                            else {
+                                this.injectOnceIndex = prefixIndex + oncePrefix.length();
+                                this.injectOnce = this.onceValue(
+                                    endIndex - this.injectOnceIndex, charset);
+                                Log.d(TAG, "Found once prefix at " + prefixIndex +
+                                    " and end delimiter at " + endIndex +
+                                    logStr(beforeOnce.substring(
+                                        prefixIndex, endIndex + onceDelimiter.length())) +
+                                    logStr(new String(this.injectOnce, charset)) + " " +
+                                    this.injectOnce.length);
+                                beforeOnce = null;
+                            }
+                        }
+                    }
                     this.injectLength += read;
+
                     read = inputStream.read(bytes);
                 }
                 inputStream.close();
@@ -106,13 +151,26 @@ class ResponseBuilder {
         if (assetFilename == null) {
             this.injectAsset = null;
             this.injectLength = -1;
+            this.injectOnce = null;
+            this.injectOnceIndex = -1;
         }
 
         return ok;
     }
 
+    private byte[] onceValue(int length, Charset charset) {
+        StringBuilder once = new StringBuilder(length);
+        SecureRandom rng = new SecureRandom();
+        while (length > 0) {
+            once.append(onceChars[rng.nextInt(onceChars.length)]);
+            length--;
+        }
+        return once.toString().getBytes(charset);
+    }
+
     public ResponseBuilder(int statusCode, String reasonPhrase) {
         this.statusCode = statusCode;
+        // ToDo: Create an HTML page on the fly.
         this.reasonPhrase = reasonPhrase;
     }
     public ResponseBuilder(int statusCode, Exception exception) {
@@ -120,6 +178,7 @@ class ResponseBuilder {
         this.setFromException(exception);
     }
     private void setFromException(Exception exception) {
+        // ToDo: Create an HTML page from the stack trace.
         this.reasonPhrase = exception.toString();
     }
     public ResponseBuilder() {}
@@ -164,7 +223,11 @@ class ResponseBuilder {
                     this.contentType.startsWith("text/html"))
                 {
                     try {
-                        InputStream injectStream = this.context.getAssets().open(this.injectAsset);
+                        OnceStream injectStream = new OnceStream(
+                            this.context.getAssets().open(this.injectAsset),
+                            this.injectOnceIndex,
+                            this.injectOnce);
+
                         inputStreams = new InputStream[]{injectStream, stream};
                         injectedAsset = this.injectAsset;
                     }
@@ -181,6 +244,8 @@ class ResponseBuilder {
             }
             this.stream = new WebInputStream(resourceRequest.getUrl(), httpClient, inputStreams);
         }
+
+        this.updateHeaders();
 
         if (injectedAsset == null) {
             Log.d(TAG, "No injected asset" + logURI(resourceRequest.getUrl()));
@@ -210,22 +275,14 @@ class ResponseBuilder {
         return this;
     }
 
+    static final String directive = "script-src";
     private String setFromHttpResponse(HttpResponse httpResponse) {
         this.statusCode = httpResponse.getStatusLine().getStatusCode();
         this.reasonPhrase = httpResponse.getStatusLine().getReasonPhrase();
         final Header headers[] = httpResponse.getAllHeaders();
         this.headers = new HashMap<String, String>();
         for (Header header : headers) {
-            String name = header.getName();
-            if (Settings.getInstance().getSetting("stripContentSecurityPolicy") &&
-                name.equalsIgnoreCase("Content-Security-Policy")
-                ) {
-                Log.d(TAG,
-                    "Skipping response header" + logStr(name) + logStr(header.getValue()) + ".");
-            }
-            else {
-                this.headers.put(header.getName(), header.getValue());
-            }
+            this.headers.put(header.getName(), header.getValue());
         }
 
         String trimmedContentType = null;
@@ -251,6 +308,45 @@ class ResponseBuilder {
             }
         }
         return trimmedContentType;
+    }
+
+    private void updateHeaders() {
+        String value = this.headers.get(headerCSP);
+        if (value != null) {
+            if (Settings.getInstance().getSetting("stripContentSecurityPolicy")) {
+                Log.d(TAG, "Removing response header" + logStr(headerCSP) + " " +
+                    logStr(value) + ".");
+                this.headers.remove(headerCSP);
+            }
+            else {
+                int endIndex = value.indexOf(directive);
+                if (endIndex < 0) {
+                    Log.d(TAG, "CSP header" + logStr(value) + " doesn't have directive" +
+                        logStr(directive) + ".");
+                }
+                else {
+                    if (this.injectOnceIndex < 0) {
+                        Log.d(TAG, "CSP header has directive" + logStr(directive) +
+                            " but there isn't a once value to inject.");
+                    }
+                    else {
+                        endIndex += directive.length();
+                        try {
+                            final String sourceEnd = new String(this.injectOnce, "UTF-8");
+                            this.headers.put(headerCSP,
+                                value.substring(0, endIndex) + " 'nonce-" + sourceEnd + "'" +
+                                    value.substring(endIndex));
+                            Log.d(TAG, "Modified CSP\n" + value + "\n" +
+                                this.headers.get(headerCSP));
+                        } catch (UnsupportedEncodingException exception) {
+                            Log.d(TAG, "Couldn't generate nonce- source for" +
+                                logStr(this.injectOnce.toString()) + " " + exception.toString());
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     public WebResourceResponse toWebResponse() {

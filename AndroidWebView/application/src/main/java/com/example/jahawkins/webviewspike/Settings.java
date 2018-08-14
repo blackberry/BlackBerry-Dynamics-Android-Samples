@@ -125,8 +125,8 @@ public class Settings {
             return this.mergeSettings("{" +
                 "'intercept': true, 'injectHTML': true, 'nslookup':false, 'apacheRedirect':true, " +
                 "'retrieve':false, 'debugEnabled': true, 'allowCache':true, " +
-                "'stripContentSecurityPolicy':true, 'appKinetics':false, 'chunked':true" +
-                "}");
+                "'stripContentSecurityPolicy':false, 'appKinetics':false, 'chunked':true" +
+            "}");
         } catch (JSONException e) {
             throw new AssertionError("JSON exception in default settings.");
         }
