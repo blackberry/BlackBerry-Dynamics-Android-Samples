@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<apd:AppPolicyDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:apd="urn:AppPolicySchema1.good.com" xsi:schemaLocation="urn:AppPolicySchema1.good.com AppPolicySchema.xsd" >
+
+    <!-- App Policy UI Layout -->
+    <pview>
+        <pview type="tabbed">
+            <title>MQTT Configuration</title>
+            <pe ref="mqttHost" />
+            <pe ref="mqttPort" />
+            <pe ref="mqttTopic" />
+            <pe ref="mqttPublishingInterval"/>
+        </pview>
+        <pview type="tabbed">
+            <title>Temperature</title>
+            <pe ref="temperatureConstant"/>
+        </pview>
+        <pview type="tabbed">
+            <title>LED Color</title>
+            <pe ref="ledColor"/>
+        </pview>
+        <pview type="tabbed">
+            <title>Logging</title>
+            <pe ref="localFilePath" />
+            <pe ref="localLoggingInterval"/>
+            <pe ref="localMaxFileSize"/>
+            <pe ref="remoteFilePath" />
+            <pe ref="remoteUploadInterval"/>
+        </pview>
+        <pview type="tabbed">
+            <title>About</title>
+            <desc>This sample application demonstrates how you can use App Policies to remotely configure an application.</desc>
+        </pview>
+        <pe ref="policyVersion" />
+    </pview>
+
+
+    <!-- MQTT Configuration -->
+    <setting name="mqttHost">
+        <text>
+            <key>mqttHost</key>
+            <label>MQTT Host</label>
+            <maxlength>100</maxlength>
+        </text>
+    </setting>
+    <setting name="mqttPort">
+        <text>
+            <key>mqttPort</key>
+            <label>MQTT Port</label>
+            <value>1883</value>
+            <maxlength>5</maxlength>
+            <numbersonly>true</numbersonly>
+        </text>
+    </setting>
+    <setting name="mqttTopic">
+        <text>
+            <key>mqttTopic</key>
+            <label>MQTT Topic</label>
+            <maxlength>50</maxlength>
+        </text>
+    </setting>
+    <setting name="mqttPublishingInterval">
+        <text>
+            <key>mqttPublishingInterval</key>
+            <label>MQTT Publishing Interval (ms)</label>
+            <value>15000</value>
+            <maxlength>6</maxlength>
+            <numbersonly>true</numbersonly>
+        </text>
+    </setting>
+
+
+    <!-- Temperature Settings -->
+    <setting name="temperatureConstant">
+        <text>
+            <key>temperatureConstant</key>
+            <label>Temperature Constant</label>
+            <value>0.52</value>
+            <maxlength>5</maxlength>
+            <numbersonly>true</numbersonly>
+        </text>
+    </setting>
+
+
+    <!-- LED Settings -->
+    <setting name="ledColor">
+        <select>
+            <key>ledColor</key>
+            <label>LED Color</label>
+            <value>#FFFFFF</value>
+            <options ref="colorValues" />
+        </select>
+    </setting>
+    <dl name="colorValues" dtype="string">
+        <dv> <desc>White</desc> <value>#FFFFFF</value> </dv>
+        <dv> <desc>Red</desc> <value>#FF0000</value> </dv>
+        <dv> <desc>Green</desc> <value>#00FF00</value> </dv>
+        <dv> <desc>Blue</desc> <value>#0000FF</value> </dv>
+        <dv> <desc>Yellow</desc> <value>#FFFF00</value> </dv>
+        <dv> <desc>Purple</desc> <value>#FF00FF</value> </dv>
+        <dv> <desc>Cyan</desc> <value>#00FFFF</value> </dv>
+        <dv> <desc>Rainbow</desc> <value>RAINBOW</value> </dv>
+    </dl>
+
+
+    <!-- Logging Settings -->
+    <setting name="localFilePath">
+        <text>
+            <key>localFilePath</key>
+            <label>Local File Path</label>
+            <value>localLog.txt</value>
+            <maxlength>100</maxlength>
+        </text>
+    </setting>
+    <setting name="localLoggingInterval">
+        <text>
+            <key>localLoggingInterval</key>
+            <label>Local File Logging Interval (ms)</label>
+            <value>60000</value>
+            <maxlength>7</maxlength>
+            <numbersonly>true</numbersonly>
+        </text>
+    </setting>
+    <setting name="localMaxFileSize">
+        <text>
+            <key>localMaxFileSize</key>
+            <label>Local File Max Size (KB)</label>
+            <value>512</value>
+            <maxlength>8</maxlength>
+            <numbersonly>true</numbersonly>
+        </text>
+    </setting>
+    <setting name="remoteFilePath">
+        <text>
+            <key>remoteFilePath</key>
+            <label>Remote File Path</label>
+            <value>remoteLog.txt</value>
+            <maxlength>100</maxlength>
+        </text>
+    </setting>
+    <setting name="remoteUploadInterval">
+        <text>
+            <key>remoteUploadInterval</key>
+            <label>Remote Upload Interval (ms)</label>
+            <value>300000</value>
+            <maxlength>7</maxlength>
+            <numbersonly>true</numbersonly>
+        </text>
+    </setting>
+
+
+    <!-- Policy Version -->
+    <setting name="policyVersion" >
+        <hidden>
+            <key>version</key>
+            <value>1.0.0.0</value>
+        </hidden>
+    </setting>
+
+</apd:AppPolicyDefinition>
