@@ -9,15 +9,15 @@ Refer to the Getting Started guide for instructions on how to install and config
 
 **Applies To**
 
-Android Studio
-Android Things
+Android Studio,
+Android Things,
 BlackBerry Dynamics SDK
 
 **Original Author(s)**
 
-David Arnold
-Jeffrey Jeyachandren
-Eliot Boyd
+David Arnold,
+Jeffrey Jeyachandren,
+Eliot Boyd,
 John White
 
 **Contributing**
