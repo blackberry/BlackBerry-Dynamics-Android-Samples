@@ -18,35 +18,33 @@ package com.example.jahawkins.webviewspike;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.webkit.WebView;
-
-import com.good.gd.GDAndroid;
+import android.view.View;
+import android.widget.FrameLayout;
 
 
 public class MainActivity extends Activity {
-
-    public WebView getWebView() {return (WebView) findViewById(R.id.webView);}
+    static final int WEB_VIEW_ID = View.generateViewId();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        GDAndroid.getInstance().activityInit(this);
+        FrameLayout layout = new FrameLayout(this);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
-        setContentView(R.layout.activity_main);
+        WebView webView = new WebView(this);
+        webView.setLayoutParams(params);
+        webView.setId(WEB_VIEW_ID);
+        layout.addView(webView);
+
+        setContentView(layout);
     }
-//
-//    @Override
-//     protected void onSaveInstanceState(Bundle bundle) {
-//        super.onSaveInstanceState(bundle);
-//        WebViewSpike application = (WebViewSpike) getApplication();
-//        if (application.isAuthorized) {
-//            this.webView.saveState(bundle);
-//        }
-//    }
-//
-//    protected void onRestoreInstanceState(Bundle bundle) {
-//        super.onRestoreInstanceState(bundle);
-////        this.webView.restoreState(bundle);
-//    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        final WebView webView = findViewById(WEB_VIEW_ID);
+        webView.reloadIfUserInterface();
+    }
 }
