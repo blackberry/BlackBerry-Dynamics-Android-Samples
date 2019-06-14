@@ -1,0 +1,147 @@
+apply plugin: 'maven-publish'
+
+// Example of usage from command line
+// gradle -b publish_aar_artefacts.gradle publish -DLOCAL_URL=${LOCAL_PATH} \
+//                                                -DNEXUS_USER=${NEXUS_USER} \
+//                                                -DNEXUS_PASSWORD=${NEXUS_PASSWORD} \
+//                                                -DNEXUS_HOST=${PILOT_NEXUS} \
+//                                                -DNEXUS_PATH=${DEFAULT_PATH} \
+//                                                -DGROUP_ID=com.blackberry.blackberrydynamics \
+//                                                -DVERSION_ID=${FRAMEWORK_VERSION} \
+//                                                -DARTIFACT_DIR=${workspace}/${GDDIR}/msdk/runtime/platform/android/sdk/aar_dist/
+//                                                -DARTIFACT_ATSL_ID=atsl
+
+// -b publish_aar_artefacts.gradle runs the publish.gradle instead of build.gradle
+// -D define Java system parameters passed into the script
+//
+// Example usage for Jenkins configuration
+// Add Build Step: Invoke Gradle Script
+// Switches: -DNEXUS_USER=${NEXUS_USER} -DNEXUS_PASSWORD=${NEXUS_PASSWORD} ... Use all switches from usage example
+// Tasks: publish
+// Root Build script: ${workspace}/dev/gd/msdk/tests-android/GD_ATSL/publish
+// Build File: publish_aar_artefacts.gradle
+// 
+// Based off: https://wikis.rim.net/display/EBS/Creating+Job+Configurations#CreatingJobConfigurations-StandardsandBestPractices
+//----------------------------------------------------------------------------
+
+// Group id and version values
+// e.g. com.blackberry.blackberrydynamics:android_handheld_platform:{$versionValue}
+def groupValue   = System.getProperty('GROUP_ID',   'com.blackberry.blackberrydynamics')
+def versionValue = System.getProperty('VERSION_ID', 'unknownversionid')
+
+// Artifact IDs
+def atsl      = System.getProperty('ARTIFACT_ATSL_ID',             'atsl')
+
+//----------------------------------------------------------------------------
+// Working dirs
+// e.g. msdk/runtime/platform/android/sdk/aar_dist/
+//----------------------------------------------------------------------------
+def artifactDir = System.getProperty('ARTIFACT_DIR')// No default, caller must provide valid dir to artifacts
+if(artifactDir == null) {
+    // Throw exception if DIR is not set
+    throw new IllegalArgumentException("Artifact DIR is null")
+}
+
+//----------------------------------------------------------------------------
+// Artifact ID and Metadata mapping
+// We need to pair artifact ID and corresponding arr file name and needed dependencies.
+//----------------------------------------------------------------------------
+class Dependency {
+    String groupId
+    String artifactId
+    String version
+}
+
+class Metadata {
+    String filePath
+    List<Dependency> depList
+}
+
+//----------------------------------------------------------------------------
+// TODO: temporary block to add play-service wearable dependecy. gd_wear_support and gd_wearable modules use it.
+// This should be reimplemented using dependencies from build.gradle files of real modules
+// Currently GD uses: com.google.android.gms:play-services-wearable:11.0.1
+def playServiceVersion = '11.0.1'
+def playServiceDependency = new Dependency(groupId: 'com.google.android.gms', artifactId: 'play-services-wearable', version: playServiceVersion)
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+//Map contains artifact id key and Metadata object value with aar file path and list of dependencies.
+def mapArtifactDataMappings = [
+    (atsl):    new Metadata(filePath: "$artifactDir" + "atsl.aar", depList: []),
+]
+
+//----------------------------------------------------------------------------
+// Nexus Settings
+//----------------------------------------------------------------------------
+
+// This script can be used for artefact publishing(sha1, md5 and pom file generation) on the local file system, so using local url as a maven repo. 
+def local_url     = System.getProperty('LOCAL_URL')
+def nexusUrl      = System.getProperty('NEXUS_PROTOCOL', 'http') + '://' + System.getProperty('NEXUS_HOST', 'ebj-pilot-nexus.devlab2k.testnet.rim.net') + System.getProperty('NEXUS_PATH', '/nexus/content/repositories/ebu-gd-releases/')
+def nexusUsername = System.getProperty('NEXUS_USER')
+def nexusPassword = System.getProperty('NEXUS_PASSWORD')
+
+//----------------------------------------------------------------------------
+// Debug logging
+//----------------------------------------------------------------------------
+task logInfo {
+    logging.captureStandardOutput LogLevel.INFO
+    doFirst {
+        println 'Gradle executed from ' + System.getProperty("user.dir")
+        println 'PWD: ' + System.getProperty("PWD")
+        println 'Workspace: ' + System.getProperty("WORKSPACE")
+        println 'GROUP_ID: ' + groupValue
+        println 'VERSION_ID: ' + versionValue
+        println 'ARTIFACT_ATSL_ID: ' + atsl
+        println 'ARTIFACT_DIR: ' + artifactDIR
+        println 'NEXUS_URL: ' + nexusUrl
+        println 'NEXUS_USER: ' + nexusUsername
+        println 'NEXUS_PASSWORD: ' + nexusPassword
+    }
+}
+
+
+//----------------------------------------------------------------------------
+// Publish AAR files to Nexus
+//----------------------------------------------------------------------------
+publishing {
+    repositories {
+        maven {
+            // if local file system url, credentials are not required
+            if(local_url != null) {
+                url local_url
+            } else {
+                url nexusUrl
+                credentials {
+                    username nexusUsername
+                    password nexusPassword
+                }
+            }
+        }
+    }
+
+    publications {
+        // Iterate the file Map and publish every artifact with its dependencies
+        mapArtifactDataMappings.each{ artifactIdName, metadata ->
+            "$artifactIdName"(org.gradle.api.publish.maven.MavenPublication) {
+                groupId groupValue
+                artifactId artifactIdName
+                version versionValue
+                artifact file(metadata.filePath)
+                // Check if artifact has dependencies
+                if(metadata.depList) {
+                    pom.withXml {
+                        def dependenciesNode = asNode().appendNode('dependencies')
+                        // Add dependecies to the pom file
+                        metadata.depList.each { dependencyItr ->
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', dependencyItr.groupId)
+                            dependencyNode.appendNode('artifactId', dependencyItr.artifactId)
+                            dependencyNode.appendNode('version', dependencyItr.version)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
