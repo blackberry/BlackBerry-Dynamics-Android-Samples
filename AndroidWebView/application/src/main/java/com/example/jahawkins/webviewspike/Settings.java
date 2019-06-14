@@ -16,6 +16,7 @@
 
 package com.example.jahawkins.webviewspike;
 
+import android.app.Activity;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -29,12 +30,58 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 public class Settings {
-    static final String LINKS = "links";
-    static final String DEBUG_ENABLED = "debugEnabled";
-    static final String ALLOW_CACHE = "allowCache";
+    private static final String LINKS = "links";
+    private static final String DEBUG_ENABLED = "debugEnabled";
+    private static final String ALLOW_CACHE = "allowCache";
+    private static final Pattern eolPattern = Pattern.compile("$", Pattern.MULTILINE);
 
-    Map<String, Object> map = null;
-    Pattern eolPattern = null;
+    private static final String DEFAULT_SETTINGS = "{" +
+        "'intercept': true, 'injectHTML': true, 'nslookup':false, 'apacheRedirect':true, " +
+        "'retrieve':false, 'debugEnabled': true, 'allowCache':true, " +
+        "'stripContentSecurityPolicy':false, 'appKinetics':false, 'chunked':true" +
+        "}";
+    /*
+        intercept:false
+        Would switch off the whole HTTP interception in WebViewClient, except for the UI HTML.
+
+        injectHTML:true
+        Switches on injection of the inject.js asset file into suitable responses.
+
+        nslookup:true
+        Would switch on a GDNetUtility nslookup() call for every server address. The result is only
+        logged, not used for anything.
+
+        apacheRedirect:false
+        Would switch off redirection in the BlackBerry Dynamics Apache HTTP layer. The application
+        code then handles HTTP redirects instead.
+
+        retrieve:true
+        Would switch on retrieve mode, in which HTTP requests are executed but their responses
+        aren't passed back to the WebView. This is just a diagnostic mode.
+
+        debugEnabled:true
+        Makes the WebView in the application appear in the chrome://inspect and hence in the Chrome
+        developer tools.
+
+        allowCache:false
+        Would switch off use of caching by the WebView, which probably should be done in production
+        but which makes it run even slower.
+
+        stripContentSecurityPolicy:true
+        Strips the Content-Security-Policy (CSP) header from any responses in which it is present. It's
+        used by google.com login, for example, to block inline JS insertion, on which this program
+        relies. This is now false by default because stripping the header has been replaced by
+        N-once generation and manipulation of the CSP, which is superior.
+
+        appKinetics:true
+        Would open every website other than the application UI HTML by sending an AppKinetics
+        service request to "com.good.gdservice.open-url.http". Only use this option if you want to
+        open the ADAL login page in BlackBerry Access, so you can get called back by Intent to
+        com.blackberry.work, which is registered in the Android manifest.
+
+    */
+
+    private Map<String, Object> map = null;
 
     private static final Settings sharedInstance = new Settings();
     public static Settings getInstance() {
@@ -43,7 +90,14 @@ public class Settings {
     private Settings() {
         super();
         this.map = new HashMap<String, Object>();
-        this.eolPattern = Pattern.compile("$", Pattern.MULTILINE);
+        try {
+            this.updateSettings(DEFAULT_SETTINGS);
+        } catch (JSONException exception) {
+            throw new AssertionError(
+                "JSON exception in default settings:" + exception.toString() +
+                    " " + DEFAULT_SETTINGS);
+        }
+        this.resetLinks();
     }
 
     @Override
@@ -51,26 +105,15 @@ public class Settings {
         return JSONObject.wrap(this.map).toString();
     }
 
-    /* A reference to the current Activity is needed for two reasons.
-     *
-     * -   Settings are applied by this class to the WebView instance, which it obtains from the
-     *     Activity.
-     * -   Some settings can only be applied on the UI thread, which requires this class to call
-     *     Activity runOnUIThread().
-     */
-    MainActivity activity = null;
-
     public Boolean getSetting(String key) {
         return (Boolean) this.map.get(key);
     }
 
 
-    public void applySettings(Map<String, Object>oldSettings) {
+    public void applySettings(Map<String, Object> oldSettings, final WebView webView) {
         // Changes that are made here can only be run on the UI thread, which means we need the
         // Activity.
-        if (this.activity == null) {
-            return;
-        }
+        Activity activity = (Activity) webView.getContext();
 
         // After setWebContentsDebuggingEnabled(true), the WebView will appear on the
         // chrome://inspect page in the Chrome browser on an attached computer. From that page,
@@ -95,80 +138,31 @@ public class Settings {
 
         final int cacheMode = ((boolean)this.map.get(Settings.ALLOW_CACHE)) ?
             WebSettings.LOAD_DEFAULT : WebSettings.LOAD_NO_CACHE;
-        final WebView webView = activity.getWebView();
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final WebSettings webSettings = webView.getSettings();
-                webSettings.setCacheMode(cacheMode);
+                // There's a restriction on which threads WebView methods can be called, even
+                // innocuous methods like getSettings().
+                webView.getSettings().setCacheMode(cacheMode);
             }
         });
     }
 
-    public String mergeSettings(String toMergeJSON) throws JSONException {
-        JSONObject toMerge = null;
-        Iterator<String> keyIterator = null;
-        HashMap<String, Object> oldSettings = (
+    private HashMap<String, Object> updateSettings(String toMergeJSON) throws JSONException {
+        final HashMap<String, Object> oldSettings = (
             this.map.size() > 0 ? new HashMap<String, Object>(this.map) : null);
-        toMerge = new JSONObject(toMergeJSON);
-        keyIterator = toMerge.keys();
+        final JSONObject toMerge = new JSONObject(toMergeJSON);
+        final Iterator<String> keyIterator = toMerge.keys();
         while (keyIterator != null && keyIterator.hasNext()) {
             String key = keyIterator.next();
             this.map.put(key, toMerge.opt(key));
         }
-        this.applySettings(oldSettings);
-        return this.toString();
+        return oldSettings;
     }
 
-    public String mergeDefaultSettings() {
-        try {
-            return this.mergeSettings("{" +
-                "'intercept': true, 'injectHTML': true, 'nslookup':false, 'apacheRedirect':true, " +
-                "'retrieve':false, 'debugEnabled': true, 'allowCache':true, " +
-                "'stripContentSecurityPolicy':false, 'appKinetics':false, 'chunked':true" +
-            "}");
-        } catch (JSONException e) {
-            throw new AssertionError("JSON exception in default settings.");
-        }
-        /*
-        intercept:false
-        Would switch off the whole HTTP interception in StreamWebViewClient, except for the UI HTML.
-
-        injectHTML:true
-        Switches on injection of the inject.html asset file into suitable responses.
-
-        nslookup:true
-        Would switch on a GDNetUtility nslookup() call for every server address. The result is only
-        logged, not used for anything.
-
-        apacheRedirect:false
-        Would switch off redirection in the BlackBerry Dynamics Apache HTTP layer. The application
-        code then handles HTTP redirects instead.
-
-        retrieve:true
-        Would switch on retrieve mode, in which HTTP requests are executed but their responses
-        aren't passed back to the WebView. This is just a diagnostic mode.
-
-        debugEnabled:true
-        Makes the WebView in the application appear in the chrome://inspect and hence in the Chrome
-        developer tools.
-
-        allowCache:false
-        Would switch off use of caching by the WebView, which probably should be done in production
-        but which makes it run even slower.
-
-        stripContentSecurityPolicy:true
-        Strips the Content-Security-Policy header from any responses in which it is present. Its
-        used by google.com login, for example, to block inline JS insertion, on which this program
-        relies.
-
-        appKinetics:true
-        Would open every website other than the application UI HTML by sending an AppKinetics
-        service request to "com.good.gdservice.open-url.http". Only use this option if you want to
-        open the ADAL login page in BlackBerry Access, so you can get called back by Intent to
-        com.blackberry.work, which is registered in the Android manifest.
-
-         */
+    public String mergeSettings(String toMergeJSON, WebView webView) throws JSONException {
+        this.applySettings(this.updateSettings(toMergeJSON), webView);
+        return this.toString();
     }
 
     public void resetLinks() {
@@ -180,7 +174,7 @@ public class Settings {
             return;
         }
         ArrayList<String> links = (ArrayList<String>) this.map.get(Settings.LINKS);
-        String[] linkLines = this.eolPattern.split(linksString);
+        String[] linkLines = eolPattern.split(linksString);
         for (String link : linkLines) {
             links.add(link.trim());
         }
