@@ -25,16 +25,13 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
-import android.webkit.MimeTypeMap;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.good.gd.GDAndroid;
 import com.good.gd.GDServiceProvider;
-import com.good.gd.GDServiceProviderType;
 import com.good.gd.GDServiceType;
 import com.good.gd.apache.http.Header;
 import com.good.gd.apache.http.HttpEntity;
@@ -78,16 +75,11 @@ import java.util.Vector;
 
 import com.good.gd.apache.http.entity.ContentProducer;
 
-public class StreamWebViewClient extends WebViewClient {
-    private static final String TAG = StreamWebViewClient.class.getSimpleName();
-    private Context context = null;
+public class WebViewClient extends android.webkit.WebViewClient {
+    private static final String TAG = WebViewClient.class.getSimpleName();
 
     private long datePageStart = -1;
     private long datePageFinish = -1;
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
 
     private String logStr(String value) {
         if (value == null) {
@@ -144,26 +136,45 @@ public class StreamWebViewClient extends WebViewClient {
     }
 
     private JavaScriptBridge bridge = null;
-    class JavaScriptBridge {
+    private class JavaScriptBridge {
         @JavascriptInterface
-        public String getSettings() {
-            return Settings.getInstance().toString();
+        public String deleteDocumentCookieDatabase() {
+            if (WebViewClient.this.documentCookieStore == null) {
+                return "No document cookie store instance.";
+            }
+            try {
+                return WebViewClient.this.documentCookieStore.deleteDatabase() ?
+                    "Database deleted OK." :
+                    "Didn't delete database.";
+            } catch (DocumentCookieStore.DocumentCookieStoreException exception) {
+                return exception.getMessage();
+            }
+            // Database can't be deleted twice.
         }
 
         @JavascriptInterface
-        public String mergeSettings(String toMergeJSON) {
+        public String deleteSessionDocumentCookies() {
+            if (WebViewClient.this.documentCookieStore == null) {
+                return "No document cookie store instance.";
+            }
             try {
-                return Settings.getInstance().mergeSettings(toMergeJSON);
-            } catch (JSONException exception) {
-                exception.printStackTrace();
-                Map<String, String> map = new HashMap<>();
-                map.put("error", exception.toString());
-                return JSONObject.wrap(map).toString();
+                return "Deleted:" +
+                    WebViewClient.this.documentCookieStore.deleteSessionCookies() + ".";
+            } catch (DocumentCookieStore.DocumentCookieStoreException exception) {
+                return exception.getMessage();
             }
         }
 
         @JavascriptInterface
-        public String getTitle() {return "Android WebView";}
+        public String getButtons() {
+            return "{" +
+                "\"deleteDocumentCookieDatabase\": \"Delete document cookie database\", " +
+                "\"deleteSessionDocumentCookies\": \"Delete session document cookies\"" +
+                "}";
+        }
+
+        @JavascriptInterface
+        public String getTitle() {return "WebView Spike";}
 
         @JavascriptInterface
         public String getStr() {
@@ -200,18 +211,26 @@ public class StreamWebViewClient extends WebViewClient {
 
             if (messageMap.containsKey(UNIQUE_ACTION)) {
                 Uri uri = Uri.parse((String) messageMap.get(UNIQUE_ACTION));
-                String uuid = StreamWebViewClient.getUuidParameter(uri);
-                StreamWebViewClient.this.addRequestCache(uuid, messageMap);
+                String uuid = WebViewClient.getUuidParameter(uri);
+                WebViewClient.this.addRequestCache(uuid, messageMap);
             }
 
             return return_;
         }
     }
 
+    private DocumentCookieStore documentCookieStore = null;
+
     public void register(WebView webView) {
         webView.setWebViewClient(this);
         this.bridge = new JavaScriptBridge();
         webView.addJavascriptInterface(this.bridge, "bridge");
+
+        this.documentCookieStore = new DocumentCookieStore("DocumentCookieStore.db");
+        // ToDo add a setting for this:
+        this.documentCookieStore.dumpExpiringCookies = true;
+        webView.addJavascriptInterface(
+            this.documentCookieStore.getBridge(), this.documentCookieStore.getBridgeName());
     }
 
     private void lookup(String host) {
@@ -360,12 +379,14 @@ public class StreamWebViewClient extends WebViewClient {
     }
     StreamCookieStore cookieStore = new StreamCookieStore();
 
+    // ToDo: This value should be sent by the JS injection, not hard-coded here.
     static final String UUID_HEADER = "X-GD-UUID";
     static final String REQUEST_BODY = "requestBody";
     static final String ORIGINAL_ACTION = "origAction";
     private ResponseBuilder executeHTTP(final WebResourceRequest resourceRequest,
                                         Uri uri,
-                                        final GDHttpClient httpClient)
+                                        final GDHttpClient httpClient,
+                                        final Context context)
     {
         final String method = resourceRequest.getMethod().toLowerCase();
         HttpRequest httpRequest = null;
@@ -492,20 +513,21 @@ public class StreamWebViewClient extends WebViewClient {
 
         if (responseBuilder == null) {
             responseBuilder = new ResponseBuilder();
-            responseBuilder.context = this.context;
             if (getSetting("injectHTML")) {
-                responseBuilder.setInjectAsset("inject.html");
+                responseBuilder.setInjectAssets(
+                    "inject.js",
+                    this.documentCookieStore.getBridgeAsset());
             }
             else {
-                responseBuilder.setInjectAsset(null);
+                responseBuilder.setInjectAssets(null);
             }
-            responseBuilder.build(resourceRequest, httpResponse, httpClient);
+            responseBuilder.build(resourceRequest, httpResponse, httpClient, context);
         }
 
         return responseBuilder;
     }
 
-    private ResponseBuilder getByHTTP(final WebResourceRequest request) {
+    private ResponseBuilder getByHTTP(final WebResourceRequest request, final Context context) {
         Uri uri = request.getUrl();
 
         ResponseBuilder responseBuilder = null;
@@ -518,7 +540,7 @@ public class StreamWebViewClient extends WebViewClient {
             }
 
             GDHttpClient httpClient = new GDHttpClient();
-            responseBuilder = executeHTTP(request, uri, httpClient);
+            responseBuilder = executeHTTP(request, uri, httpClient, context);
 
             Log.d(TAG, "Executed HTTP for" + logURI(uri) + logThread());
 
@@ -564,47 +586,6 @@ public class StreamWebViewClient extends WebViewClient {
         return responseBuilder;
     }
 
-    private WebResourceResponse getAsset(WebResourceRequest request) {
-        final Uri uri = request.getUrl();
-        final String host = uri.getHost();
-        final int port = uri.getPort();
-        if (!( host != null && host.equals("localhost") && port == 1 )) {
-            return null;
-        }
-
-        String name = "index.html";
-        String extension;
-        // If contentType isn't set, the WebView won't run the JS code. It appears that the
-        // MimeTypeMap doesn't map .js to anything, so there's a special case for that.
-
-        if (uri.getPathSegments().size() > 0) {
-            name = uri.getLastPathSegment();
-            extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString());
-        }
-        else {
-            extension = MimeTypeMap.getFileExtensionFromUrl(name);
-        }
-        String contentType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-        if (contentType == null && extension.equals("js")) {
-            contentType = "application/javascript";
-        }
-
-        int statusCode = 200;
-        String reasonPhrase = "OK";
-        WebInputStream stream = null;
-
-        try {
-            InputStream assetStream = this.context.getAssets().open(name);
-            stream = new WebInputStream(assetStream, name);
-        } catch (IOException exception) {
-            Log.d(TAG, "Asset exception " + exception.toString());
-            stream = new WebInputStream();
-            statusCode = 404;
-            reasonPhrase = exception.toString();
-        }
-        return new WebResourceResponse(contentType, null, statusCode, reasonPhrase, null, stream);
-    }
-
     private static final String serviceID = "com.good.gdservice.open-url.http";
     private static final String serviceVersion = "1.0.0.0";
     private static final String serviceMethod = "open";
@@ -614,9 +595,7 @@ public class StreamWebViewClient extends WebViewClient {
             return false;
         }
 
-        final String host = uri.getHost();
-        final int port = uri.getPort();
-        if (host != null && host.equals("localhost") && port == 1) {
+        if (uri.getScheme().equalsIgnoreCase("assets")) {
             return false;
         }
 
@@ -662,11 +641,17 @@ public class StreamWebViewClient extends WebViewClient {
             logStr(method) + logURI(uri)  + logStr(cookieManager.getCookie(uri.toString())) +
             logThread() + logHeaders(request));
 
-        WebResourceResponse response = getAsset(request);
-        if (response == null) {
+        WebResourceResponse response = null;
+        if (uri.getScheme().equalsIgnoreCase("assets")) {
+            response = LocalWebResource.getAsset(request, view.getContext());
+        }
+
+//        WebResourceResponse response = getAsset(request);
+//        if (response == null) {
+        else {
             ResponseBuilder responseBuilder = null;
             if (getSetting("intercept") || getSetting("retrieve")) {
-                responseBuilder = getByHTTP(request);
+                responseBuilder = getByHTTP(request, view.getContext());
                 if (getSetting("retrieve")) {
                     Log.d(TAG, "Retrieve mode, connection will be drained " +
                         logURI(uri) + " " + responseBuilder.statusCode +

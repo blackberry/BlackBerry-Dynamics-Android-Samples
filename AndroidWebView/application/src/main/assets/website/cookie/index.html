@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2018 BlackBerry Ltd.
+    *
+    * Licensed under the Apache License, Version 2.0 (the "License");
+    * you may not use this file except in compliance with the License.
+    * You may obtain a copy of the License at
+    *
+    * http://www.apache.org/licenses/LICENSE-2.0
+    *
+    * Unless required by applicable law or agreed to in writing, software
+    * distributed under the License is distributed on an "AS IS" BASIS,
+    * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    * See the License for the specific language governing permissions and
+    * limitations under the License.
+    *
+    */
+-->
+<html>
+<head>
+    <style>
+    body { font-size: large; font-family: sans-serif;}
+    button {margin: 0.5em;}
+    pre {
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+        white-space: pre-wrap;
+    }
+    </style>
+    <script>
+
+function main() {
+    function log(message) {
+        const element = document.createElement('pre');
+        element.textContent = message;
+        window.document.body.appendChild(element);
+        return element;
+    }
+    function cookie_split() {
+        return document.cookie == "" ? [] : document.cookie.split(/\s*;\s*/g);
+    }
+    function cookie_summary() {
+        const splits = cookie_split();
+        return [`Cookie count:${splits.length}`,
+                ...splits.map(cookie => `"${cookie}"`)].join('\n');
+    }
+    
+    log(`On load at "${window.location}" host:"${document.location.hostname}"` +
+        ` path:"${document.location.pathname}" ${cookie_summary()}`);
+    
+    document.cookie = "test=true";
+    if (document.cookie === "") {
+        const element = document.createElement('div');
+        element.textContent = "Looks like cookies are blocked.";
+        window.document.body.appendChild(element);
+        return;
+    }
+    document.cookie = "test=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    
+    function addButton(label, onclick) {
+        const button = document.createElement('button');
+        button.textContent = label;
+        button.onclick = onclick;
+        window.document.body.appendChild(button);
+        return button;
+    }
+    
+    addButton("List", () => log(cookie_summary()));
+        
+    addButton("Expire all", () => {
+        // Set every cookie with the same value but expired to epoch.
+        cookie_split().forEach(cookie => {
+            document.cookie = cookie +
+                "; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        });
+    });
+    
+    addButton("Simple Example", () => {
+        document.cookie = "name=oeschger";
+        document.cookie = "favorite_food=tripe";
+        log(cookie_summary());
+    });
+    
+    addButton("Example with equals sign", () => {
+        document.cookie = "equalsembedded=emb=edded";
+        document.cookie = "equalsvalue==";
+        document.cookie = "equalstwice===";
+        document.cookie = "equalsembeddedtwice=emb=edd=ed";
+        log(cookie_summary());
+    });
+    
+    addButton("Get a sample cookie named test2", () => {
+        document.cookie = "test1=Hello";
+        document.cookie = "test2=World";
+        var cookieValue = document.cookie.replace(
+            /(?:(?:^|.*;\s*)test2\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+        log("Should be World:" + cookieValue);
+    });
+
+    addButton("Do something only once", () => {
+        if (document.cookie.replace(
+            /(?:(?:^|.*;\s*)doSomethingOnlyOnce\s*\=\s*([^;]*).*$)|^.*$/, "$1"
+            ) !== "true")
+        {
+            log("Do something here!");
+            // The Friday will change to Thursday after parsing.
+            document.cookie = (
+                "doSomethingOnlyOnce=true;" +
+                " expires=Fri, 31 Dec 2020 23:59:59 GMT");
+        }
+    });
+    
+    addButton("Clear the only-once cookie", () => {
+        document.cookie = (
+            "doSomethingOnlyOnce=; expires=Thu, 01 Jan 2020 00:00:00 GMT");
+    });
+
+    addButton("Expire the only-once cookie to epoch", () => {
+        document.cookie = (
+            "doSomethingOnlyOnce=true; expires=Thu, 01 Jan 1970 00:00:00 GMT");
+    });
+
+} // main()
+    </script>
+</head>
+<body onload="main();"
+><h1>Document Cookies</h1
+><div
+    >Some examples by Mozilla Contributors taken from this page on the Mozilla
+    Developer Network: <a
+        href="https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie"
+    >https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie</a
+    ></div
+><div><a href="../cookie/">cookie</a></div
+><div><a href="../cookie1/">cookie1</a></div
+><div><a href="../cookie2/">cookie2</a></div
+><div><a href="../cookie3/">cookie3</a></div
+></body>
+</html>
