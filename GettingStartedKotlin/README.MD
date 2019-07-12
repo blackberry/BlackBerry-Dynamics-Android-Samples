@@ -1,4 +1,5 @@
-GettingStarted
+GettingStartedKotlin
+
 This sample pairs with GettingStartedKotlinBD to provide examples of an Android Kotlin application before and
 after integrating with the BlackBerry Dynamics SDK.  This sample provides examples of features commonly used
 in an application that require modification for integrate with the BlackBerry Dynamics SDK, including
