@@ -1,6 +1,6 @@
 {
   "GDLibraryMode": "GDEnterprise",
-  "GDApplicationID": "com.msohm.sample.crossthebridge",
+  "GDApplicationID": "com.msohm.attlab.crossthebridge",
   "GDApplicationVersion": "1.0.0.0",
   "GDConsoleLogger": [ "GDFilterNone" ]
 }

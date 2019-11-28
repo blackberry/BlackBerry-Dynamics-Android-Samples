@@ -17,7 +17,7 @@
     */
 -->
 
-<android.support.design.widget.CoordinatorLayout android:id="@+id/main_content"
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@+id/main_content"
                                                  xmlns:android="http://schemas.android.com/apk/res/android"
                                                  xmlns:app="http://schemas.android.com/apk/res-auto"
                                                  xmlns:tools="http://schemas.android.com/tools"
@@ -26,7 +26,7 @@
                                                  android:fitsSystemWindows="true"
                                                  tools:context="com.example.blackberry.theconfigurator.MainActivity">
 
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,8 +34,8 @@
         android:theme="@style/AppTheme.AppBarOverlay">
 
 
-    </android.support.design.widget.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <include layout="@layout/content_main"/>
 
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
