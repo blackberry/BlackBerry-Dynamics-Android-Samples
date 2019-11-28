@@ -1,4 +1,5 @@
 GettingStartedKotlin
+====================
 
 This sample pairs with GettingStartedKotlinBD to provide examples of an Android Kotlin application before and
 after integrating with the BlackBerry Dynamics SDK.  This sample provides examples of features commonly used
@@ -8,25 +9,23 @@ SDK for Android to be installed.  Refer to the Getting Started guide for instruc
 and configure it.  https://developers.blackberry.com/us/en/resources/get-started/blackberry-dynamics-getting-started.html?platform=android#step-1
 
 Applies To
-
-Android Studio
-BlackBerry Dynamics SDK
+- Android Studio
+- BlackBerry Dynamics SDK
 
 Author(s)
-Mark Sohm
+- Mark Sohm
 
 Contributing
 
 To contribute code to this repository you must be signed up as an official contributor.
 
-This sample was tested with the following environment:
+**This sample was tested with the following environment:**
+- BlackBerry Dynamics SDK 6.0.1.83
+- Android Studio 3.4.2
+- Android 8.1.0
 
-Good Dynamics SDK 5.0.0.47
-Android Studio 3.4.1
-Android 8.1.0
 
-
-How To Open the Project
+**How To Open the Project**
 
 
 1. Clone the repo to your computer.

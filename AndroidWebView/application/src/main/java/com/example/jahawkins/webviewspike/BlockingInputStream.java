@@ -17,7 +17,7 @@
 package com.example.jahawkins.webviewspike;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.good.gd.net.GDHttpClient;

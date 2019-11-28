@@ -19,7 +19,7 @@ package blackberry.example.com.gettingstarted
 
 import android.os.AsyncTask
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
@@ -135,7 +135,7 @@ class HttpFragment : Fragment() {
      */
     @Throws(IOException::class)
     private fun readIt(stream: InputStream?, len: Int): String {
-        var reader: Reader? = null
+        var reader: Reader?
         reader = InputStreamReader(stream!!, "UTF-8")
         val buffer = CharArray(len)
         reader.read(buffer)

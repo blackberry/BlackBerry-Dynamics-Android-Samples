@@ -18,8 +18,8 @@ package com.msohm.blackberry.samples.bemsdocsservicesample;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -261,8 +261,14 @@ public class DocList extends AppCompatActivity implements GDStateListener,
                         HashMap<String, String> d = new HashMap<>();
 
                         //Extract the file/directory name values.
-                        String name = doc.getString(AppConstants.TAG_NAME);
-                        d.put(AppConstants.TAG_NAME, name);
+                        if (doc.has(AppConstants.TAG_NAME)) {
+                            String name = doc.getString(AppConstants.TAG_NAME);
+                            d.put(AppConstants.TAG_NAME, name);
+                        }
+                        else
+                        {
+                            d.put(AppConstants.TAG_NAME, "");
+                        }
 
                         //Size doesn't exist on the repository list, only file list.
                         //Optionally retrieve the size if it's there.

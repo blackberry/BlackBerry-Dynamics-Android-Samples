@@ -1,4 +1,6 @@
 GettingStarted
+==============
+
 This sample pairs with GettingStartedBD to provide examples of an Android application before and
 after integrating with the BlackBerry Dynamics SDK.  This sample provides examples of features commonly used
 in an application that require modification for integrate with the BlackBerry Dynamics SDK, including
@@ -8,25 +10,23 @@ and configure it.  https://developers.blackberry.com/us/en/resources/get-started
 
 Applies To
 
-Android Studio
-BlackBerry Dynamics SDK
+- Android Studio
+- BlackBerry Dynamics SDK
 
 Author(s)
-Mark Sohm
+- Mark Sohm
 
 Contributing
 
 To contribute code to this repository you must be signed up as an official contributor.
 
-This sample was tested with the following environment:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Good Dynamics SDK 4.0.0.5079
-Android Studio 3.1.3
-Android 8.1.0
+**This sample was tested with the following environment:**
+- BlackBerry Dynamics SDK 6.0.1.83
+- Android Studio 3.4.2
+- Android 8.1.0
 
 
-How To Open the Project
-~~~~~~~~~~~~~~~~~~~~~~~
+**How To Open the Project**
 
 1. Clone the repo to your computer.
 2. Launch Android Studio.

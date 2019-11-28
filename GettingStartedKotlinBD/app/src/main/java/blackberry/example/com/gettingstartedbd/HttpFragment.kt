@@ -17,7 +17,7 @@
 package blackberry.example.com.gettingstartedbd
 
 
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.os.AsyncTask
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod

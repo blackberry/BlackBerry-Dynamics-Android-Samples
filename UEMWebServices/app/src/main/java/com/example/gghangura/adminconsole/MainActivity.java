@@ -17,15 +17,13 @@ package com.example.gghangura.adminconsole;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 
 import com.good.gd.GDAndroid;
 import com.good.gd.GDStateListener;
-import com.good.gd.ndkproxy.GDStartupController;
 import com.good.gd.widget.GDEditText;
 
 import org.w3c.dom.Document;

@@ -18,7 +18,7 @@ package com.msohm.blackberry.samples.presencedemo;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
@@ -26,7 +26,6 @@ import com.good.gd.GDAndroid;
 import com.good.gd.GDAppServer;
 import com.good.gd.GDServiceDetail;
 import com.good.gd.GDServiceProvider;
-import com.good.gd.GDServiceProviderType;
 import com.good.gd.GDServiceType;
 import com.good.gd.GDStateListener;
 

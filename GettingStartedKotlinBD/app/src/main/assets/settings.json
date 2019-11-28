@@ -1,6 +1,6 @@
 {
   "GDLibraryMode": "GDEnterprise",
-  "GDApplicationID": "com.CHANGE.THIS.VALUE",
+  "GDApplicationID": "com.msohm.attlab.testapptwo",
   "GDApplicationVersion": "1.0.0.0",
   "GDConsoleLogger": [
     "GDFilterNone",
