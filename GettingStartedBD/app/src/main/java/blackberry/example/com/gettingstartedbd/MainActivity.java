@@ -1,4 +1,4 @@
-/* Copyright (c) 2018 BlackBerry Ltd.
+/* Copyright (c) 2018-2020 BlackBerry Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,11 @@
 package blackberry.example.com.gettingstartedbd;
 
 import android.os.Bundle;
+import android.widget.Toast;
+
+import com.good.gd.GDAppEvent;
+import com.good.gd.GDAppEventListener;
+import com.good.gd.GDAppEventType;
 import com.google.android.material.tabs.TabLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -32,7 +37,7 @@ import com.good.gd.GDStateListener;
 
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements GDStateListener
+public class MainActivity extends AppCompatActivity implements GDStateListener, GDAppEventListener
 {
 
     /**
@@ -58,6 +63,9 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
         GDAndroid.getInstance().activityInit(this);
         setContentView(R.layout.activity_main);
 
+        // Authorize for GDAppEventListener
+        GDAndroid.getInstance().authorize(this);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
@@ -71,6 +79,22 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
+    }
+
+    /**
+     * Called on all GDAppEvent occurrences. However, only PolicyUpdate needs
+     * to be handled for this application.
+     */
+    @Override
+    public void onGDEvent(GDAppEvent anEvent)
+    {
+        GDAppEventType eventType = anEvent.getEventType();
+
+        if (eventType == GDAppEventType.GDAppEventPolicyUpdate) {
+            // Notify the user and update the policy
+            Toast.makeText(this, "Policy update", Toast.LENGTH_SHORT).show();
+            PolicyFragment.newInstance().updatePolicy();
+        }
     }
 
     @Override
@@ -115,7 +139,6 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
 
     }
 
-
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -144,6 +167,8 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
                     return HttpFragment.newInstance();
                 case 3:
                     return SocketFragment.newInstance();
+                case 4:
+                    return PolicyFragment.newInstance();
             }
 
             return null;
@@ -153,8 +178,8 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
         @Override
         public int getCount()
         {
-            // Show 4 total pages.
-            return 4;
+            // Show 5 total pages.
+            return 5;
         }
 
         @Override
@@ -170,6 +195,8 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
                     return "Network - HTTP";
                 case 3:
                     return "Network - Socket";
+                case 4:
+                    return "GD - Policy";
             }
             return null;
         }

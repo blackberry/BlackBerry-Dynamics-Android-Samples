@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<apd:AppPolicyDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ 		xmlns:apd="urn:AppPolicySchema1.good.com" 
+		xsi:schemaLocation="urn:AppPolicySchema1.good.com AppPolicySchema.xsd" >
+	
+    <!-- Copyright (c) 2020 BlackBerry Limited
+        *
+        * Licensed under the Apache License, Version 2.0 (the "License");
+        * you may not use this file except in compliance with the License.
+        * You may obtain a copy of the License at
+        *
+        * http://www.apache.org/licenses/LICENSE-2.0
+        *
+        * Unless required by applicable law or agreed to in writing, software
+        * distributed under the License is distributed on an "AS IS" BASIS,
+        * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        * See the License for the specific language governing permissions and
+        * limitations under the License.
+        *
+        */
+    -->
+	<pview>
+		<pview type="tabbed" key="display">
+			<title>Display settings</title>
+			<pe ref="tabs" />
+			<pe ref="Retain" />
+		</pview>
+
+		<pview type="tabbed" key="update">
+			<title>Update settings</title>
+			<pe ref="canUpdate" />
+			<pe ref="photoUpdate" depends="canUpdate" />
+		</pview>
+
+		<pview type="tabbed" key="about">
+			<title>About</title>
+			<heading>Getting Started BD</heading>
+			<desc>Getting Started sample app for BlackBerry Dynamics.</desc>
+		</pview>
+
+		<pview>
+			<sendto client="None" />
+			<desc>SafetyNet Attestation Supported</desc>
+			<pe ref="apkCertificateDigestSha256"/>
+			<pe ref="apkPackageName" />
+			<pe ref="Description" />
+		</pview>
+
+		<pe ref="policyVersion" />
+	</pview>
+
+	<setting name="policyVersion" >
+		<hidden>
+			<key>version</key>
+			<value>2.0</value>
+		</hidden>
+	</setting>
+
+	<setting name="tabs">
+		<multiselect>
+			<key>tabs</key>
+			<label>Dashboard Tabs to Display</label>
+			<value ref="defaultTabs" />
+			<options ref="allTabs"/>
+		</multiselect>
+	</setting>
+	<dl name="allTabs">
+		<dv><desc>Show Personnel</desc><value>Pers</value></dv>
+		<dv><desc>Show Press</desc><value>Press</value></dv>
+		<dv><desc>Show Projects</desc><value>Proj</value></dv>
+		<dv><desc>Show Sales</desc><value>Sales</value></dv>
+	</dl>
+	<do name="defaultTabs">
+		<value>Press</value>
+		<value>Proj</value>
+	</do>
+
+	<setting name="Retain">
+		<select>
+			<key>Retain</key>
+			<label>Retention Period</label>
+			<value>1 year</value>
+			<options ref="RetainOptions" />
+		</select>
+	</setting>
+	<dl name="RetainOptions" dtype="string">
+		<dv><desc>1 Day</desc><value>1 day</value></dv>
+		<dv><desc>1 Week</desc><value>1 week</value></dv>
+		<dv><desc>1 Month</desc><value>1 month</value></dv>
+		<dv><desc>1 Year</desc><value>1 year</value></dv>
+	</dl>
+
+	<setting name="canUpdate" >
+		<checkbox>
+			<key>canUpdate</key>
+			<label>Can Update</label>
+			<value>false</value>
+		</checkbox>
+	</setting>
+
+	<setting name="photoUpdate" >
+		<checkbox>
+			<key>photoUpdate</key>
+			<label>Can Post Photos</label>
+			<value>false</value>
+		</checkbox>
+	</setting>
+
+	<setting name="apkCertificateDigestSha256">
+		<hidden>
+			<key>blackberry.appMetadata.android.apkCertificateDigestSha256</key>
+			<value>DD:83:CA:47:09:FA:C5:33:75:FE:F4:A1:B5:FB:F4:A8:E8:C2:7A:DF:AF:24:0D:7B:E3:BA:BD:FB:A9:2B:F9:D6</value>
+		</hidden>
+	</setting>
+	
+	<setting name="apkPackageName">
+		<hidden>
+			<key>blackberry.appMetadata.android.apkPackageName</key>
+			<value>blackberry.example.com.gettingstartedbd</value>
+		</hidden>
+	</setting>
+	
+	<setting name="Description" >
+		<text>
+			<key>snet</key>
+			<label>Safety Net</label>
+			<value>Safety Net</value>
+		</text>
+	</setting>
+
+</apd:AppPolicyDefinition>

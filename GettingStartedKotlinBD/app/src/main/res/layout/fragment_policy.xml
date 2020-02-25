@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Copyright (c) 2020 BlackBerry Limited
+    *
+    * Licensed under the Apache License, Version 2.0 (the "License");
+    * you may not use this file except in compliance with the License.
+    * You may obtain a copy of the License at
+    *
+    * http://www.apache.org/licenses/LICENSE-2.0
+    *
+    * Unless required by applicable law or agreed to in writing, software
+    * distributed under the License is distributed on an "AS IS" BASIS,
+    * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    * See the License for the specific language governing permissions and
+    * limitations under the License.
+    *
+    */
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="5dp">
+
+    <com.good.gd.widget.GDTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="Policy Settings"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+    <com.good.gd.widget.GDTextView
+            android:id="@+id/policyTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="Policy last updated: " />
+
+    <com.good.gd.widget.GDTextView
+            android:id="@+id/policyContents"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="Policy: " />
+
+    <com.good.gd.widget.GDTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tab Status:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+    <CheckBox
+            android:id="@+id/checkPersonnel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            android:text="Personnel" />
+
+    <CheckBox
+            android:id="@+id/checkPress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            android:text="Press" />
+
+    <CheckBox
+            android:id="@+id/checkProjects"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            android:text="Projects" />
+
+    <CheckBox
+            android:id="@+id/checkSales"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            android:text="Sales" />
+
+    <com.good.gd.widget.GDTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="Application policy will update automatically after changes are made through UEM."
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+</LinearLayout>
