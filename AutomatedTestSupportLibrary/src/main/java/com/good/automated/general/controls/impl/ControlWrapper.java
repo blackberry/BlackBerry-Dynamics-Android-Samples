@@ -1,9 +1,24 @@
-/*
- * (c) 2017 BlackBerry Limited. All rights reserved.
- */
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.general.controls.impl;
 
 import static com.good.automated.general.utils.Duration.UI_WAIT;
+
+import com.good.automated.general.utils.Duration;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.uiautomator.UiDevice;
@@ -11,8 +26,8 @@ import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 import android.support.test.uiautomator.UiSelector;
 import android.util.Log;
+import android.view.accessibility.AccessibilityWindowInfo;
 
-import com.good.automated.general.utils.Duration;
 
 /**
  * ControlWrapper is a helper-class to interact with UI screen in order to create object with specific options
@@ -35,6 +50,12 @@ public class ControlWrapper {
 
     public ControlWrapper getControlWrapperObject(String packageName, String id, long delay) {
         uiObject = getUIObjectById(packageName, id, delay);
+        return this;
+    }
+
+
+    public ControlWrapper getControlWrapperObject(String packageName, String id, String text, long delay) {
+        uiObject = getUIObjectByIdWithText(packageName, id, text, delay);
         return this;
     }
 
@@ -112,7 +133,6 @@ public class ControlWrapper {
         return null;
     }
 
-
     private UiObject getUIObjectByText(String text, long delay) {
 
         Log.d(TAG, "Finding UiObject with text: " + text);
@@ -128,18 +148,36 @@ public class ControlWrapper {
         return null;
     }
 
+    private UiObject getUIObjectByIdWithText(String packageName, String id, String text, long delay) {
+
+        this.resourceID = packageName + ":id/" + id;
+
+        Log.d(TAG, String.format("Finding UiObject with resourceID %s and text %s", resourceID, text));
+
+        uiObject = uiDevice.findObject(new UiSelector().resourceId(resourceID).text(text));
+
+        if (uiObject.waitForExists(delay)) {
+            Log.d(TAG, String.format("UiObject with resourceID: %s and text %s was found", resourceID, text));
+            return uiObject;
+        }
+
+        Log.d(TAG, String.format("UiObject with resourceID: %s and text %s wasn't found", resourceID, text));
+        return null;
+    }
+
     public boolean click() {
         try {
             if (uiObject.waitForExists(Duration.of(UI_WAIT))) {
                 uiObject.click();
-
-                //Small wait after clicking on item (ensures state has changed correctly)
-                uiObject.waitUntilGone(Duration.of(UI_WAIT));
                 Log.d(TAG, "Click was performed successfully on UI element with ID: " + getResourceID());
                 return true;
             }
+        } catch (NullPointerException e) {
+            Log.d(TAG, "UI element with ID: " + getResourceID() + " not exists. NullPointerException: " + e.getMessage());
+            return false;
         } catch (UiObjectNotFoundException e) {
             Log.d(TAG, "Couldn't click on UI element with ID: " + getResourceID() + " UiObjectNotFoundException: " + e.getMessage());
+            return false;
         }
         return false;
     }
@@ -172,8 +210,9 @@ public class ControlWrapper {
 
     public String getText() {
         try {
-            Log.d(TAG, "getText() = " + uiObject.getText());
-            return uiObject.getText();
+            String text = uiObject.getText();
+            Log.d(TAG, "getText() = " + text);
+            return text;
         } catch (UiObjectNotFoundException e) {
             Log.d(TAG, "UiObjectNotFoundException of element with resourceID: " + getResourceID() + e.getMessage());
         }
@@ -184,6 +223,11 @@ public class ControlWrapper {
         try {
             if (uiObject != null) {
                 uiObject.legacySetText(text);
+
+                if (!uiDevice.isNaturalOrientation() && isKeyboardShown()){
+                    Log.d(TAG, "Closing keyboard by pressing Back button");
+                    uiDevice.pressBack();
+                }
                 if (uiObject.getText() != null) {
                     Log.d(TAG, "Text: \"" + text + "\" was entered");
                     return true;
@@ -199,6 +243,24 @@ public class ControlWrapper {
             return false;
         }
     }
+
+    /**
+     * Method to check if software keyboard is present on screen.
+     *
+     * @return true if keyboard was shown, otherwise false
+     */
+    public static boolean isKeyboardShown() {
+        for (AccessibilityWindowInfo accessibilityWindowInfo : InstrumentationRegistry
+                .getInstrumentation().getUiAutomation().getWindows()) {
+            if (accessibilityWindowInfo.getType() == AccessibilityWindowInfo.TYPE_INPUT_METHOD) {
+                Log.d(TAG, "Keyboard is shown");
+                return true;
+            }
+        }
+        Log.e(TAG, "Keyboard isn't shown");
+        return false;
+    }
+
 
     public boolean setText(String text) {
         Log.d(TAG, "Important! This method might not work properly in release mode");
@@ -318,10 +380,14 @@ public class ControlWrapper {
 
     public String getContentDescription() {
         try {
-            this.uiObject.getContentDescription();
+            return this.uiObject.getContentDescription();
         } catch (UiObjectNotFoundException e) {
             Log.d(TAG, "Couldn't get state of UI element with resourceID: " + getResourceID() + " Error message: " + e.getMessage());
         }
         return null;
+    }
+
+    public boolean isAvailable() {
+        return this.uiObject != null;
     }
 }
