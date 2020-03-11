@@ -1,6 +1,19 @@
-/*
- * (c) 2017 BlackBerry Limited. All rights reserved.
- */
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.general.helpers;
 
 import com.good.automated.general.utils.AbstractUIAutomatorUtils;
@@ -90,19 +103,22 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
     /**
      * Activates slave application via master using Auth Delegation feature.
      *
-     * @param masterPackageName     package name of delegate(master) application
+     * @param masterPackageName     package name of AuthDelegate(master) application
+     * @param isEAProducerLocked flag that defines whether EA Producer app container is locked
      * @return true in case of success else false
      */
-    public static boolean authDelegateApp(String masterPackageName) {
+    public static boolean authDelegateApp(String masterPackageName, boolean isEAProducerLocked) {
         AbstractUIAutomatorUtils uiAutomationUtils = UIAutomatorUtilsFactory.getUIAutomatorUtils();
         return BBDAdvancedActivationHelper.loginOrActivateEnforceAuthDelegationBuilder(uiAutomationUtils, uiAutomationUtils.getAppPackageName(),
                 uiAutomationUtils.getAppVersionName(masterPackageName),
                 uiAutomationUtils.getAccessKey(masterPackageName))
                 .setAuthDelegatorPackageName(masterPackageName)
                 .setAuthDelegatorPassword(uiAutomationUtils.getAppProvisionPassword(masterPackageName))
+                .setIsEAProviderLocked(isEAProducerLocked)
                 .doAction();
 
     }
+
 
     /**
      * Login or activation application using Access Key and Unlock password of Auth Delegate (Master) app
@@ -203,6 +219,25 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
         }
     }
 
+    public abstract class AbstractAuthDelegateBuilder extends AbstractAccessKeyBuilder {
+
+        /**
+         * Login or activate app under test using Access Key & AuthDelegation
+         *
+         * @param ui      object of uiAutomatorUtils
+         * @param pName   AppUnderTest package name
+         * @param uName   user name for activation
+         * @param aKey    access key (15 characters)
+         */
+        public AbstractAuthDelegateBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
+            super(ui, pName, uName, aKey);
+            BBDAdvancedActivationHelper.this.userName = uName;
+            BBDAdvancedActivationHelper.this.pin1 = aKey.substring(0, 5);
+            BBDAdvancedActivationHelper.this.pin2 = aKey.substring(5, 10);
+            BBDAdvancedActivationHelper.this.pin3 = aKey.substring(10);
+        }
+    }
+
     public class EnforceNoPasswordActivationBuilder extends AbstractAccessKeyBuilder {
 
         /**
@@ -260,7 +295,9 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
     /**
      * Login or activate AppUnderTest using Access Key, unlock AppUnderTest using Auth Delegator app
      */
-    public class LoginOrActivateEnforceAuthDelegationBuilder extends AbstractAccessKeyBuilder {
+    public class LoginOrActivateEnforceAuthDelegationBuilder extends AbstractAuthDelegateBuilder {
+
+        private boolean isEAProviderLocked = true;
 
         /**
          * @param ui    object of uiAutomatorUtils
@@ -291,6 +328,15 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
         }
 
         /**
+         * @param isEAProviderLocked flag that defines whether EA Producer app container is locked
+         * @return LoginOrActivateEnforceAuthDelegatorBuilder object with set isEAProviderLocked flag
+         */
+        public LoginOrActivateEnforceAuthDelegationBuilder setIsEAProviderLocked(boolean isEAProviderLocked) {
+            LoginOrActivateEnforceAuthDelegationBuilder.this.isEAProviderLocked = isEAProviderLocked;
+            return this;
+        }
+
+        /**
          * @return true if all actions performed successfully otherwise false
          */
         @Override
@@ -303,7 +349,9 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
             bb.pin2 = BBDAdvancedActivationHelper.this.pin2;
             bb.pin3 = BBDAdvancedActivationHelper.this.pin3;
             bb.authDelPackageName = BBDAdvancedActivationHelper.this.authDelPackageName;
-            bb.authDelPassword = BBDAdvancedActivationHelper.this.authDelPassword;
+            bb.authDelPassword = isEAProviderLocked ? BBDAdvancedActivationHelper.this.authDelPassword : null;
+            bb.eaPackageName = authDelPackageName;
+
             return bb.doActivationWithAuthDelegation();
         }
     }
