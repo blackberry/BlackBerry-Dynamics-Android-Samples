@@ -1,6 +1,19 @@
-/*
- * (c) 2017 BlackBerry Limited. All rights reserved.
- */
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.general.utils;
 
 /**
@@ -19,7 +32,7 @@ public enum Duration {
     // Duration of activation of container via access key / auth delegation
     PROVISIONING(1, TimeUnit.MINUTES),
 
-    AUTHORIZE_CALLBACK(SECONDS_10),
+    AUTHORIZE_CALLBACK(20, TimeUnit.SECONDS),
     SIMULATION_MODE_PROVISION(20, TimeUnit.SECONDS),
 
     // Duration until container will be locked
@@ -66,6 +79,8 @@ public enum Duration {
 
     // Wait duration of UI changes
     MINUTE_3(3, TimeUnit.MINUTES),
+
+    MINUTE_5(5, TimeUnit.MINUTES),
 
     MINUTES_20(20, TimeUnit.MINUTES),
 

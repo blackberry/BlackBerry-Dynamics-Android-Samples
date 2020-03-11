@@ -1,6 +1,19 @@
-/*
- * (c) 2017 BlackBerry Limited. All rights reserved.
- */
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.general.helpers;
 
 import static com.good.automated.general.utils.Duration.PROVISIONING;
@@ -16,12 +29,14 @@ import com.good.automated.test.screens.BBDActivationProgressUI;
 import com.good.automated.test.screens.BBDActivationUI;
 import com.good.automated.test.screens.BBDAlertDialogUI;
 import com.good.automated.test.screens.BBDApplicationBlockUI;
+import com.good.automated.test.screens.BBDApplicationMTDBlockUI;
 import com.good.automated.test.screens.BBDAuthorizationUnavailableBlockUI;
 import com.good.automated.test.screens.BBDDisclaimerUI;
 import com.good.automated.test.screens.BBDEasyActivationSelectionUI;
 import com.good.automated.test.screens.BBDEasyActivationUnlockUI;
 import com.good.automated.test.screens.BBDFingerprintAlertUI;
 import com.good.automated.test.screens.BBDLearnMoreUI;
+import com.good.automated.test.screens.BBDMTDDisclaimerUI;
 import com.good.automated.test.screens.BBDNoPasswordUI;
 import com.good.automated.test.screens.BBDPermissionUI;
 import com.good.automated.test.screens.BBDRetrievingAccessKeyUI;
@@ -84,6 +99,8 @@ public class BBDActivationHelper {
         add(13, "bbd_logs_upload_view_UI");
         add(14, "bbd_activate_fingerprint_view_UI");
         add(15, "bbd_fingerprint_container_UI");
+        add(16, "bbd_mtd_disclaimer_view_UI");
+        add(17, "bbd_mtd_block_view_UI");
         // add(15, "some_unique_ID");
         // etc...e.g. add(sequential_number_of_the_screen, "unique_id_of_the_screen");
     }};
@@ -213,6 +230,17 @@ public class BBDActivationHelper {
     }
 
     /**
+     * Login or activation application using Access Key and it's own Unlock password. Cancel fingerprint after activation
+     *
+     * @param ui    object of uiAutomatorUtils
+     * @param pName AppUnderTest package name
+     * @return LoginOrActivateWithFingerprintBuilder with set required parameters for simple login or activation logic
+     */
+    public static LoginOrEasyActivateWithFingerprintBuilder loginOrEasyActivateWithFingerprintBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
+        return new BBDActivationHelper().new LoginOrEasyActivateWithFingerprintBuilder(ui, pName, uName, aKey);
+    }
+
+    /**
      * Unlock application with it's own password. Cancel fingerprint after activation
      * Note: recommended to use only in APP tests
      *
@@ -243,6 +271,14 @@ public class BBDActivationHelper {
                 setAppUnderTestPassword(ui.getAppProvisionPassword(pName)).
                 setFingerprintCheck(isFingerprintEnabled).
                 doAction();
+    }
+
+    /**
+     *
+     * @return list of unique IDs of supported BlackBerry screens in strict order.
+     */
+    public static List<String> getUIElementsList() {
+        return new BBDActivationHelper().uiElementsList;
     }
 
     /**
@@ -303,7 +339,7 @@ public class BBDActivationHelper {
                 //This variable can be True only after activating of the app
                 noPasswordCanBeEnabled = false;
                 uiElement = new BBDEasyActivationUnlockUI(eaPackageName, eaPassword);
-                if (authDelPackageName != null && authDelPackageName.equals(eaPackageName)){
+                if (authDelPackageName != null && authDelPackageName.equals(eaPackageName) && eaPassword != null){
                     return uiElement;
                 }
                 break;
@@ -375,6 +411,18 @@ public class BBDActivationHelper {
                 break;
             case 15:
                 return new BBDFingerprintAlertUI(packageName);
+            case 16:
+                uiElement = new BBDMTDDisclaimerUI(packageName);
+                break;
+            case 17:
+                Log.d(TAG, "Provision Failed due to shown MTD Block UI");
+                try {
+                    uiElement = new BBDApplicationMTDBlockUI(currentPackageName);
+                    Log.d(TAG, "package ID: " + currentPackageName + " MTD Block UI title: " + ((BBDApplicationMTDBlockUI) uiElement).getTitle());
+                    Log.d(TAG, "MTD Block UI description: " + ((BBDApplicationMTDBlockUI) uiElement).getDetails());
+                } catch (NullPointerException e) {
+                    Log.d(TAG, "Couldn't find title or description on MTD Block screen. NullPointerException: " + e.toString());
+                }
             default:
                 Log.d(TAG, "Screen ID : none : default");
                 uiElement = null;
@@ -436,6 +484,11 @@ public class BBDActivationHelper {
                 Log.d(TAG, "Searching for Auth Delegator resourceID: " + authDelPackageName);
                 resourceID = uiAutomationUtils.getUiElementShown(authDelPackageName, uiElementsList);
             }
+            if (eaPackageName == null && authDelPackageName == null) {
+                eaPackageName = uiAutomationUtils.getUiDevice().getCurrentPackageName();
+                Log.d(TAG, "Searching for possible Easy Activator resourceID: " + eaPackageName);
+                resourceID = uiAutomationUtils.getUiElementShown(eaPackageName, uiElementsList);
+            }
         }
         shownScreensQueue.add("" + currentPackageName + ":id/" + resourceID);
         return uiElementsList.indexOf(resourceID);
@@ -472,7 +525,9 @@ public class BBDActivationHelper {
             result = screen.doAction();
         }
 
-        if (eaPackageName != null && eaPackageName.equals(authDelPackageName)) {
+        boolean isEasyActivatorSet = eaPackageName != null && eaPackageName.equals(authDelPackageName) && eaPassword != null;
+        boolean shouldUnlockMaster = authDelPassword != null;
+        if (isEasyActivatorSet || !shouldUnlockMaster) {
             Log.d(TAG, "Complete of provisioning. Check your Slave app");
         } else {
             Log.d(TAG, "Try to unlock Master app");
@@ -527,6 +582,28 @@ public class BBDActivationHelper {
         if (result && fingerPrintEnabled) {
             if (getCurrentUIID() == 15) { //15 == bbd_fingerprint_container_UI
                 new BBDFingerprintAlertUI(packageName).doAction();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Do activation of the app under test despite the displayed screens. Cancel fingerprint screen during easy activation.
+     *
+     * @return true if activation was successful otherwise false
+     */
+    protected boolean doEasyActivationWithFingerprint() {
+        refreshShownScreensCounter();
+        AbstractBBDUI screen = discoverCurrentUI();
+
+        boolean result = false;
+
+        if (screen != null) {
+            if (screen instanceof BBDFingerprintAlertUI) {
+                screen.doAction();
+                result = doActivation();
+            } else {
+                result = screen.doAction();
             }
         }
         return result;
@@ -750,6 +827,42 @@ public class BBDActivationHelper {
             bb.pin3 = BBDActivationHelper.this.pin3;
             bb.fingerPrintEnabled = BBDActivationHelper.this.fingerPrintEnabled;
             return bb.doActivationWithFingerprint();
+        }
+    }
+
+    /**
+     * Login or activate AppUnderTest using Access Key, unlock AppUnderTest using it's own password
+     * closes fingerprint setup dialog during easy activation
+     */
+    public class LoginOrEasyActivateWithFingerprintBuilder extends LoginOrActivateBuilder {
+
+        /**
+         * Login or activate AppUnderTest using Access Key
+         *
+         * @param ui    object of uiAutomatorUtils
+         * @param pName AppUnderTest package name
+         * @param uName user name for activation
+         * @param aKey  access key (15 characters)
+         */
+        protected LoginOrEasyActivateWithFingerprintBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
+            super(ui, pName, uName, aKey);
+        }
+
+        /**
+         * @return true if all actions performed successfully otherwise false
+         */
+        @Override
+        public boolean doAction() {
+            BBDActivationHelper bb = new BBDActivationHelper();
+            bb.uiAutomationUtils = BBDActivationHelper.this.uiAutomationUtils;
+            bb.packageName = BBDActivationHelper.this.packageName;
+            bb.appPassword = BBDActivationHelper.this.appPassword;
+            bb.userName = BBDActivationHelper.this.userName;
+            bb.pin1 = BBDActivationHelper.this.pin1;
+            bb.pin2 = BBDActivationHelper.this.pin2;
+            bb.pin3 = BBDActivationHelper.this.pin3;
+            bb.fingerPrintEnabled = BBDActivationHelper.this.fingerPrintEnabled;
+            return bb.doEasyActivationWithFingerprint();
         }
     }
 }

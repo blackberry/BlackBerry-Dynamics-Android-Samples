@@ -1,6 +1,19 @@
-/*
- * (c) 2017 BlackBerry Limited. All rights reserved.
- */
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.general.controls.impl;
 
 import android.os.RemoteException;
@@ -9,17 +22,18 @@ import android.view.KeyEvent;
 
 import com.good.automated.general.controls.EditText;
 import com.good.automated.general.utils.AbstractUIAutomatorUtils;
+import com.good.automated.general.utils.Duration;
 import com.good.automated.general.utils.UIAutomatorUtilsFactory;
 
-public class EditTextImpl implements EditText {
+import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
 
-    private static final String TAG = EditTextImpl.class.getCanonicalName();
-    private ControlWrapper control;
+public class EditTextImpl extends ControlBase implements EditText {
+
     private static AbstractUIAutomatorUtils uiAutomatorUtils =
             UIAutomatorUtilsFactory.getUIAutomatorUtils();
 
     public EditTextImpl(ControlWrapper control) {
-        this.control = control;
+        super(control, EditTextImpl.class.getCanonicalName());
     }
 
     @Override
@@ -90,8 +104,7 @@ public class EditTextImpl implements EditText {
 
     @Override
     public String getText() {
-        Log.d(TAG, "getText() = " + control.getText());
-        return control.getText();
+        return super.getText();
     }
 
     @Override
@@ -100,15 +113,22 @@ public class EditTextImpl implements EditText {
         control.clearData();
     }
 
+    @Override
+    public boolean selectAll() {
+        return this.click() && this.selectAllAction();
+    }
+
     public boolean copy() {
-        return this.click()
-                && this.selectAllAction()
+        return selectAll()
                 && this.copyAction();
     }
 
     public boolean paste(String expectedText) {
         this.click();
         pasteAction();
+
+        //Delay for text to be pasted
+        uiAutomatorUtils.waitForUI(Duration.of(WAIT_FOR_SCREEN));
         boolean result = expectedText.equals(this.getText());
 
         try {
