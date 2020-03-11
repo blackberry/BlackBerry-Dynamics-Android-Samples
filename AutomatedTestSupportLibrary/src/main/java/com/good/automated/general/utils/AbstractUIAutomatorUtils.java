@@ -1,6 +1,19 @@
-/*
- * (c) 2018 BlackBerry Limited. All rights reserved.
- */
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.general.utils;
 
 import static android.provider.Settings.ACTION_WIFI_SETTINGS;
@@ -14,6 +27,13 @@ import static com.good.automated.general.utils.Duration.UI_WAIT;
 import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
 import static com.good.automated.general.utils.Duration.of;
 import static com.googlecode.eyesfree.utils.LogUtils.TAG;
+
+import com.good.automated.general.controls.impl.ControlWrapper;
+import com.good.automated.general.controls.impl.RadioButtonImpl;
+import com.good.automated.general.helpers.BBDActivationHelper;
+import com.good.automated.general.utils.threadsafe.SafeCommandExecutor;
+import com.good.automated.general.utils.uitools.networking.UiNetworkManagerFactory;
+import com.good.automated.test.screens.BBDPermissionUI;
 
 import android.Manifest;
 import android.app.KeyguardManager;
@@ -42,11 +62,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.accessibility.AccessibilityWindowInfo;
-
-import com.good.automated.general.helpers.BBDActivationHelper;
-import com.good.automated.general.utils.uitools.networking.UiNetworkManagerFactory;
-import com.good.automated.test.screens.BBDPermissionUI;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -57,17 +72,55 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * AbstractUIAutomatorUtils is a helper class that allow us to interact with system settings of OS Android
+ * AbstractUIAutomatorUtils is a helper class that allow us to interact with system settings of OS Android.
  * Most of methods in this class are common for different Android APIs
- * <p>
- * Non-default implementations of some methods have to be overridden in sub-classes
+ *
+ * <p>Non-default implementations of some methods have to be overridden in sub-classes
  */
 public abstract class AbstractUIAutomatorUtils {
 
+    protected final String _ID = ":id/";
+    protected String packageAndroidSettings = "com.android.settings";
+    protected String packageAndroid = "android";
+
+    protected String idAlertTitle = "alertTitle";
+    protected String idAlertMessage = "message";
+
+    protected String idRecyclerViewList = "list";
+    protected String idButtonRight = "right_button";
+    protected String idButtonLeft = "left_button";
+    protected String idButton1 = "button1";
+    protected String idButton2 = "button2";
+    protected String idButton3 = "button3";
+    protected String idButtonNext = "next_button";
+    protected String idPasswordEntry = "password_entry";
+    protected String idEncryptDontRequirePassword = "encrypt_dont_require_password";
+    protected String idShowAll = "show_all";
+    protected String idDateTimeRadialPicker = "radial_picker";
+    protected String idDateTimeMonthView = "month_view";
+    protected String idButtonImageNext = "next";
+    protected String idButtonImagePrev = "prev";
+    protected String idWidgetFrame = "widget_frame";
+    protected String idSwitchWidget = "switch_widget";
+
+    protected String textForceStop = "force stop";
+    protected String textNotifications = "Notifications";
+    protected String textScreenLock = "Screen lock";
+    protected String textFingerprintSetup = "fingerprint set up";
+    protected String textFingerprint = "Fingerprint";
+    protected String textAddFingerprint = "Add fingerprint";
+    protected String textButtonNext = "NEXT";
+    protected String textButtonConfirm = "CONFIRM";
+    protected String textButtonDone = "DONE";
+    protected String textSetTime = "Set Time";
+    protected String textSetDate = "Set date";
+    protected String textAutomaticDateTime = "Automatic date & time";
+
     protected static UiDevice uiDevice = UiDevice.getInstance(InstrumentationRegistry
             .getInstrumentation());
-    GDTestSettings settings;
-    private boolean fingerprintSupported;
+    private GDTestSettings settings;
+
+    private static SafeCommandExecutor safeCommandExecutor = new SafeCommandExecutor();
 
     public AbstractUIAutomatorUtils() {
         this.uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
@@ -77,31 +130,53 @@ public abstract class AbstractUIAutomatorUtils {
 
     public abstract void launchDateSettings();
 
-    @Deprecated
-    public abstract boolean switchOffWindowAnimationScale();
-
-    @Deprecated
-    public abstract boolean switchOffTransitionAnimationScale();
-
-    @Deprecated
-    public abstract boolean switchOffAnimatorDurationScale();
-
     public abstract void launchActionSettings(String action);
 
     public UiDevice getUiDevice() {
         return uiDevice;
     }
 
+    public SafeCommandExecutor getSafeCommandExecutor() {
+        return safeCommandExecutor;
+    }
+
+    public String executeShellCommand(String command) {
+        return getSafeCommandExecutor().executeShellCommand(getUiDevice(), command);
+    }
+
     /**
+     * Performs launch of application with flag {@link Intent#FLAG_ACTIVITY_CLEAR_TASK}.
+     * Old app activities will be finished
+     *
      * @param packageName app package name
      */
     public void launchApp(String packageName) {
+        launchAppActivityWithFlag(packageName, Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    }
+
+    /**
+     * Performs launch application with flag {@link Intent#FLAG_ACTIVITY_SINGLE_TOP}.
+     * Activity will not be launched if it is already running at the top of the history stack
+     *
+     * @param packageName app package name
+     */
+    public void launchAppActivityOnTop(String packageName) {
+        launchAppActivityWithFlag(packageName, Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    }
+
+    /**
+     * Launches app main activity with flag.
+     * See {@link Intent#setFlags} for a list of all possible flags.
+     * @param packageName   app package name
+     * @param flags         flags to be set for launching activity
+     */
+    private void launchAppActivityWithFlag(String packageName, int flags) {
         Context context = InstrumentationRegistry.getTargetContext();
         Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
         if (intent == null) {
             Log.d(TAG, "Cannot find App with package name: " + packageName);
         }
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(flags);
         context.startActivity(intent);
 
         uiDevice.wait(Until.hasObject(By.pkg(packageName)), of(UI_WAIT));
@@ -113,8 +188,7 @@ public abstract class AbstractUIAutomatorUtils {
      * Performs force stop (via UI) and launch of application by passed native ID.
      *
      * @param appNativeId native id of an app to terminate
-     * @return true - if force stop during relaunch was successful
-     * false - otherwise
+     * @return true - if force stop during relaunch was successful / false - otherwise
      */
     public boolean relaunchApp(String appNativeId) {
         return relaunchApp(Boolean.FALSE, appNativeId);
@@ -125,8 +199,7 @@ public abstract class AbstractUIAutomatorUtils {
      *
      * @param immediately pass true to terminate app immediately (with adb) / false - via UI
      * @param appNativeId native id of an app to terminate
-     * @return true - if force stop during relaunch was successful
-     * false - otherwise
+     * @return true - if force stop during relaunch was successful / false - otherwise
      */
     public boolean relaunchApp(boolean immediately, String appNativeId) {
 
@@ -151,15 +224,15 @@ public abstract class AbstractUIAutomatorUtils {
      * @param appNativeId native id of app to stop
      */
     public void terminateAppADB(String appNativeId) {
-        InstrumentationRegistry.getInstrumentation().getUiAutomation().
-                executeShellCommand("am force-stop " + appNativeId);
+        InstrumentationRegistry.getInstrumentation().getUiAutomation()
+                .executeShellCommand("am force-stop " + appNativeId);
         // Wait to ensure force stop is finished.
         UIAutomatorUtilsFactory.getUIAutomatorUtils()
                 .waitForUI(Duration.of(Duration.WAIT_FOR_SCREEN));
     }
 
     /**
-     * Helper method that return UiObject which was created in .xml file by provided ID
+     * Helper method that return UiObject which was created in .xml file by provided ID.
      *
      * @param packageName container package ID
      * @param id          id of UI element
@@ -170,7 +243,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method that return UiObject which was created in runtime by provided ID with a delay
+     * Helper method that return UiObject which was created in runtime by provided ID with a delay.
      *
      * @param id    id of UI element
      * @param delay delay to wait for object appearance
@@ -191,13 +264,14 @@ public abstract class AbstractUIAutomatorUtils {
                 Log.d(TAG, "UiObject with packageName: " + id + " wasn't found during " + delay + "ms");
                 break;
             }
-        } while (uiObject == null || !uiObject.exists());
+        }
+        while (uiObject == null || !uiObject.exists());
 
         return uiObject;
     }
 
     /**
-     * Helper method that return UiObject which was created in .xml file by provided ID with a delay
+     * Helper method that return UiObject which was created in .xml file by provided ID with a delay.
      *
      * @param packageName container package ID
      * @param id          id of UI element
@@ -209,7 +283,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which launches the app under test and waits for it to be on the screen
+     * Helper method which launches the app under test and waits for it to be on the screen.
      * After launching the app, it also register a broadcast receiver to get GD SDK authorization
      * states notifications such as authorized/locked/wipped
      */
@@ -218,7 +292,10 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which launches the Activity under test and waits for it to be on the screen
+     * Helper method which launches the Activity under test and waits for it to be on the screen.
+     *
+     * @param activityClass specific activity class name
+     * @param packageName   test application package name
      */
     public void launchSpecificActivity(Class activityClass, String packageName) {
         Context context = InstrumentationRegistry.getTargetContext();
@@ -231,58 +308,59 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
+     * Perform force kill of an application.
+     *
      * @param applicationId ID of app on GC (is set in settings.json)
      * @return true if successful, otherwise false
-     * <p>
-     * Added second attempt to force stop app for cases when two buttons are swapped
+     *
+     * <p>Added second attempt to force stop app for cases when two buttons are swapped
+     *
      */
     public boolean forceStopApp(String applicationId) {
         launchAppSettings(applicationId);
 
-        UiObject forceStopButton = findByResourceId("com.android.settings:id/right_button");
+        UiObject forceStopButton = findByResourceId(packageAndroidSettings + _ID + idButtonRight);
 
         if (forceStopButton.exists()) {
-            Log.d(TAG, "com.android.settings:id/right_button was found on system UI");
+            Log.d(TAG, packageAndroidSettings + _ID + idButtonRight
+                    + " was found on system UI");
         } else {
             //Possible timing issue in opening system Setting UI
             waitForUI(of(UI_WAIT));
-            Log.d(TAG, "Second attempt to find com.android.settings:id/right_button on system UI");
-            forceStopButton = findByResourceId("com.android.settings:id/right_button");
+            Log.d(TAG, "Second attempt to find "
+                    + packageAndroidSettings + _ID + idButtonRight + " on system UI");
+            forceStopButton = findByResourceId(packageAndroidSettings + _ID + idButtonRight);
         }
         try {
-            if (forceStopButton.getText().toLowerCase().contains("force stop")) {
+            if (forceStopButton.getText().toLowerCase().contains(textForceStop)) {
                 //This is classic placing of Force stop button on system UI
-                return performForceStopAction("right_button");
+                return performForceStopAction(idButtonRight);
             } else {
                 //Mirror placing of Force stop button on system UI
-                return performForceStopAction("left_button");
+                return performForceStopAction(idButtonLeft);
             }
         } catch (UiObjectNotFoundException e) {
-            Log.d(TAG, "com.android.settings:id/right_button wasn't found on system UI");
+            Log.d(TAG, packageAndroidSettings + _ID + idButtonRight
+                    + " wasn't found on system UI");
         }
         return false;
     }
 
     /**
-     * Helper method to check if software keyboard is present on screen
+     * Helper method to check if software keyboard is present on screen.
      *
      * @return true if keyboard was shown and button Back was pressed, otherwise false
+     * @throws RemoteException catch
      */
     public boolean isKeyboardShown() throws RemoteException {
-        for (AccessibilityWindowInfo accessibilityWindowInfo : InstrumentationRegistry.getInstrumentation().getUiAutomation().getWindows()) {
-            if (accessibilityWindowInfo.getType() == AccessibilityWindowInfo.TYPE_INPUT_METHOD) {
-                Log.d(TAG, "Keyboard is shown");
-                return true;
-            }
-        }
-        Log.e(TAG, "Keyboard isn't shown");
-        return false;
+        return ControlWrapper.isKeyboardShown();
     }
 
     /**
-     * Helper method to check and close software keyboard if it is present on screen in landscape mode
+     * Helper method to check and close software keyboard if it is present on screen in landscape mode.
      *
      * @return true if keyboard was shown and button Back was pressed, otherwise false
+     * @throws RemoteException exception
      */
     public boolean hideKeyboard() throws RemoteException {
         if (isKeyboardShown()) {
@@ -294,8 +372,10 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to check and close software keyboard if it is present on screen in landscape mode
-     * * @return true if keyboard was shown in landscape mode and button Back was pressed, otherwise false
+     * Helper method to check and close software keyboard if it is present on screen in landscape mode.
+     *
+     * @return true if keyboard was shown in landscape mode and button Back was pressed, otherwise false
+     * @throws RemoteException exception
      */
     public boolean hideKeyboardInLandscape() throws RemoteException {
         if (!isNaturalOrientation()) {
@@ -307,7 +387,10 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to determine child count for element. Can be used for counting elements in list
+     * Helper method to determine child count for element. Can be used for counting elements in list.
+     *
+     * @param packageName application package name
+     * @param aResourceID resource ID
      */
     public int listViewSize(String packageName, String aResourceID) {
         String resourceID = computeResourceId(packageName, aResourceID);
@@ -322,17 +405,23 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
+     * Emulates force stop action.
+     *
      * @param forceStopID id of force stop button
      * @return true if successful, otherwise false
      */
     protected boolean performForceStopAction(String forceStopID) {
-        boolean result = clickOnItemWithID("com.android.settings", forceStopID, of(WAIT_FOR_SCREEN), of(UI_ACTION));
-        UiObject uiAlertTitle = findByResourceId("android:id/alertTitle", Duration.of(WAIT_FOR_SCREEN));
-        UiObject uiAlertMessage = findByResourceId("android:id/message", Duration.of(WAIT_FOR_SCREEN));
+        boolean result = clickOnItemWithID(packageAndroidSettings, forceStopID, Duration.of(WAIT_FOR_SCREEN),
+                Duration.of(UI_ACTION));
+        UiObject uiAlertTitle = findByResourceId(packageAndroid + _ID + idAlertTitle,
+                Duration.of(WAIT_FOR_SCREEN));
+        UiObject uiAlertMessage = findByResourceId(packageAndroid + _ID + idAlertMessage,
+                Duration.of(WAIT_FOR_SCREEN));
 
         try {
-            if (result && (uiAlertMessage.getText().toLowerCase().contains("force stop") || uiAlertTitle.getText().toLowerCase().contains("force stop"))) {
-                return clickOnItemWithID("android", "button1", of(WAIT_FOR_SCREEN), of(UI_ACTION));
+            if (result && (uiAlertMessage.getText().toLowerCase().contains(textForceStop)
+                    || uiAlertTitle.getText().toLowerCase().contains(textForceStop))) {
+                return clickOnItemWithID(packageAndroid, idButton1, of(WAIT_FOR_SCREEN), of(UI_ACTION));
             } else {
                 Log.d(TAG, "Wrong action tried to be performed on UI");
                 return false;
@@ -344,14 +433,16 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which launches the app specific settings page within Settings app (which allows for items such as force stop and permission changes)
+     * Helper method which launches the app specific settings page within Settings app
+     * (which allows for items such as force stop and permission changes).
      */
     public void launchAppUnderTestSettings() {
         launchAppSettings(getAppPackageName());
     }
 
     /**
-     * Helper method which launches the app specific settings page within Settings app (which allows for items such as force stop and permission changes)
+     * Helper method which launches the app specific settings page within Settings app
+     * (which allows for items such as force stop and permission changes).
      *
      * @param appPackageName app package name
      */
@@ -372,7 +463,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to determine if specific text is shown on screen
+     * Helper method to determine if specific text is shown on screen.
      *
      * @param aText text to be found on screen
      * @return true if successful, otherwise false
@@ -382,7 +473,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to determine if specific text is shown on screen with default timeout
+     * Helper method to determine if specific text is shown on screen with default timeout.
      *
      * @param aText      text to be found on screen
      * @param totalDelay wait for exist
@@ -412,7 +503,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to determine if specific description is shown on screen
+     * Helper method to determine if specific description is shown on screen.
      *
      * @param aDesc description to be found on screen
      * @return true if successful, otherwise false
@@ -422,7 +513,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to determine if specific description is shown on screen with default timeout
+     * Helper method to determine if specific description is shown on screen with default timeout.
      *
      * @param aDesc      description to be found on screen
      * @param totalDelay wait for exist
@@ -441,7 +532,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to determine if specific resource ID is shown on screen
+     * Helper method to determine if specific resource ID is shown on screen.
      *
      * @param packageName package name
      * @param aID         text to be found on screen
@@ -452,7 +543,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to determine if specific resource ID is shown on screen with default timeout
+     * Helper method to determine if specific resource ID is shown on screen with default timeout.
      *
      * @param packageName package name
      * @param aResourceID id of resource to be found on the screen
@@ -472,7 +563,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to determine if specific text is shown on the screen
+     * Helper method to determine if specific text is shown on the screen.
      *
      * @param appID     application ID
      * @param elementID ID of UI element
@@ -492,7 +583,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to determine if specific text is shown on screen and click on it without a delay
+     * Helper method to determine if specific text is shown on screen and click on it without a delay.
      *
      * @param aText text to be found on screen and clicked
      * @return true if successful, otherwise false
@@ -502,7 +593,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to determine if specific text is shown on screen with default timeout and click on it
+     * Helper method to determine if specific text is shown on screen with default timeout and click on it.
      *
      * @param aText      text to be found on screen and clicked
      * @param totalDelay wait for exist
@@ -534,7 +625,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to determine if part of specific text is shown on screen and click on it without a delay
+     * Helper method to determine if part of specific text is shown on screen and click on it without a delay.
      *
      * @param aText text to be found on screen and clicked
      * @return true if successful, otherwise false
@@ -544,7 +635,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to determine if part of specific text is shown on screen with default timeout and click on it
+     * Helper method to determine if part of specific text is shown on screen with default timeout and click on it.
      *
      * @param aText      text to be found on screen and clicked
      * @param totalDelay wait for exist
@@ -576,7 +667,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method for click on a element with specified content description
+     * Helper method for click on a element with specified content description.
      *
      * @param text text to search in element's content description
      * @return true if successful, otherwise false
@@ -586,7 +677,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method for click on a element with specified content description
+     * Helper method for click on a element with specified content description.
      *
      * @param text       text to search in element's content description
      * @param totalDelay wait for exist
@@ -611,7 +702,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method for long tap on a element with specified content description
+     * Helper method for long tap on a element with specified content description.
      *
      * @param text       text to search in element's content description
      * @param totalDelay wait for exist
@@ -619,10 +710,10 @@ public abstract class AbstractUIAutomatorUtils {
      */
     public boolean longTapOnItemWithContentDescriptionText(String text, long totalDelay) {
         UiObject uiObject = uiDevice.findObject(new UiSelector().descriptionContains(text));
-
         if (uiObject.waitForExists(totalDelay)) {
             try {
-                uiObject.longClick();
+                Rect longTapButton = uiObject.getBounds();
+                getUiDevice().swipe(longTapButton.centerX(), longTapButton.centerY(), longTapButton.centerX(), longTapButton.centerY(), 400);
                 uiDevice.waitForIdle(of(UI_WAIT));
                 Log.d(TAG, "Long click on text was performed: " + text);
                 return true;
@@ -636,7 +727,9 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method for long tap on a element with specified id
+     * Helper method for long tap on a element with specified id.
+     *
+     * On 29 API will always returns false according to this issue: https://issuetracker.google.com/issues/134089827.
      *
      * @param packageName app package name
      * @param aResourceID resource id to be clicked
@@ -667,7 +760,9 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method for long tap on a element containing specified text
+     * Helper method for long tap on a element containing specified text.
+     *
+     * On 29 API will always returns false according to this issue: https://issuetracker.google.com/issues/134089827.
      *
      * @param packageName app package name
      * @param aText       text of UI Object to be clicked
@@ -698,14 +793,14 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to click on specific item, specified by resourceID, with a default timeout
+     * Helper method to click on specific item, specified by resourceID, with a default timeout.
      */
     public boolean clickOnItemWithID(String aResourceID) {
         return clickOnItemWithID(getAppPackageName(), aResourceID, Duration.of(UI_WAIT), Duration.of(UI_ACTION));
     }
 
     /**
-     * Helper method to click on specific item, specified by package name and resourceID, with a default timeout
+     * Helper method to click on specific item, specified by package name and resourceID, with a default timeout.
      */
     public boolean clickOnItemWithID(String packageName, String aResourceID) {
         return clickOnItemWithID(packageName, aResourceID, Duration.of(UI_WAIT), Duration.of(UI_ACTION));
@@ -719,7 +814,8 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to determine if an item with the specific id is shown on screen with default timeout and click on it
+     * Helper method to determine if an item with the specific id is shown on screen
+     * with default timeout and click on it.
      *
      * @param packageName app package name
      * @param aResourceID resource id to be clicked
@@ -751,14 +847,15 @@ public abstract class AbstractUIAutomatorUtils {
                 Log.d(TAG, "Resource with id: " + resourceID + " is not found on the screen");
             }
         } catch (UiObjectNotFoundException e) {
-            Log.d(TAG, "UiObjectNotFoundException. Resource with id: " + resourceID + " is not found on the screen");
+            Log.d(TAG, "UiObjectNotFoundException. Resource with id: " + resourceID
+                    + " is not found on the screen");
             return false;
         }
         return false;
     }
 
     /**
-     * Helper method that returns isChecked value of UI element
+     * Helper method that returns isChecked value of UI element.
      *
      * @param packageName container package ID
      * @param id          id of UI element that could be Checked
@@ -774,7 +871,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method that grants Runtime Permissions for Android API level 23+
+     * Helper method that grants Runtime Permissions for Android API level 23+.
      * For Android API level 22 and lower permissions are already granted
      *
      * @param permissions list of required permissions
@@ -788,8 +885,8 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to toggle a permission switch in App Settings
-     * View Hierarchy  can be determined in App Settings by using the UIAutomatorViewer tool in SDK/tools DIR
+     * Helper method to toggle a permission switch in App Settings.
+     * View Hierarchy can be determined in App Settings by using the UIAutomatorViewer tool in SDK/tools DIR
      */
     public boolean selectPermissionSwitchItemWithDescription(String aDescription) {
 
@@ -797,7 +894,8 @@ public abstract class AbstractUIAutomatorUtils {
         permissionList.waitForExists(Duration.of(UI_WAIT));
 
         try {
-            UiObject object = permissionList.getChildByText(new UiSelector().className("android.widget.RelativeLayout"), aDescription);
+            UiObject object = permissionList.getChildByText(
+                    new UiSelector().className("android.widget.RelativeLayout"), aDescription);
             return object.click();
         } catch (UiObjectNotFoundException e) {
             return false;
@@ -810,17 +908,18 @@ public abstract class AbstractUIAutomatorUtils {
      * Can be determined to navigate to Permission settings directly from the app UI or not
      *
      * @param appPackageName package name of the appUnderTest
-     * @param aDescription title of the permission which state should be changed
-     * @param fromAppUI initial place from where the state should be changed
-     *                     true - if user have to change the permission from app UI by clicking on 'GO TO SETTINGS' button
-     *                     false - if user should go to android app settings to change the permission
+     * @param aDescription   title of the permission which state should be changed
+     * @param fromAppUI      initial place from where the state should be changed
+     *                       true - if user have to change the permission from app UI by clicking
+     *                       on 'GO TO SETTINGS' button
+     *                       false - if user should go to android app settings to change the permission
      */
     public boolean changePermissionsState(String appPackageName, String aDescription, boolean fromAppUI) {
         if (fromAppUI) {
             new BBDPermissionUI(appPackageName).clickAllow();
             Log.i(TAG, "Navigate to the app" + appPackageName
                     + " settings from app UI. Click on \"GO TO SETTINGS\" button");
-        } else{
+        } else {
             launchAppSettings(appPackageName);
             Log.i(TAG, "Navigate to the app" + appPackageName + " Android settings");
         }
@@ -863,7 +962,8 @@ public abstract class AbstractUIAutomatorUtils {
                 }
 
             } catch (UiObjectNotFoundException e) {
-                Log.d(TAG, "UiObjectNotFoundException. Resource with id: " + packageName + " is not found on the screen");
+                Log.d(TAG, "UiObjectNotFoundException. Resource with id: " + packageName
+                        + " is not found on the screen");
             }
         } else {
             Log.d(TAG, "Required checkbox (" + resourceID + ") does not exists on the screen.");
@@ -878,8 +978,7 @@ public abstract class AbstractUIAutomatorUtils {
      * @param packageName       package name of the radio
      * @param aResourceID       id of the radio
      * @param aTimeMSWaitExists timeout to exist
-     * @return true - if check was successful
-     * false - otherwise
+     * @return true - if check was successful / false - otherwise
      */
     public boolean setRadio(String packageName, String aResourceID, long aTimeMSWaitExists) {
 
@@ -900,7 +999,8 @@ public abstract class AbstractUIAutomatorUtils {
                     }
                 }
             } catch (UiObjectNotFoundException e) {
-                Log.d(TAG, "UiObjectNotFoundException. Resource with id: " + packageName + " is not found on the screen");
+                Log.d(TAG, "UiObjectNotFoundException. Resource with id: " + packageName
+                        + " is not found on the screen");
                 return false;
             }
         } else {
@@ -920,7 +1020,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Press key by its code
+     * Press key by its code.
      *
      * @param keyCode - key code {@link KeyEvent}
      * @return true if operation successful, false otherwise
@@ -930,7 +1030,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Press key by its code with passed meta
+     * Press key by its code with passed meta.
      *
      * @param keyCode - key code {@link KeyEvent}
      * @return true if operation successful, false otherwise
@@ -940,14 +1040,14 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which presses HOME
+     * Helper method which presses HOME.
      */
     public void pressHome() {
         pressHome(of(UI_WAIT));
     }
 
     /**
-     * Helper method which presses HOME
+     * Helper method which presses HOME.
      *
      * @param delay delay after pressing Home
      */
@@ -959,7 +1059,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which presses BACK
+     * Helper method which presses BACK.
      */
     public boolean pressBack() {
 
@@ -975,7 +1075,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to get App Target API level
+     * Helper method to get App Target API level.
      */
     public int getAppTargetAPILevel() {
         return InstrumentationRegistry.getTargetContext().getApplicationInfo().targetSdkVersion;
@@ -991,13 +1091,14 @@ public abstract class AbstractUIAutomatorUtils {
             return recentApp != null && recentApp.click();
 
         } catch (UiObjectNotFoundException e) {
-            Log.d(TAG, "UiObjectNotFoundException. Recent app with text: " + aText + " is not found on the screen");
+            Log.d(TAG, "UiObjectNotFoundException. Recent app with text: " + aText
+                    + " is not found on the screen");
             return false;
         }
     }
 
     /**
-     * Helper method to enter text into screen element which belongs to a certain class
+     * Helper method to enter text into screen element which belongs to a certain class.
      */
     public boolean enterTextScreenWithClass(String aClass, String aText) {
 
@@ -1016,28 +1117,42 @@ public abstract class AbstractUIAutomatorUtils {
         return false;
     }
 
+
     /**
-     * Remove the task from the recent apps list
+     * Remove the task from the recent apps list.
      *
      * @param aText task with specific text, to be removed
      * @return true if action successfully performed, otherwise false
      */
+    public boolean removeTaskWithTextInRecentApps(String aText) {
+        return swipeTaskWithTextInRecentApps(aText);
+    }
+
+    /**
+     * Remove (swipe) the task from the recent apps list.
+     *
+     * @param aText task with specific text, to be removed
+     * @return true if action successfully performed, otherwise false
+     * @deprecated starting from 26 API {@link com.good.automated.general.utils.impl.UIAutomatorUtilsAndroidO26#removeTaskWithTextInRecentApps(String)} should be used
+     */
+    @Deprecated
     public boolean swipeTaskWithTextInRecentApps(String aText) {
         try {
             UiObject recentApp = findTaskWithTextInRecentApps(aText);
 
             // The number of step is set to 10 after a few attempts
             // to balance swipe speed and distance. No better rationale for it.
-            return recentApp != null && recentApp.swipeRight(10);
+            return recentApp != null && recentApp.swipeLeft(10);
 
         } catch (UiObjectNotFoundException e) {
-            Log.d(TAG, "UiObjectNotFoundException. Recent app with text: " + aText + " is not found on the screen");
+            Log.d(TAG, "UiObjectNotFoundException. Recent app with text: " + aText
+                    + " is not found on the screen");
             return false;
         }
     }
 
     /**
-     * Helper method for GD Wearable App provisioning
+     * Helper method for GD Wearable App provisioning.
      */
     public boolean provisionWearableGDApp() {
 
@@ -1049,9 +1164,9 @@ public abstract class AbstractUIAutomatorUtils {
             success = clickOnItemWithID("gd_button_start_activation");
 
             // After clicking on start activation button Activation should start, wait 30seconds for user validation
-            if (success && isScreenShown(getAppPackageName(), "button1", 30000)) {
+            if (success && isScreenShown(getAppPackageName(), idButton1, 30000)) {
 
-                success = clickOnItemWithID("button1");
+                success = clickOnItemWithID(idButton1);
                 success = success && isScreenShown(getAppPackageName(), "gd_activation_complete", 30000);
 
             }
@@ -1060,7 +1175,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Finds and returns the UiObject corresponding to the task matching the text
+     * Finds and returns the UiObject corresponding to the task matching the text.
      *
      * @param aText task with specific text
      * @return the UiObject corresponding to the task matching the text
@@ -1070,11 +1185,11 @@ public abstract class AbstractUIAutomatorUtils {
 
 
     public String computeResourceId(String packageName, String aResourceID) {
-        return packageName + ":id/" + aResourceID;
+        return packageName + _ID + aResourceID;
     }
 
     /**
-     * Helper method which gets an object by resourceID
+     * Helper method which gets an object by resourceID.
      *
      * @param resourceID id of view to match
      * @return matched object
@@ -1085,7 +1200,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which gets an object by resourceID which was created in runtime
+     * Helper method which gets an object by resourceID which was created in runtime.
      *
      * @param resourceID id of view to match
      * @param delay      time to wait for object appearance
@@ -1102,7 +1217,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which gets an object by resourceID which was created in .xml file
+     * Helper method which gets an object by resourceID which was created in .xml file.
      *
      * @param packageName of app which object you need to get
      * @param resourceID  id of view to match
@@ -1114,7 +1229,8 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method that returns the numeric id of a resource in the current application, provided the resource name.
+     * Helper method that returns the numeric id of a resource in the current application,
+     * provided the resource name.
      *
      * @param aResourceIDName the resource name, uniquely identifying the resource
      * @return the numeric id of the resource
@@ -1124,10 +1240,12 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method that returns the numeric id of a resource in the package specified, provided the resource name.
+     * Helper method that returns the numeric id of a resource in the package specified,
+     * provided the resource name.
      *
      * @param packageName     the package name where to look the resource up
-     * @param aResourceIDName the resource name, uniquely identifying the resource in scope of the package name
+     * @param aResourceIDName the resource name, uniquely identifying the resource
+     *                        in scope of the package name
      * @return the numeric id of the resource
      */
     public int getResourceID(String packageName, String aResourceIDName) {
@@ -1135,7 +1253,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which wakes up device if needed
+     * Helper method which wakes up device if needed.
      */
     public void wakeUpDeviceIfNeeded() {
         try {
@@ -1149,7 +1267,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * @param scrollableContainerId id of container to be scrolled
+     * @param scrollableContainerId id of container to be scrolled.
      * @param aText                 text to scroll to
      * @return true if text found, otherwise false
      */
@@ -1167,6 +1285,7 @@ public abstract class AbstractUIAutomatorUtils {
         }
     }
 
+
     /**
      * Scrolls to an element with specified id.
      *
@@ -1175,9 +1294,19 @@ public abstract class AbstractUIAutomatorUtils {
      * @return true - if scroll was performed successfully / false - otherwise
      */
     public boolean scrollToTheElementWithId(String scrollableContainerId, String elementId) {
-        UiSelector elementSelector = new UiSelector().resourceId(elementId);
-
         UiSelector scrollableSelector = new UiSelector().resourceId(scrollableContainerId);
+        return scrollToTheElementWithId(scrollableSelector, elementId);
+    }
+
+    /**
+     * Scrolls to an element with specified id.
+     *
+     * @param scrollableSelector UiSelector object
+     * @param elementId          id of an element to search for
+     * @return true - if scroll was performed successfully / false - otherwise
+     */
+    public boolean scrollToTheElementWithId(UiSelector scrollableSelector, String elementId) {
+        UiSelector elementSelector = new UiSelector().resourceId(elementId);
         UiScrollable scrollable = new UiScrollable(scrollableSelector);
 
         try {
@@ -1189,7 +1318,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which handles System Dialogues which may be showing and thus impact tests
+     * Helper method which handles System Dialogues which may be showing and thus impact tests.
      */
     public void acceptSystemDialogues() {
         acceptSystemWelcomeMessageIfShown();
@@ -1197,7 +1326,8 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which cancels a system error message if shown (can be at start of emulator boot if part of system has crashed)
+     * Helper method which cancels a system error message if shown
+     * (can be at start of emulator boot if part of system has crashed).
      */
     public void cancelSystemCrashDialogueIfShown() {
         // We don't wait for long duration, if it is showing then deal with it, otherwise move on
@@ -1208,7 +1338,8 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which accepts and dismisses System Welcome message (can be at first boot of emulator or device)
+     * Helper method which accepts and dismisses System Welcome message
+     * (can be at first boot of emulator or device).
      */
     public void acceptSystemWelcomeMessageIfShown() {
 
@@ -1219,14 +1350,14 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to get app under test Package Name
+     * Helper method to get app under test Package Name.
      */
     public String getAppPackageName() {
         return InstrumentationRegistry.getTargetContext().getPackageName();
     }
 
     /**
-     * Helper method to get app Package Name that is shown in foreground
+     * Helper method to get app Package Name that is shown in foreground.
      */
     public String getAppPackageNameInForeground() {
         return UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).getCurrentPackageName();
@@ -1304,7 +1435,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Wrapper method for uiautomator internal wait realisation
+     * Wrapper method for uiautomator internal wait realisation.
      *
      * @param delay waits for UI
      */
@@ -1317,7 +1448,8 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which checks that GD has sent the  GD Authorized callback (which needs to be sent before app code can run)
+     * Helper method which checks that GD has sent the  GD Authorized callback
+     * (which needs to be sent before app code can run).
      */
     public boolean checkGDAuthorized() {
 
@@ -1329,7 +1461,8 @@ public abstract class AbstractUIAutomatorUtils {
             return true;
         }
 
-        // If we aren't already authorized we wait up to 10secs for auth change to occur (i.e. if we have just logged in or finished activation)
+        // If we aren't already authorized we wait up to 10secs for auth change to occur
+        // (i.e. if we have just logged in or finished activation)
         // We are explicitly  waiting for 10 seconds here, not the Duration.of(Duration.UI_WAIT)
         GDSDKStateReceiver.getInstance().waitForAuthorizedChange(of(AUTHORIZE_CALLBACK));
 
@@ -1342,7 +1475,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to get application version name
+     * Helper method to get application version name.
      *
      * @param packageName package name of application
      * @return application version name (e.g. 1.4.0.0)
@@ -1350,7 +1483,9 @@ public abstract class AbstractUIAutomatorUtils {
     public String getAppVersionName(String packageName) {
         String versionName = "";
         try {
-            versionName = InstrumentationRegistry.getTargetContext().getPackageManager().getPackageInfo(packageName, PackageManager.GET_SERVICES).versionName;
+            versionName = InstrumentationRegistry
+                    .getTargetContext().getPackageManager().getPackageInfo(
+                            packageName, PackageManager.GET_SERVICES).versionName;
         } catch (PackageManager.NameNotFoundException e) {
             Log.d(TAG, "Could not find specified package");
         }
@@ -1369,21 +1504,24 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to determine if a screen (Either GD screen or App UI screen) containing specified ResourceID is shown (with default timeout and default current app)
+     * Helper method to determine if a screen (Either GD screen or App UI screen)
+     * containing specified ResourceID is shown (with default timeout and default current app).
      */
     public boolean isScreenShown(String aResourceID) {
         return isScreenShown(getAppPackageName(), aResourceID, Duration.of(UI_ACTION));
     }
 
     /**
-     * Helper method to determine if a screen in the provided app (Either GD screen or App UI screen) containing specified ResourceID is shown (with default timeout)
+     * Helper method to determine if a screen in the provided app
+     * (Either GD screen or App UI screen) containing specified ResourceID is shown (with default timeout).
      */
     public boolean isScreenShown(String packageName, String aResourceID) {
         return isScreenShown(packageName, aResourceID, Duration.of(UI_ACTION));
     }
 
     /**
-     * Helper method to determine if a screen in the provided app (Either GD screen or App UI screen) containing specified ResourceID is shown waiting a certain timeout
+     * Helper method to determine if a screen in the provided app
+     * (Either GD screen or App UI screen) containing specified ResourceID is shown waiting a certain timeout.
      *
      * @param packageName package name of app under test
      * @param aResourceID id to be found on UI
@@ -1444,7 +1582,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Swipe on UI element from the top
+     * Swipe on UI element from the top.
      *
      * @param uiElementId UI element ID
      * @return true if swipe was successful, false otherwise
@@ -1474,7 +1612,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which locks device
+     * Helper method which locks device.
      */
     public void lockDevice() {
         // Simulate a lock of the device
@@ -1482,7 +1620,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which sets device password
+     * Helper method which sets device password.
      * Works only for pure Android UI
      */
     public boolean setDevicePassword(String devicePassword) {
@@ -1490,7 +1628,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which sets device PIN
+     * Helper method which sets device PIN.
      * Works only for pure Android UI
      */
     public boolean setDevicePIN(String devicePIN) {
@@ -1498,7 +1636,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which sets device password/PIN
+     * Helper method which sets device password/PIN.
      * By default it configured to support 23 API level
      * Works only for pure Android UI
      */
@@ -1506,13 +1644,14 @@ public abstract class AbstractUIAutomatorUtils {
         Log.d(TAG, "Default setting device PIN or Password");
         String setupPasswordPinText = "Choose your " + passwordPIN;
         String confirmYourPasswordPinText = "Confirm your " + passwordPIN;
-        String completeToSetPasswordPINButton = "next_button";
+        String completeToSetPasswordPINButton = idButtonNext;
 
-        return setDevicePasswordOrPIN(passwordPIN, devicePasscode, setupPasswordPinText, confirmYourPasswordPinText, completeToSetPasswordPINButton);
+        return setDevicePasswordOrPIN(passwordPIN, devicePasscode, setupPasswordPinText, confirmYourPasswordPinText,
+                completeToSetPasswordPINButton);
     }
 
     /**
-     * Works only for pure Android UI
+     * Works only for pure Android UI.
      *
      * @param passwordPIN                    what should be selected PIN or Password
      * @param devicePasscode                 device password or PIN
@@ -1521,44 +1660,63 @@ public abstract class AbstractUIAutomatorUtils {
      * @param completeToSetPasswordPINButton complete setup PIN or Password
      * @return true if PIN or Password was successfully set, otherwise false
      */
-    protected final boolean setDevicePasswordOrPIN(String passwordPIN, String devicePasscode, String setupPasswordPinText, String confirmYourPasswordPinText, String completeToSetPasswordPINButton) {
-
+    protected final boolean setDevicePasswordOrPIN(String passwordPIN,
+                                                   String devicePasscode,
+                                                   String setupPasswordPinText,
+                                                   String confirmYourPasswordPinText,
+                                                   String completeToSetPasswordPINButton) {
         openSecuritySettings();
 
         if (isDevicePasswordSet()) {
             return true;
         }
 
-        if (!isTextShown("Screen lock", of(UI_WAIT))) {
+        if (!isTextShown(textScreenLock, of(UI_WAIT))) {
             Log.d(TAG, "\"Screen lock\" screen is not shown");
             return false;
         }
 
-        if (clickOnItemWithText("Screen lock", of(WAIT_FOR_SCREEN))) {
-            if (clickOnItemWithText(passwordPIN, of(WAIT_FOR_SCREEN))) {
-                if (clickOnItemWithID("com.android.settings", "encrypt_dont_require_password", of(WAIT_FOR_SCREEN), of(UI_WAIT))
-                        && (clickOnItemWithID("com.android.settings", "next_button", of(WAIT_FOR_SCREEN), of(UI_WAIT)) || isTextShown(setupPasswordPinText))) {
-                    if (enterTextToItemWithID("com.android.settings", "password_entry", devicePasscode) &&
-                            (clickOnItemWithID("com.android.settings", "next_button", of(WAIT_FOR_SCREEN), of(UI_WAIT))
-                                    || isTextShown(confirmYourPasswordPinText))) {
-                        if (enterTextToItemWithID("com.android.settings", "password_entry", devicePasscode) &&
-                                (clickOnItemWithID("com.android.settings", "next_button", of(WAIT_FOR_SCREEN), of(UI_WAIT))
-                                        || isTextShown("Notifications"))) {
-                            if (setRadio("com.android.settings", "show_all", of(WAIT_FOR_SCREEN)) &&
-                                    clickOnItemWithID("com.android.settings", completeToSetPasswordPINButton, of(WAIT_FOR_SCREEN), of(UI_WAIT))) {
+        if (clickOnItemWithText(textScreenLock, Duration.of(WAIT_FOR_SCREEN))) {
+            if (clickOnItemWithText(passwordPIN, Duration.of(WAIT_FOR_SCREEN))) {
+                //Some device/emulators might have intermediate screen before Password/PIN set.
+                if (isTextShown(setupPasswordPinText)
+                        || (clickOnItemWithID(packageAndroidSettings, idEncryptDontRequirePassword,
+                        Duration.of(WAIT_FOR_SCREEN), Duration.of(UI_WAIT))
+                        && (clickOnItemWithID(packageAndroidSettings, idButtonNext,
+                        Duration.of(WAIT_FOR_SCREEN), Duration.of(UI_WAIT))
+                        || isTextShown(setupPasswordPinText)))) {
+                    if (enterTextToItemWithID(packageAndroidSettings, idPasswordEntry, devicePasscode)
+                            && ((clickOnItemWithID(packageAndroidSettings, idButtonNext,
+                            Duration.of(WAIT_FOR_SCREEN), Duration.of(UI_WAIT))
+                            || clickOnItemContainingText(textButtonNext, Duration.of(UI_WAIT)))
+                            || isTextShown(confirmYourPasswordPinText))) {
+                        if (enterTextToItemWithID(packageAndroidSettings, idPasswordEntry, devicePasscode)
+                                && ((clickOnItemWithID(packageAndroidSettings, idButtonNext,
+                                Duration.of(WAIT_FOR_SCREEN), Duration.of(UI_WAIT))
+                                || clickOnItemContainingText(textButtonConfirm, Duration.of(UI_WAIT)))
+                                || isTextShown(textNotifications))) {
+                            if (setRadio(packageAndroidSettings, idDateTimeRadialPicker, Duration.of(WAIT_FOR_SCREEN))
+                                    && clickOnItemWithID(packageAndroidSettings, completeToSetPasswordPINButton,
+                                    Duration.of(WAIT_FOR_SCREEN), Duration.of(UI_WAIT))) {
+                                Log.d(TAG, "Password was successfully set: " + devicePasscode);
+                                return true;
+                            }
+                            if (isTextShown(textButtonDone) && clickOnItemContainingText(textButtonDone)) {
                                 Log.d(TAG, "Password was successfully set: " + devicePasscode);
                                 return true;
                             }
                             Log.d(TAG, "Couldn't complete to set of device PIN or Password. Was left default value");
                             return true;
                         }
-                        Log.d(TAG, "\"Notifications\" screen is not shown. Couldn't enter text into field with id: com.android.settings:id/show_all");
+                        Log.d(TAG, textNotifications + " screen is not shown. Couldn't enter text into field with id: "
+                                + packageAndroidSettings + _ID + "show_all");
                         return false;
                     }
-                    Log.d(TAG, "\"Choose your PIN\" screen is not shown. Couldn't enter password into field with id: com.android.settings:id/password_entry");
+                    Log.d(TAG, "\"Choose your PIN\" screen is not shown. Couldn't enter password into field with id: "
+                            + packageAndroidSettings + _ID + idPasswordEntry);
                     return false;
                 }
-                Log.d(TAG, "encrypt_dont_require_password screen is not shown.");
+                Log.d(TAG, idEncryptDontRequirePassword + " screen is not shown.");
                 return false;
             }
             Log.d(TAG, "\"Security\" screen is not shown ");
@@ -1569,24 +1727,24 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which removes device PIN
-     * By default it configured to support 23 API level and pure Android UI
+     * Helper method which removes device PIN.
+     * By default it configured to support 23 API level and pure Android UI.
      */
     public boolean removeDevicePIN(String devicePIN) {
         return removeDevicePasswordOrPIN(devicePIN);
     }
 
     /**
-     * Helper method which removes device Password
-     * By default it configured to support 23 API level and pure Android UI
+     * Helper method which removes device Password.
+     * By default it configured to support 23 API level and pure Android UI.
      */
     public boolean removeDevicePassword(String devicePassword) {
         return removeDevicePasswordOrPIN(devicePassword);
     }
 
     /**
-     * Helper method which removes device password/PIN
-     * By default it configured to support 23 API level and pure Android UI
+     * Helper method which removes device password/PIN.
+     * By default it configured to support 23 API level and pure Android UI.
      */
     protected boolean removeDevicePasswordOrPIN(String devicePasscode) {
         if (!isDevicePasswordSet()) {
@@ -1595,9 +1753,16 @@ public abstract class AbstractUIAutomatorUtils {
 
         openSecuritySettings();
 
-        if (clickOnItemWithText("Screen lock", of(WAIT_FOR_SCREEN))) {
-            if (enterTextToItemWithID("com.android.settings", "password_entry", devicePasscode) && clickKeyboardOk()) {
-                if (clickOnItemWithText("None", of(WAIT_FOR_SCREEN)) && clickOnItemWithID("android", "button1", of(WAIT_FOR_SCREEN), of(UI_ACTION))) {
+        if (!isTextShown(textScreenLock, Duration.of(UI_WAIT))) {
+            Log.i(TAG, String.format("Couldn't find %s text. Will try to scroll to it.", textScreenLock));
+            scrollToText(packageAndroidSettings + _ID + idRecyclerViewList, textScreenLock);
+        }
+
+        if (clickOnItemWithText(textScreenLock, of(UI_WAIT))) {
+            if (enterTextToItemWithID(packageAndroidSettings, idPasswordEntry, devicePasscode)
+                    && clickKeyboardOk()) {
+                if (clickOnItemWithText("None", of(WAIT_FOR_SCREEN))
+                        && clickOnItemWithID(packageAndroid, idButton1, of(WAIT_FOR_SCREEN), of(UI_ACTION))) {
                     Log.d(TAG, "Device password was successfully removed");
                     return true;
                 }
@@ -1653,7 +1818,8 @@ public abstract class AbstractUIAutomatorUtils {
                 return false;
             }
         } catch (UiObjectNotFoundException e) {
-            Log.d(TAG, "Couldn't enter text to UI element with ID: " + resourceID + " UiObjectNotFoundException: " + e.getMessage());
+            Log.d(TAG, "Couldn't enter text to UI element with ID: " + resourceID
+                    + " UiObjectNotFoundException: " + e.getMessage());
             return false;
         }
     }
@@ -1734,13 +1900,43 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which opens device security settings UI
+     * Helper method which opens device security settings UI.
      */
     protected void openSecuritySettings() {
+        openSpecifiedSettings(Settings.ACTION_SECURITY_SETTINGS);
+    }
+
+    /**
+     * Helper method which opens system settings UI.
+     */
+    protected void openSystemSettings() {
+        openSpecifiedSettings(Settings.ACTION_SETTINGS);
+    }
+
+    /**
+     * Helper method which opens system settings UI.
+     */
+    protected void openDisplaySettings() {
+        openSpecifiedSettings(Settings.ACTION_DISPLAY_SETTINGS);
+    }
+
+    /**
+     * Helper method which opens system settings UI.
+     */
+    protected void openDeviceInfoSettings() {
+        openSpecifiedSettings(Settings.ACTION_DEVICE_INFO_SETTINGS);
+    }
+
+    /**
+     * Method which opens specific device UI by its intent ID.
+     *
+     * @param settingsToOpen settings to be opened
+     */
+    private void openSpecifiedSettings(String settingsToOpen) {
         Context context = InstrumentationRegistry.getTargetContext();
 
         final Intent i = new Intent();
-        i.setAction(Settings.ACTION_SECURITY_SETTINGS);
+        i.setAction(settingsToOpen);
         i.addCategory(Intent.CATEGORY_DEFAULT);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -1752,15 +1948,49 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method which shows UI that asks to scan fingerprint
-     * <p>
+     * Enum with available sleep times for emulator.
+     */
+    public enum SleepTime {
+        SECONDS_15("15 seconds"),
+        SECONDS_30("30 seconds"),
+        MINUTES_1("1 minutes"),
+        MINUTES_2("2 minutes"),
+        MINUTES_5("5 minutes"),
+        MINUTES_10("10 minutes"),
+        MINUTES_30("30 minutes");
+
+        private final String time;
+
+        SleepTime(final String time) {
+            this.time = time;
+        }
+
+        public String getTime() {
+            return time;
+        }
+    }
+
+    /**
+     * Helper method which sets sleep time for device.
+     *
+     * @param textTime available time to be set
+     */
+    public boolean setSleepTime(SleepTime textTime) {
+        openDisplaySettings();
+
+        return clickOnItemContainingText("Sleep", Duration.of(WAIT_FOR_SCREEN))
+                && clickOnItemContainingText(textTime.getTime(), Duration.of(WAIT_FOR_SCREEN));
+    }
+
+    /**
+     * Helper method which shows UI that asks to scan fingerprint.<p>
      * After calling this method, device/emulator will expect to scan your fingerprint
      * To simulate fingerprint tauch on emulator you have to execute command:
      * adb -e emu finger touch 11551155
      */
     public boolean getFingerprintScreen(String devicePass) {
         String findTheSensor = "Find the sensor";
-        String fingerprintNextButton = "next_button";
+        String fingerprintNextButton = idButtonNext;
         return getFingerprintScreen(devicePass, fingerprintNextButton, findTheSensor);
     }
 
@@ -1769,10 +1999,11 @@ public abstract class AbstractUIAutomatorUtils {
 
         if (isFingerprintSupported() && isDevicePasswordSet()) {
             Log.d(TAG, "Fingerprint is supported by this hardware!");
-            if (isTextShown("fingerprint set up")) {
+            if (isTextShown(textFingerprintSetup)) {
                 return true;
             } else {
-                return scrollToText("com.android.settings:id/list", "fingerprint set up");
+                return scrollToText(packageAndroidSettings + _ID + idRecyclerViewList,
+                        textFingerprintSetup);
             }
         } else {
             Log.d(TAG, "Fingerprint is not supported by this hardware OR device PIN wasn't set");
@@ -1785,31 +2016,49 @@ public abstract class AbstractUIAutomatorUtils {
 
         if (isFingerprintSupported() && isDevicePasswordSet()) {
             Log.d(TAG, "Fingerprint is supported by this hardware!");
-            if (isTextShown("Fingerprint")) {
-                Log.d(TAG, "\"Fingerprint\" was found on Security screen");
+            if (isTextShown(textFingerprint)) {
+                Log.d(TAG, textFingerprint + " was found on Security screen");
             } else {
                 Log.d(TAG, "Cannot find \"Fingerprint\" on Security screen. Try to scroll to it");
-                if (scrollToText("com.android.settings:id/list", "Fingerprint")) {
-                    Log.d(TAG, "\"Fingerprint\" was found on Security screen after scrolling to it");
+                if (scrollToText(packageAndroidSettings + _ID + idRecyclerViewList,
+                        textFingerprint)) {
+                    waitForUI(Duration.of(WAIT_FOR_SCREEN));
+                    Log.d(TAG, textFingerprint + " was found on Security screen after scrolling to it");
                 } else {
-                    Log.d(TAG, "Cannot find \"Fingerprint\" on Security screen");
+                    Log.d(TAG, "Cannot find " + textFingerprint + " on Security screen");
                     return false;
                 }
             }
 
-            if (clickOnItemWithText("Fingerprint", of(WAIT_FOR_SCREEN))) {
-                if (clickOnItemWithID("com.android.settings", fingerprintNextButton, of(UI_WAIT), of(UI_WAIT))) {
-                    if (enterTextToItemWithID("com.android.settings", "password_entry", devicePass) && clickKeyboardOk() && isTextShown(findTheSensor)) {
+            if (clickOnItemWithText(textFingerprint, of(WAIT_FOR_SCREEN))) {
+                if (!isResourceWithIDShown(packageAndroidSettings, idPasswordEntry,
+                        Duration.of(UI_WAIT))) {
+                    clickOnItemWithID(packageAndroidSettings, fingerprintNextButton, of(UI_WAIT),
+                            of(UI_WAIT));
+                }
+
+                if (enterTextToItemWithID(packageAndroidSettings, idPasswordEntry, devicePass) && clickKeyboardOk()) {
+                    if (isTextShown("Unlock with fingerprint") && isTextShown(textButtonNext)) {
+                        clickOnItemContainingText(textButtonNext);
+                    }
+                    if (isTextShown(findTheSensor)) {
                         if (completeGettingOfFingerprintScan()) {
                             return true;
+                        } else {
+                            Log.d(TAG, "Cannot proceed with fingerprint setup");
+                            return false;
                         }
-                        Log.d(TAG, "Cannot proceed to fingerprint setup");
+                    } else if (isTextShown(textAddFingerprint,
+                            Duration.of(UI_WAIT))) {
+                        return clickOnItemContainingText(textAddFingerprint)
+                                && isTextShown("Put your finger on the sensor",
+                                Duration.of(WAIT_FOR_SCREEN) * 2);
+                    } else {
+                        Log.d(TAG, "Could not proceed with fingerprint setup after password set");
                         return false;
                     }
-                    Log.d(TAG, "Couldn't enter device password");
-                    return false;
                 }
-                Log.d(TAG, "Couldn't click on next button");
+                Log.d(TAG, "Couldn't enter device password");
                 return false;
             }
             Log.d(TAG, "Cannot find \"Fingerprint\" on Security screen");
@@ -1823,19 +2072,21 @@ public abstract class AbstractUIAutomatorUtils {
      * @return true if is proposed to scan your finger
      */
     protected boolean completeGettingOfFingerprintScan() {
-        String fingerprintNextButton = "next_button";
-        String fingerprintScrollViewId = "com.android.settings:id/suw_bottom_scroll_view";
-        String scrollToTextForFingerprint = "NEXT";
+        String fingerprintNextButton = idButtonNext;
+        String fingerprintScrollViewId = packageAndroidSettings + _ID + "suw_bottom_scroll_view";
+        String scrollToTextForFingerprint = textButtonNext;
         String scanYourFinger = "Put your finger on the sensor";
 
-        return completeGettingOfFingerprintScan(fingerprintNextButton, fingerprintScrollViewId, scrollToTextForFingerprint, scanYourFinger);
+        return completeGettingOfFingerprintScan(fingerprintNextButton, fingerprintScrollViewId,
+                scrollToTextForFingerprint, scanYourFinger);
     }
 
     /**
      * @return true if is proposed to scan your finger
      */
-    protected final boolean completeGettingOfFingerprintScan(String fingerprintNextButton, String fingerprintScrollViewId, String scrollToTextForFingerprint, String scanYourFinger) {
-        if (isResourceWithIDShown("com.android.settings", fingerprintNextButton)) {
+    protected final boolean completeGettingOfFingerprintScan(String fingerprintNextButton, String fingerprintScrollViewId,
+                                                             String scrollToTextForFingerprint, String scanYourFinger) {
+        if (isResourceWithIDShown(packageAndroidSettings, fingerprintNextButton)) {
             Log.d(TAG, fingerprintNextButton + " was found on the screen");
         } else {
             Log.d(TAG, "Cannot find " + fingerprintNextButton + " on the screen. Try to scroll to it");
@@ -1846,22 +2097,25 @@ public abstract class AbstractUIAutomatorUtils {
                 return false;
             }
         }
-        return clickOnItemWithID("com.android.settings", fingerprintNextButton, of(WAIT_FOR_SCREEN), of(UI_WAIT)) && isTextShown(scanYourFinger);
+        return clickOnItemWithID(packageAndroidSettings, fingerprintNextButton, of(WAIT_FOR_SCREEN), of(UI_WAIT))
+                && isTextShown(scanYourFinger);
     }
 
     /**
      * @return true if fingerprint was accepted successfully
      */
     public boolean completeFingerprintSetup() {
-        String fingerprintNextButton = "next_button";
-        String completeFingerprintScanScrollViewId = "com.android.settings:id/suw_scroll_view";
-        String scrollToTextToCompleteFingerprintScan = "DONE";
-        return completeFingerprintSetup(fingerprintNextButton, completeFingerprintScanScrollViewId, scrollToTextToCompleteFingerprintScan);
+        String fingerprintNextButton = idButtonNext;
+        String completeFingerprintScanScrollViewId = packageAndroidSettings + _ID + "suw_scroll_view";
+        String scrollToTextToCompleteFingerprintScan = textButtonDone;
+        return completeFingerprintSetup(fingerprintNextButton, completeFingerprintScanScrollViewId,
+                scrollToTextToCompleteFingerprintScan);
     }
 
-    public final boolean completeFingerprintSetup(String fingerprintNextButton, String completeFingerprintScanScrollViewId, String scrollToTextToCompleteFingerprintScan) {
+    public final boolean completeFingerprintSetup(String fingerprintNextButton, String completeFingerprintScanScrollViewId,
+                                                  String scrollToTextToCompleteFingerprintScan) {
 
-        if (isResourceWithIDShown("com.android.settings", fingerprintNextButton, of(UI_WAIT))) {
+        if (isResourceWithIDShown(packageAndroidSettings, fingerprintNextButton, of(UI_WAIT))) {
             Log.d(TAG, fingerprintNextButton + " was found on the screen");
         } else {
             Log.d(TAG, "Cannot find " + fingerprintNextButton + " on the screen. Try to scroll to it");
@@ -1873,7 +2127,7 @@ public abstract class AbstractUIAutomatorUtils {
             }
         }
 
-        return clickOnItemWithID("com.android.settings", fingerprintNextButton, of(WAIT_FOR_SCREEN), of(UI_WAIT));
+        return clickOnItemWithID(packageAndroidSettings, fingerprintNextButton, of(WAIT_FOR_SCREEN), of(UI_WAIT));
     }
 
     /**
@@ -1885,23 +2139,26 @@ public abstract class AbstractUIAutomatorUtils {
         openSecuritySettings();
         if (isFingerprintSupported() && isDevicePasswordSet()) {
             Log.d(TAG, "Fingerprint is supported by this hardware!");
-            if (isTextShown("Fingerprint")) {
-                Log.d(TAG, "\"Fingerprint\" was found on Security screen");
+            if (isTextShown(textFingerprint)) {
+                Log.d(TAG, textFingerprint + " was found on Security screen");
             } else {
-                Log.d(TAG, "Cannot find \"Fingerprint\" on Security screen. Try to scroll to it");
-                if (scrollToText("com.android.settings:id/list", "Fingerprint")) {
-                    Log.d(TAG, "\"Fingerprint\" was found on Security screen after scrolling to it");
+                Log.d(TAG, "Cannot find " + textFingerprint + " on Security screen. Try to scroll to it");
+                if (scrollToText(packageAndroidSettings + _ID + idRecyclerViewList,
+                        textFingerprint)) {
+                    Log.d(TAG, textFingerprint + " was found on Security screen after scrolling to it");
                 } else {
-                    Log.d(TAG, "Cannot find \"Fingerprint\" on Security screen");
+                    Log.d(TAG, "Cannot find " + textFingerprint + " on Security screen");
                     return false;
                 }
             }
 
-            if (clickOnItemWithText("Fingerprint", of(WAIT_FOR_SCREEN))) {
-                if (enterTextToItemWithID("com.android.settings", "password_entry", passwordPIN) && clickKeyboardOk() && isTextShown(fingerprintNameToRemove)) {
+            if (clickOnItemWithText(textFingerprint, of(WAIT_FOR_SCREEN))) {
+                if (enterTextToItemWithID(packageAndroidSettings, idPasswordEntry, passwordPIN)
+                        && clickKeyboardOk() && isTextShown(fingerprintNameToRemove)) {
                     if (clickOnItemWithText(fingerprintNameToRemove, of(WAIT_FOR_SCREEN))) {
-                        if (clickOnItemWithID("android", "button2", of(WAIT_FOR_SCREEN))) {
-                            if (isTextShown("Remove all fingerprints") && clickOnItemWithID("android", "button1", of(WAIT_FOR_SCREEN))) {
+                        if (clickOnItemWithID(packageAndroid, idButton2, of(WAIT_FOR_SCREEN))) {
+                            if (isTextShown("Remove all fingerprints")
+                                    && clickOnItemWithID(packageAndroid, idButton1, of(WAIT_FOR_SCREEN))) {
                                 Log.d(TAG, "The last one fingerprint was removed");
                                 return true;
                             }
@@ -1923,14 +2180,16 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     public boolean isDevicePasswordSet() {
-        KeyguardManager keyguardManager = (KeyguardManager) InstrumentationRegistry.getContext().getSystemService(Context.KEYGUARD_SERVICE); //api 23+
+        KeyguardManager keyguardManager = (KeyguardManager) InstrumentationRegistry.getContext()
+                .getSystemService(Context.KEYGUARD_SERVICE); //api 23+
         return keyguardManager != null && keyguardManager.isDeviceSecure();
     }
 
     @SuppressWarnings("MissingPermission")
     public boolean isFingerprintSupported() {
         //Fingerprint API only available on from Android 6.0 (M)
-        FingerprintManager fingerprintManager = (FingerprintManager) InstrumentationRegistry.getTargetContext().getSystemService(Context.FINGERPRINT_SERVICE);
+        FingerprintManager fingerprintManager = (FingerprintManager) InstrumentationRegistry.getTargetContext()
+                .getSystemService(Context.FINGERPRINT_SERVICE);
         return fingerprintManager != null && fingerprintManager.isHardwareDetected();
     }
 
@@ -2046,20 +2305,21 @@ public abstract class AbstractUIAutomatorUtils {
         UiObject switcher;
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                list = findByResourceId("com.android.settings:id/list");
-                switcher = list.getChild(new UiSelector().index(0)).
-                        getChild(new UiSelector().resourceId("android:id/widget_frame")).
-                        getChild(new UiSelector().resourceId("android:id/switch_widget"));
+                list = findByResourceId(packageAndroidSettings + _ID + idRecyclerViewList);
+                switcher = list.getChild(new UiSelector().index(0))
+                        .getChild(new UiSelector().resourceId(packageAndroid + _ID + idWidgetFrame))
+                        .getChild(new UiSelector().resourceId(packageAndroid + _ID + idSwitchWidget));
             } else {
-                list = findByResourceId("android:id/list");
-                switcher = list.getChild(new UiSelector().index(0)).
-                        getChild(new UiSelector().resourceId("android:id/switchWidget"));
+                list = findByResourceId(packageAndroid + _ID + idRecyclerViewList);
+                switcher = list.getChild(new UiSelector().index(0))
+                        .getChild(new UiSelector().resourceId(packageAndroid + _ID + idSwitchWidget));
             }
 
             switcher.waitForExists(timeout);
 
-            if ((switcher.getText().contains("ON") && !shouldBeEnabled) || (switcher.getText().contains("OFF") && shouldBeEnabled)) {
-                clickOnItemWithText("Automatic date & time");
+            if ((switcher.getText().contains("ON") && !shouldBeEnabled) || (switcher.getText().contains("OFF")
+                    && shouldBeEnabled)) {
+                clickOnItemWithText(textAutomaticDateTime);
             } else {
                 Log.d(TAG, "No need to change Automatic date & time");
             }
@@ -2070,7 +2330,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Increase date for specified number of days
+     * Increase date for specified number of days.
      *
      * @param daysToAdd count of days to add to calendar
      * @param timeout   time to wait for existence of needed UI element
@@ -2079,22 +2339,22 @@ public abstract class AbstractUIAutomatorUtils {
 
         UiObject list;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            list = findByResourceId("com.android.settings:id/list");
+            list = findByResourceId(packageAndroidSettings + _ID + idRecyclerViewList);
         } else {
-            list = findByResourceId("android:id/list");
+            list = findByResourceId(packageAndroid + _ID + idRecyclerViewList);
         }
 
         try {
-            UiObject setDate = list.getChild(new UiSelector().textMatches("Set date"));
+            UiObject setDate = list.getChild(new UiSelector().textMatches(textSetDate));
 
             setDate.waitForExists(timeout);
             setDate.click();
 
-            UiObject monthView = findByResourceId("android:id/month_view");
+            UiObject monthView = findByResourceId(packageAndroid + _ID + idDateTimeMonthView);
             int currentDate = Integer.parseInt(monthView.getChild(new UiSelector().checked(true)).getText());
             int daysInMonth = monthView.getChildCount();
             if (currentDate + daysToAdd > monthView.getChildCount()) {
-                UiObject buttonNext = findByResourceId("android:id/next");
+                UiObject buttonNext = findByResourceId(packageAndroid + _ID + idButtonImageNext);
                 buttonNext.click();
                 monthView.getChild(new UiSelector().index(currentDate + daysToAdd - daysInMonth - 1)).click();
 
@@ -2102,7 +2362,7 @@ public abstract class AbstractUIAutomatorUtils {
                 monthView.getChild(new UiSelector().index(currentDate + daysToAdd - 1)).click();
             }
 
-            findByResourceId("android:id/button1").click();
+            findByResourceId(packageAndroid + _ID + idButton1).click();
 
         } catch (UiObjectNotFoundException e) {
             Log.d(TAG, "Waiting for element");
@@ -2111,7 +2371,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Increase or decrease date depends on input parameter
+     * Increase or decrease date depends on input parameter.
      *
      * @param increase true in case date should be increased, otherwise false
      * @param calendar Calendar object expected to apply
@@ -2121,19 +2381,19 @@ public abstract class AbstractUIAutomatorUtils {
     public boolean changeDateSettings(boolean increase, Calendar calendar, long timeout) {
         UiObject list;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            list = findByResourceId("com.android.settings:id/list");
+            list = findByResourceId(packageAndroidSettings + _ID + idRecyclerViewList);
         } else {
-            list = findByResourceId("android:id/list");
+            list = findByResourceId(packageAndroid + _ID + idRecyclerViewList);
         }
 
         try {
-            UiObject setDate = list.getChild(new UiSelector().textMatches("Set date"));
+            UiObject setDate = list.getChild(new UiSelector().textMatches(textSetDate));
 
             setDate.waitForExists(timeout);
             setDate.click();
 
             if (selectExpectedDate(increase, calendar)) {
-                return findByResourceId("android:id/button1").click();
+                return findByResourceId(packageAndroid + _ID + idButton1).click();
             } else {
                 Log.d(TAG, "Could not select expected date");
                 return false;
@@ -2146,7 +2406,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Select or disable automatic Date&Time depends on input parameter
+     * Select or disable automatic Date&Time depends on input parameter.
      *
      * @param increase true in case date should be increased, otherwise false
      * @param calendar Calendar object expected to apply
@@ -2155,18 +2415,20 @@ public abstract class AbstractUIAutomatorUtils {
     private boolean selectExpectedDate(boolean increase, Calendar calendar) {
         UiObject nextMonth = null;
         if (increase) {
-            nextMonth = findByResourceId("android:id/next");
+            nextMonth = findByResourceId(packageAndroid + _ID + idButtonImageNext);
         } else {
-            nextMonth = findByResourceId("android:id/prev");
+            nextMonth = findByResourceId(packageAndroid + _ID + idButtonImagePrev);
         }
 
         String textDateFormat = computeTextDateFormat(calendar);
         int indexToSelect = calendar.get(Calendar.DAY_OF_MONTH) - 1;
         Log.d(TAG, "Index: " + indexToSelect + " dateFormat: " + textDateFormat);
         try {
-            UiObject uiDayOfMonth = findByResourceId("android:id/month_view").getChild(new UiSelector().index(indexToSelect));
+            UiObject uiDayOfMonth = findByResourceId(packageAndroid + _ID
+                    + idDateTimeMonthView).getChild(new UiSelector().index(indexToSelect));
             uiDayOfMonth.waitForExists(2000);
-            if (uiDayOfMonth != null && uiDayOfMonth.getContentDescription().toLowerCase().contains(textDateFormat.toLowerCase())) {
+            if (uiDayOfMonth != null && uiDayOfMonth.getContentDescription().toLowerCase()
+                    .contains(textDateFormat.toLowerCase())) {
                 Log.d(TAG, "Expected data was selected!");
                 return uiDayOfMonth.click();
             } else {
@@ -2187,17 +2449,18 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
+     * .
      * @param calendar Calendar object expected to apply
      * @return expected date
      */
     private String computeTextDateFormat(Calendar calendar) {
-        return calendar.get(Calendar.DAY_OF_MONTH) +
-                " " + calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) +
-                " " + calendar.get(Calendar.YEAR);
+        return calendar.get(Calendar.DAY_OF_MONTH)
+                + " " + calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault())
+                + " " + calendar.get(Calendar.YEAR);
     }
 
     /**
-     * Change time in 12 hours format
+     * Change time in 12 hours format.
      *
      * @param calendar Calendar object expected to apply. Time format 12 hours
      * @return true if time changed successfully, otherwise false
@@ -2206,27 +2469,27 @@ public abstract class AbstractUIAutomatorUtils {
 
         UiObject list;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            list = findByResourceId("com.android.settings:id/list");
+            list = findByResourceId(packageAndroidSettings + _ID + idRecyclerViewList);
         } else {
-            list = findByResourceId("android:id/list");
+            list = findByResourceId(packageAndroid + _ID + idRecyclerViewList);
         }
 
         try {
-            UiObject setTime = list.getChild(new UiSelector().textMatches("Set time"));
+            UiObject setTime = list.getChild(new UiSelector().textMatches(textSetTime));
 
             setTime.waitForExists(of(WAIT_FOR_SCREEN));
             setTime.click();
 
             int indexOfHoursToSelect = calendar.get(Calendar.HOUR) - 1;
             Log.d(TAG, "Try to set " + (indexOfHoursToSelect + 1) + " hour in 12 hours format");
-            UiObject radialTimePicker = findByResourceId("android:id/radial_picker").getChild(new UiSelector().index(indexOfHoursToSelect));
+            UiObject radialTimePicker = findByResourceId(packageAndroid + _ID + idDateTimeRadialPicker)
+                    .getChild(new UiSelector().index(indexOfHoursToSelect));
             Log.d(TAG, "Hours item was selected: " + radialTimePicker.click());
 
             int indexOfMinutesToSelect = calendar.get(Calendar.MINUTE) / 5;
             Log.d(TAG, "Try to set " + calendar.get(Calendar.MINUTE) + " minute in 12 hours format");
-            radialTimePicker = findByResourceId("android:id/radial_picker",
-                    Duration.of(WAIT_FOR_SCREEN)).
-                    getChild(new UiSelector().index(indexOfMinutesToSelect));
+            radialTimePicker = findByResourceId(packageAndroid + _ID + idDateTimeRadialPicker,
+                    Duration.of(WAIT_FOR_SCREEN)).getChild(new UiSelector().index(indexOfMinutesToSelect));
 
             Log.d(TAG, "Minutes item was selected: " + radialTimePicker.click());
 
@@ -2236,8 +2499,8 @@ public abstract class AbstractUIAutomatorUtils {
             } else {
                 resultAmPm = "am_label";
             }
-
-            return findByResourceId("android:id/" + resultAmPm).click() && findByResourceId("android:id/button1").click();
+            return RadioButtonImpl.getByID(packageAndroid, resultAmPm).click()
+                    && findByResourceId(packageAndroid + _ID + idButton1).click();
 
         } catch (UiObjectNotFoundException e) {
             Log.d(TAG, "Waiting for element");
@@ -2252,7 +2515,7 @@ public abstract class AbstractUIAutomatorUtils {
      * @return {@link UiObject} of a WiFi switch
      */
     private UiObject getWiFiSwitch() {
-        String settingsPackageId = "com.android.settings";
+        String settingsPackageId = packageAndroidSettings;
         String wifiSwitchResourceId = "switch_bar";
 
         return findByResourceId(computeResourceId(settingsPackageId, wifiSwitchResourceId));
@@ -2278,14 +2541,16 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to capture screenshot (requires app to have the write external storage permission)
+     * Helper method to capture screenshot (requires app to have the write external storage permission).
      */
     public boolean captureScreenshot(String filename) {
 
-        grantPermissionsInRuntime(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
+        grantPermissionsInRuntime(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE});
 
         StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-        File dir = new File(Environment.getExternalStorageDirectory(), "Screenshots" + File.separator + stack[3].getClassName() + File.separator + stack[3].getMethodName());
+        File dir = new File(Environment.getExternalStorageDirectory(),
+                "Screenshots" + File.separator + stack[3].getClassName() + File.separator + stack[3].getMethodName());
 
         if (!dir.exists()) {
             Log.d(TAG, "Folder for screenshot does not exist. Try to create it.");
@@ -2305,7 +2570,7 @@ public abstract class AbstractUIAutomatorUtils {
 
         boolean isCaptured = uiDevice.takeScreenshot(file);
 
-        Log.d(TAG, "Capturing screenshot: " + isCaptured);
+        Log.d(TAG, "Capturing screenshot: " + isCaptured + " | file: " + file.getName());
 
         return isCaptured;
     }
@@ -2344,7 +2609,8 @@ public abstract class AbstractUIAutomatorUtils {
     public boolean activateGDAppInSimulationMode(String packageName, String email, String
             accessPin, String unlockPassword) {
 
-        // When starting unprovisioned GD App will check NOC for Easy Activation options, if present will show screen prompting one can be installed
+        // When starting unprovisioned GD App will check NOC for Easy Activation options,
+        // if present will show screen prompting one can be installed
         // Otherwise will directly show the enter email and access key screen
         return BBDActivationHelper.loginOrActivateBuilder(UIAutomatorUtilsFactory.getUIAutomatorUtils(),
                 packageName,
@@ -2355,21 +2621,24 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
-     * Helper method to return GD Shared Preferences
+     * Helper method to return GD Shared Preferences.
      */
     @Deprecated
     public SharedPreferences getGDSharedPreferences(String aName, int aMode) {
-        throw new RuntimeException("This method is deprecated. Please use GDAndroid.getInstance().getGDSharedPreferences(aName, aMode); in your code ");
+        throw new RuntimeException("This method is deprecated. "
+                + "Please use GDAndroid.getInstance().getGDSharedPreferences(aName, aMode); in your code ");
     }
 
     @Deprecated
     public void registerGDStateReceiver(BroadcastReceiver receiver, IntentFilter filter) {
-        throw new RuntimeException("This method is deprecated. Please use GDAndroid.getInstance().registerReceiver(receiver, filter); in your code ");
+        throw new RuntimeException("This method is deprecated. "
+                + "Please use GDAndroid.getInstance().registerReceiver(receiver, filter); in your code ");
     }
 
     @Deprecated
     public void unregisterGDStateReceiver(BroadcastReceiver receiver) {
-        throw new RuntimeException("This method is deprecated. Please use GDAndroid.getInstance().unregisterReceiver(receiver); in your code ");
+        throw new RuntimeException("This method is deprecated. "
+                + "Please use GDAndroid.getInstance().unregisterReceiver(receiver); in your code ");
     }
 
     /**
