@@ -1,0 +1,8 @@
+{
+  "GDApplicationID": "com.good.gd.example.apachehttp",
+  "GDApplicationVersion": "1.0.0.0",
+  "GDLibraryMode": "GDEnterprise",
+  "GDConsoleLogger": [
+    "GDFilterDetails"
+  ]
+}

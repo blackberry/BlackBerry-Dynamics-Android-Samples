@@ -1,0 +1,220 @@
+Index: application/src/main/java/com/good/gd/webview_V2/bbwebview/BBWebResourceResponse.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/*\n * Copyright (c) 2020 BlackBerry Limited.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n * http://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n *\n */\npackage com.good.gd.webview_V2.bbwebview;\n\nimport android.os.Process;\nimport android.util.Log;\nimport android.webkit.WebResourceResponse;\n\nimport com.good.gd.apache.http.Header;\nimport com.good.gd.apache.http.HttpResponse;\n\nimport java.io.InputStream;\nimport java.util.HashMap;\nimport java.util.LinkedHashMap;\nimport java.util.Map;\nimport java.util.concurrent.Future;\n\npublic class BBWebResourceResponse extends WebResourceResponse {\n    private static final String TAG = BBWebResourceResponse.class.getSimpleName();\n    private Future<HttpResponse> futureResp;\n\n    public BBWebResourceResponse(String mimeType, String encoding, InputStream data, Future<HttpResponse> futureResp) {\n        super(mimeType, encoding, data);\n        this.futureResp = futureResp;\n    }\n\n    public BBWebResourceResponse(String mimeType, String encoding, int statusCode,  String reasonPhrase, Map<String, String> responseHeaders, InputStream data) {\n        super(mimeType, encoding, statusCode, reasonPhrase, responseHeaders, data);\n    }\n\n    @Override\n    public String getEncoding() {\n        Log.i(TAG,\"getEncoding [\" + Process.myTid() + \"]\");\n        String encoding = super.getEncoding();\n        Log.i(TAG,\"getEncoding [\" + Process.myTid() + \"] retVal = \" + encoding);\n        return encoding;\n    }\n\n    @Override\n    public String getMimeType() {\n        Log.i(TAG,\"getMimeType [\" + Process.myTid() + \"]\");\n        String mimeType = super.getMimeType();\n        Log.i(TAG,\"getMimeType [\" + Process.myTid() + \"] retVal = \" + mimeType);\n\n        return mimeType;\n    }\n\n    @Override\n    public Map<String, String> getResponseHeaders()\n    {\n\n\n\n        Log.i(TAG,\"getResponseHeaders [\" + Process.myTid() + \"]\");\n\n        HttpResponse response;\n        HashMap<String, String> respHeaders = new LinkedHashMap<>();\n        try {\n            response = futureResp.get();\n\n            if(response == null) {\n                Log.w(TAG,\"getResponseHeaders RESPONSE NULL [\" + Process.myTid() + \"]\" );\n                return respHeaders;\n            }\n\n            for (final Header header : response.getAllHeaders()) {\n                respHeaders.put(header.getName(), header.getValue());\n            }\n\n            Log.i(TAG,\"getResponseHeaders [\" + Process.myTid() + \"] map: \" + respHeaders);\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n\n        Log.i(TAG,\"getResponseHeaders [\" + Process.myTid() + \"]\");\n\n        return respHeaders;\n    }\n\n\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- application/src/main/java/com/good/gd/webview_V2/bbwebview/BBWebResourceResponse.java	(revision f837e01a124b67215767145ade294b228d3d2778)
++++ application/src/main/java/com/good/gd/webview_V2/bbwebview/BBWebResourceResponse.java	(date 1586490531000)
+@@ -92,4 +92,28 @@
+     }
+ 
+ 
++
++//    @Override
++//    public int getStatusCode() {
++//        try {
++//            HttpResponse httpResponse = futureResp.get();
++//            return httpResponse.getStatusLine().getStatusCode();
++//        } catch (Exception e) {
++//            Log.e(TAG,"getStatusCode",e);
++//        }
++//
++//        return super.getStatusCode();
++//    }
++//
++//    @Override
++//    public String getReasonPhrase() {
++//        try {
++//            HttpResponse httpResponse = futureResp.get();
++//            return httpResponse.getStatusLine().getReasonPhrase();
++//        } catch (Exception e) {
++//            Log.e(TAG,"getReasonPhrase",e);
++//        }
++//
++//        return super.getReasonPhrase();
++//    }
+ }
+Index: application/src/main/java/com/good/gd/webview_V2/BrowserActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/*\n * Copyright (c) 2020 BlackBerry Limited.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n * http://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n *\n */\npackage com.good.gd.webview_V2;\n\nimport android.app.Activity;\nimport android.os.Bundle;\nimport android.support.v7.app.AlertDialog;\nimport android.util.Log;\nimport android.view.View;\nimport android.webkit.URLUtil;\nimport android.webkit.WebView;\nimport android.widget.TextView;\nimport android.widget.Toast;\n\nimport com.good.gd.GDAndroid;\nimport com.good.gd.GDStateListener;\nimport com.good.gd.example.apachehttp.R;\nimport com.good.gd.webview_V2.bbwebview.BBWebViewClient;\n\nimport java.util.Map;\n\npublic class BrowserActivity extends Activity implements GDStateListener {\n\n    private static final String TAG = BrowserActivity.class.getSimpleName();\n\n    private BBWebViewClient bbWebViewClient;\n    private WebView webview;\n    private TextView urlField;\n\n    @Override\n    protected void onCreate(Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        setContentView(R.layout.activity_browser);\n\n        GDAndroid.getInstance().activityInit(this);\n\n    }\n\n    @Override\n    protected void onStart() {\n        super.onStart();\n        initViews();\n    }\n\n    @Override\n    protected void onStop() {\n        super.onStop();\n        disposeViews();\n    }\n\n    private void disposeViews() {\n\n        webview.stopLoading();\n        webview = null;\n        urlField = null;\n    }\n\n    private void initViews() {\n        webview = findViewById(R.id.gd_web_view);\n        bbWebViewClient = new BBWebViewClient();\n        webview.setWebViewClient(bbWebViewClient);\n        WebView.setWebContentsDebuggingEnabled(true);\n\n        urlField = findViewById(R.id.url_input);\n    }\n\n    public void onGo(View view) {\n\n\n        switch (view.getId()) {\n            case R.id.go_btn: {\n                String urlString = urlField.getText().toString();\n\n                if (URLUtil.isValidUrl(urlString)) {\n\n\n                    Log.i(TAG, \"calling loadUrl(\" + urlString + \")\");\n                    webview.loadUrl(urlString);\n\n                } else {\n                    String errMsg = \"Invalid url input: \" + urlString;\n                    Log.e(TAG, errMsg);\n\n                    Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show();\n                }\n            }\n            break;\n\n            case R.id.back_btn:\n                webview.goBack();\n                break;\n            case R.id.page_info:\n                AlertDialog alertDialog = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight).setMessage(\"WebView\\nURL: \" + webview.getUrl()).create();\n                alertDialog.show();\n                break;\n        }\n    }\n\n    @Override\n    public void onAuthorized() {\n\n        WebView webview = findViewById(R.id.gd_web_view);\n\n        BBWebViewClient.warmUpHttpClients();\n        BBWebViewClient.init(webview,bbWebViewClient);\n    }\n\n    @Override\n    public void onLocked() {\n        //d\n    }\n\n    @Override\n    public void onWiped() {\n        //d\n    }\n\n    @Override\n    public void onUpdateConfig(Map<String, Object> map) {\n        //d\n    }\n\n    @Override\n    public void onUpdatePolicy(Map<String, Object> map) {\n        //d\n    }\n\n    @Override\n    public void onUpdateServices() {\n        //d\n    }\n\n    @Override\n    public void onUpdateEntitlements() {\n        //d\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- application/src/main/java/com/good/gd/webview_V2/BrowserActivity.java	(revision f837e01a124b67215767145ade294b228d3d2778)
++++ application/src/main/java/com/good/gd/webview_V2/BrowserActivity.java	(date 1586809566000)
+@@ -33,7 +33,7 @@
+ 
+ import java.util.Map;
+ 
+-public class BrowserActivity extends Activity implements GDStateListener {
++public class BrowserActivity extends Activity implements GDStateListener, BBResponseInputStream.Callbacks {
+ 
+     private static final String TAG = BrowserActivity.class.getSimpleName();
+ 
+@@ -41,6 +41,8 @@
+     private WebView webview;
+     private TextView urlField;
+ 
++    // private final InputStreamRecorder IS_REC = new InputStreamRecorder();
++
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+@@ -148,4 +150,9 @@
+     public void onUpdateEntitlements() {
+         //d
+     }
++
++    @Override
++    public void onRead(int byteRead) {
++        Log.i(TAG, "avo: " + byteRead);
++    }
+ }
+Index: application/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/*\n* Copyright (c) 2020 BlackBerry Limited.\n*\n* Licensed under the Apache License, Version 2.0 (the \"License\");\n* you may not use this file except in compliance with the License.\n* You may obtain a copy of the License at\n*\n* http://www.apache.org/licenses/LICENSE-2.0\n*\n* Unless required by applicable law or agreed to in writing, software\n* distributed under the License is distributed on an \"AS IS\" BASIS,\n* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n* See the License for the specific language governing permissions and\n* limitations under the License.\n*\n*/\napply plugin: 'com.android.application'\n\nandroid {\n    compileSdkVersion 29\n    buildToolsVersion '27.0.3'\n    defaultConfig {\n        applicationId \"com.good.gd.example.apachehttp\"\n        minSdkVersion 24\n        targetSdkVersion 29\n        versionCode 1\n        versionName \"1.0\"\n        testInstrumentationRunner \"android.support.test.runner.AndroidJUnitRunner\"\n    }\n\n    packagingOptions {\n        exclude 'META-INF/DEPENDENCIES'\n         pickFirst \"android.support.v4*\"\n         exclude \"/secret-data/**\"\n        exclude 'META-INF/LICENSE'\n        exclude 'META-INF/LICENSE.txt'\n        exclude 'META-INF/license.txt'\n        exclude 'META-INF/NOTICE'\n        exclude 'META-INF/NOTICE.txt'\n        exclude 'META-INF/notice.txt'\n        exclude 'META-INF/ASL2.0'\n        exclude 'META-INF/proguard/androidx-annotations.pro'\n        exclude(\"META-INF/*.kotlin_module\")\n    }\n\n    signingConfigs {\n        signingConfig {\n            keyAlias 'alias'\n            keyPassword 'keypassword'\n            storeFile file(projectDir.absolutePath + '/keystore')\n            storePassword 'password'\n        }\n    }\n\n    buildTypes {\n        release {\n            minifyEnabled false\n            signingConfig signingConfigs.signingConfig\n        }\n        debug {\n            signingConfig signingConfigs.signingConfig\n        }\n    }\n\n}\n\nrepositories {\n    maven { url \"http://enterprise-nexus.rim.net/nexus/content/repositories/ebu-gd-releases\" }\n    maven { url \"http://enterprise-nexus.rim.net/nexus/content/repositories/ebu-group\" }\n    mavenLocal()\n}\n\n\ndependencies {\n    implementation ('com.blackberry.blackberrydynamics:android_handheld_platform:7.299.0.1')\n    implementation ('com.blackberry.blackberrydynamics:android_handheld_gd_safetynet:7.299.0.1')\n\n    implementation 'org.brotli:dec:0.1.2'// 'br' content-encoding\n\n    implementation 'com.android.support:support-v4:28.+'\n    implementation 'com.android.support:appcompat-v7:28.+'\n\n    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {\n        exclude group: 'com.android.support', module: 'support-annotations'\n    })\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- application/build.gradle	(revision f837e01a124b67215767145ade294b228d3d2778)
++++ application/build.gradle	(date 1585311980000)
+@@ -62,6 +62,12 @@
+         }
+     }
+ 
++    task runTheApp {
++        doLast{
++
++        }
++    }
++
+ }
+ 
+ repositories {
+Index: application/src/main/java/com/good/gd/webview_V2/bbwebview/Utils.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/*\n * Copyright (c) 2020 BlackBerry Limited.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n * http://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n *\n */\npackage com.good.gd.webview_V2.bbwebview;\n\nimport android.net.Uri;\nimport android.util.Log;\n\nimport java.util.List;\nimport java.util.Set;\n\npublic class Utils {\n\n    static public class Strings {\n        static public final boolean isNullOrEmpty(String str) {\n            return str == null || str.isEmpty();\n        }\n    }\n\n    static public class URL{\n        static public Uri encodeUrl(Uri urlDecoded) {\n\n            try {\n                final String scheme = urlDecoded.getScheme();\n                final String schemeSuffix = \"://\";\n                final String domain = urlDecoded.getAuthority();// port included\n                StringBuilder path = new StringBuilder();\n\n\n                List<String> pathSegments = urlDecoded.getPathSegments();\n                for (String pathSegment : pathSegments) {\n                    if(!Utils.Strings.isNullOrEmpty(pathSegment)){\n                        path.append(\"/\");\n                        path.append(Uri.encode(pathSegment));\n\n                    }\n                }\n\n                final String queryPrefix = \"?\";\n                String queryDecoded = urlDecoded.getQuery();\n\n                String query = \"\";\n                if(!Utils.Strings.isNullOrEmpty(queryDecoded)) {\n\n                    Set<String> queryParamsKeys = urlDecoded.getQueryParameterNames();\n\n                    StringBuilder queryBuilder = new StringBuilder();\n\n                    boolean firstParamAppended = false;\n                    for (String queryParamsKey : queryParamsKeys) {\n                        String queryParameterVal = urlDecoded.getQueryParameter(queryParamsKey);\n\n                        if(!firstParamAppended){\n                            firstParamAppended = true;\n                        }else {\n                            queryBuilder.append(\"&\");\n                        }\n\n                        queryBuilder.append(Uri.encode(queryParamsKey)).append(\"=\").append(Uri.encode(queryParameterVal));\n                    }\n\n                    query = queryBuilder.toString();\n                }\n\n                final String fragmentPrefix = \"#\";\n\n                String fragmentDecoded = urlDecoded.getFragment();\n                String fragment = null;\n                if(!Utils.Strings.isNullOrEmpty(fragmentDecoded)) {\n                    fragment = Uri.encode(fragmentDecoded);\n                }\n\n\n\n                StringBuilder urlBuilder = new StringBuilder();\n\n                urlBuilder.append(scheme)\n                        .append(schemeSuffix)\n                        .append(domain)\n                        .append(path.toString());\n\n                if(!Utils.Strings.isNullOrEmpty(query)){\n                    urlBuilder.append(queryPrefix)\n                            .append(query);\n                }\n\n                if(!Utils.Strings.isNullOrEmpty(fragment)){\n                    urlBuilder.append(fragmentPrefix)\n                            .append(fragment);\n                }\n\n                return Uri.parse(urlBuilder.toString());\n\n\n            } catch (Exception e){\n                Log.e(\"Utils.URL\", \"ERROR encodeUrl \" + urlDecoded.toString(), e);\n            }\n\n            Log.e(\"Utils.URL\", \"ERROR encodeUrl couldn't decode: \" + urlDecoded.toString());\n            return urlDecoded;\n        }\n\n\n\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- application/src/main/java/com/good/gd/webview_V2/bbwebview/Utils.java	(revision f837e01a124b67215767145ade294b228d3d2778)
++++ application/src/main/java/com/good/gd/webview_V2/bbwebview/Utils.java	(date 1586810116000)
+@@ -113,7 +113,20 @@
+             return urlDecoded;
+         }
+ 
++        synchronized public <T> void sub(T subscriber, Class<? extends T> topic){
++
++            Publisher<T> pubby = (Publisher<T>)publishers.getOrDefault(topic,null);
++
++            if(pubby != null) {
++                pubby.regSub(subscriber);
++            }
++
++            List<T> orDefault = (List<T>) subs.getOrDefault(topic, new CopyOnWriteArrayList<T>());
+ 
++            orDefault.add(subscriber);
++            subs.put(topic, orDefault);
++
++        }
+ 
+     }
+ }
+Index: application/src/main/res/drawable/ic_spike.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><!-- Copyright (c) 2018 BlackBerry Ltd.\n    *\n    * Licensed under the Apache License, Version 2.0 (the \"License\");\n    * you may not use this file except in compliance with the License.\n    * You may obtain a copy of the License at\n    *\n    * http://www.apache.org/licenses/LICENSE-2.0\n    *\n    * Unless required by applicable law or agreed to in writing, software\n    * distributed under the License is distributed on an \"AS IS\" BASIS,\n    * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n    * See the License for the specific language governing permissions and\n    * limitations under the License.\n    *\n    */\n-->\n<vector android:height=\"24dp\" android:viewportHeight=\"100\"\n    android:viewportWidth=\"100\" android:width=\"24dp\" xmlns:android=\"http://schemas.android.com/apk/res/android\">\n    <path android:fillColor=\"#ffffff\"\n        android:pathData=\"M0,0h100v100h-100z\"\n        android:strokeColor=\"#00000000\" android:strokeWidth=\"1\"/>\n    <path android:fillColor=\"#00000000\"\n        android:pathData=\"M20,80h20l10,-60l10,60h20\"\n        android:strokeColor=\"#000000\" android:strokeWidth=\"5\"/>\n</vector>\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- application/src/main/res/drawable/ic_spike.xml	(revision f837e01a124b67215767145ade294b228d3d2778)
++++ application/src/main/res/drawable/ic_spike.xml	(date 1586485870000)
+@@ -14,12 +14,47 @@
+     *
+     */
+ -->
+-<vector android:height="24dp" android:viewportHeight="100"
+-    android:viewportWidth="100" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+-    <path android:fillColor="#ffffff"
+-        android:pathData="M0,0h100v100h-100z"
+-        android:strokeColor="#00000000" android:strokeWidth="1"/>
+-    <path android:fillColor="#00000000"
+-        android:pathData="M20,80h20l10,-60l10,60h20"
+-        android:strokeColor="#000000" android:strokeWidth="5"/>
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="100"
++    android:viewportHeight="100">
++
++
++    <path
++        android:fillColor="#263543"
++        android:pathData="M20,20
++a40,40 0 0 1, 60,60" />
++    <group
++        android:name="rotationGroup"
++        android:pivotX="50.0"
++        android:pivotY="50.0"
++        android:rotation="180">
++        <path
++            android:fillColor="#263543"
++            android:pathData="M20,20
++a40,40 0 0 1, 60,60"
++            android:strokeWidth="5"
++            android:strokeColor="#1A242D" />
++
++        <path
++            android:fillColor="#00000000"
++            android:pathData="M 47,75 h3l10,-60l10,60h55"
++            android:strokeWidth="5"
++            android:strokeColor="#ffffff" />
++        <path
++            android:fillColor="#00000000"
++            android:pathData="M-12 ,75h40l10,-60l10,60h3"
++            android:strokeWidth="5"
++            android:strokeColor="#ffffff" />
++
++
++    </group>
++    <path
++        android:fillColor="#00263543"
++        android:pathData="M20,20
++a40,40 0 0 1, 60,60"
++        android:strokeWidth="5"
++        android:strokeColor="#1A242D" />
++
+ </vector>
+Index: application/src/main/java/com/good/gd/webview_V2/bbwebview/devtools/InputStreamRecorder.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- application/src/main/java/com/good/gd/webview_V2/bbwebview/devtools/InputStreamRecorder.java	(date 1585094979000)
++++ application/src/main/java/com/good/gd/webview_V2/bbwebview/devtools/InputStreamRecorder.java	(date 1585094979000)
+@@ -0,0 +1,20 @@
++package com.good.gd.webview_V2.bbwebview.devtools;
++
++import android.util.Log;
++
++import com.good.gd.webview_V2.bbwebview.BBResponseInputStream;
++
++public class InputStreamRecorder implements BBResponseInputStream.Callbacks{
++
++
++    public InputStreamRecorder() {
++
++    }
++
++    @Override
++    public void onRead(int byteRead) {
++
++        Log.i("REC[O]","read: " + byteRead);
++
++    }
++}
