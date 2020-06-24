@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/footer_menu_bar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:weightSum="12.0"
+    android:layout_alignParentBottom="true">
+
+
+    <Button
+        android:id="@+id/settings_btn"
+        android:layout_width="0dp"
+        android:layout_weight="3.0"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:onClick="onGo"
+        android:text="              " />
+
+    <Button
+        android:id="@+id/console_btn"
+        android:layout_width="0dp"
+        android:layout_weight="3.0"
+        android:layout_height="wrap_content"
+        android:onClick="viewPaneInstance"
+        android:text="JS{📜}" />
+
+    <Button
+        android:id="@+id/cookies_btn"
+        android:layout_width="0dp"
+        android:layout_weight="3.0"
+        android:layout_height="wrap_content"
+        android:onClick="viewPaneInstance"
+        android:text="C🍪🍪kies" />
+
+    <Button
+        android:id="@+id/back_btn"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="3.0"
+        android:gravity="center"
+        android:onClick="onGo"
+        android:text="⇦" />
+</LinearLayout>
