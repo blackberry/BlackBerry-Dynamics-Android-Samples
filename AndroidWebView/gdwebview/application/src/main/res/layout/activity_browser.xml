@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.good.gd.webview_V2.BrowserActivity">
+
+    <RelativeLayout
+        android:id="@+id/header_top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        >
+
+        <com.good.gd.widget.GDEditText
+            android:id="@+id/url_input"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/go_btn"
+            android:layout_alignParentStart="true"
+            android:importantForAutofill="yes"
+            android:text="https://google.com/"
+            android:hint="Navigate to ..."
+            android:inputType="textUri|textWebEditText" />
+
+      <Button
+          android:id="@+id/go_btn"
+          android:layout_width="60dp"
+          android:layout_height="wrap_content"
+          android:layout_alignParentEnd="true"
+          android:onClick="onGo"
+          android:text="Go >"
+          />
+
+    </RelativeLayout>
+
+    <com.good.gd.webview_V2.bbwebview.BBWebView
+        android:id="@+id/gd_web_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/header_top_bar"
+        android:layout_above="@+id/footer_menu_bar"
+        />
+
+    <include
+        android:id="@+id/footer_menu_bar"
+        layout="@layout/browser_controls_bar"
+        />
+
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <include
+        android:id="@+id/console"
+        layout="@layout/overlay_io"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_alignParentBottom="true"/>
+
+    <include layout="@layout/hide_pane_button"
+        android:id="@+id/hide_js"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignTop="@id/console"
+        android:layout_alignParentEnd="true" />
+
+    <include
+        android:id="@+id/cookies_list"
+        layout="@layout/overlay_io"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_alignParentBottom="true"/>
+
+    <include layout="@layout/hide_pane_button"
+        android:id="@+id/hide_cookies"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignTop="@id/cookies_list"
+        android:layout_alignParentEnd="true" />
+
+</RelativeLayout>
