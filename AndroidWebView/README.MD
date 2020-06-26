@@ -13,7 +13,7 @@ App's functionality includes:                                                   
 ## Requirements
  * Android Studio 3.3+
  * Android Gradle plugin 3.2.0
- * Blackberry Dynamics SDK 7.0 or newer
+ * BlackBerry Dynamics SDK 7.0 or newer
 
 
 ## Runtime
