@@ -71,8 +71,6 @@ android {
 }
 
 repositories {
-    maven { url "http://enterprise-nexus.rim.net/nexus/content/repositories/ebu-gd-releases" }
-    maven { url "http://enterprise-nexus.rim.net/nexus/content/repositories/ebu-group" }
     mavenLocal()
 }
 
