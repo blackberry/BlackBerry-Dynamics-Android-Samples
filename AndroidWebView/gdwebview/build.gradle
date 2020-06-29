@@ -20,7 +20,6 @@ buildscript {
     repositories {
         jcenter()
         google()
-        maven { url "http://enterprise-nexus.rim.net/nexus/content/groups/ebu-external-group" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.0'
@@ -43,7 +42,6 @@ allprojects {
         def sdkDir = properties.getProperty('sdk.dir')
         maven { url sdkDir+'/extras/blackberry/dynamics_sdk/m2repository' }
 
-        maven { url "http://enterprise-nexus.rim.net/nexus/content/groups/ebu-external-group" }
         mavenLocal()
     }
 }
