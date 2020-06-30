@@ -1,5 +1,5 @@
 # BlackBerry Dynamics WebView client sample
-This application is a simple web content browser supporting access to private/corporate network resources through Blackberry Dynamics SDK.
+This application is a simple web content browser supporting access to private/corporate network resources through BlackBerry Dynamics SDK.
 
 App's functionality includes:                                                       []
  * URL input bar
@@ -28,7 +28,7 @@ App's functionality includes:                                                   
 
 ## How To Build and Deploy
 
-1. Set up BlackBerry Dymaics environment
+1. Set up BlackBerry Dynamics environment
 2. Clone the repo to your computer.
 3. Launch Android Studio and import the project's root folder
 4. Edit app's package name to your own (the default is com.good.gd.example.apachehttp)
