@@ -18,6 +18,7 @@ package com.good.gd.webview_V2.bbwebview.tasks.http;
 
 import android.util.Log;
 
+import com.good.gd.apache.http.client.params.ClientPNames;
 import com.good.gd.apache.http.client.params.CookiePolicy;
 import com.good.gd.apache.http.client.params.HttpClientParams;
 import com.good.gd.apache.http.params.BasicHttpParams;
@@ -62,8 +63,11 @@ public class InitHttpClient implements Callable<GDHttpClient> {
         HttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, 1000 * 60);
         HttpConnectionParams.setSoTimeout(params, 1000 * 60);
+        params.setBooleanParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS,true);
 
         HttpClientParams.setCookiePolicy(params, CookiePolicy.BROWSER_COMPATIBILITY);
+
+
 
         httpClient.setParams(params);
         httpClient.disablePeerVerification();
