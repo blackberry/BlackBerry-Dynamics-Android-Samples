@@ -16,7 +16,11 @@
 
 package com.good.automated.test.screens;
 
+import static com.good.automated.general.utils.Duration.AUTHORIZE_CALLBACK;
+
 import android.util.Log;
+
+import com.good.automated.general.utils.Duration;
 
 public class BBDForgotPasswordActivationUI extends AbstractBBDActivationUI {
 
@@ -34,7 +38,7 @@ public class BBDForgotPasswordActivationUI extends AbstractBBDActivationUI {
     public BBDForgotPasswordActivationUI(String packageName, long delay) {
         super(packageName);
         this.controls = new BBDActivationUIMap();
-        if (!getUiAutomationUtils().isResourceWithIDShown(packageName, getScreenID(), delay)){
+        if (!getUiAutomationUtils().isResourceWithIDShown(packageName, getScreenID(), delay)) {
             throw new RuntimeException("Needed screen was not shown within provided time!");
         }
         Log.d(TAG, "Screen " + SCREEN_ID + " for package name: " + packageName + " is shown!");
@@ -46,19 +50,87 @@ public class BBDForgotPasswordActivationUI extends AbstractBBDActivationUI {
      * @param pin1        pin1
      * @param pin2        pin2
      * @param pin3        pin3
+     * Instead, use a constructor that supports activation password.
+     * {@link  #BBDForgotPasswordActivationUI(String, String, String)}
      */
+    @Deprecated
     public BBDForgotPasswordActivationUI(String packageName, String userName, String pin1, String pin2, String pin3) {
         super(packageName, userName, pin1, pin2, pin3);
         this.controls = new BBDActivationUIMap();
     }
 
+    /**
+     * @param packageName app under test packageName
+     * @param userName    user name to unlock app with
+     * @param pin1        pin1
+     * @param pin2        pin2
+     * @param pin3        pin3
+     * @param delay       duration to wait for screen
+     * @deprecated constructor is used just for Legacy flow.
+     * Instead, use a constructor that supports activation password.
+     * {@link #BBDForgotPasswordActivationUI(String, String, String, long)}
+     */
+    @Deprecated
     public BBDForgotPasswordActivationUI(String packageName, String userName, String pin1, String
             pin2, String pin3, long delay) {
         super(packageName, userName, pin1, pin2, pin3);
-        if (!getUiAutomationUtils().isResourceWithIDShown(packageName, getScreenID(), delay)){
+        if (!getUiAutomationUtils().isResourceWithIDShown(packageName, getScreenID(), delay)) {
             throw new RuntimeException("Needed screen was not shown within provided time!");
         }
         this.controls = new BBDActivationUIMap();
+    }
+
+    /**
+     * @param packageName        app under test packageName
+     * @param userName           user name to unlock app with
+     * @param activationPassword unlock key
+     */
+    public BBDForgotPasswordActivationUI(String packageName, String userName, String activationPassword) {
+        this(packageName, userName, activationPassword, Duration.of(AUTHORIZE_CALLBACK));
+    }
+
+    /**
+     * @param packageName        app under test packageName
+     * @param userName           user name to unlock app with
+     * @param activationPassword unlock key
+     * @param delay              duration to wait for screen
+     */
+    public BBDForgotPasswordActivationUI(String packageName, String userName, String activationPassword, long delay) {
+        super(packageName, userName, activationPassword);
+        if (activationPassword.length() != 15) {
+            throw new IllegalArgumentException("Activation password must be 15 characters, actual length: " + activationPassword.length());
+        }
+        if (!getUiAutomationUtils().isResourceWithIDShown(packageName, getScreenID(), delay)) {
+            throw new RuntimeException("Needed screen was not shown within provided time!");
+        }
+        this.controls = new BBDActivationUIMap();
+    }
+
+    /**
+     * @param activationPassword activation password
+     * @return true if access pin was entered successfully to all three parts, otherwise false
+     */
+    public boolean enterActivationPassword(String activationPassword) {
+        boolean result;
+        if (activationPassword.length() != 15) {
+            throw new IllegalArgumentException("Activation password must be 15 characters, actual length: " + activationPassword.length());
+        }
+        if (isLegacyFlow()) {
+            result = enterKey(
+                    activationPassword.substring(0, 5),
+                    activationPassword.substring(5, 10),
+                    activationPassword.substring(10));
+        } else {
+            try {
+                boolean passwordEntered = controls.getActivationPasswordField().legacySetText(activationPassword);
+                Log.d(TAG, "Result of entering Access Key: " + passwordEntered);
+                result = passwordEntered;
+            } catch (NullPointerException e) {
+                Log.d(TAG, "NullPointerException: " + e.getMessage());
+                result = false;
+            }
+        }
+        return result;
     }
 
     /**

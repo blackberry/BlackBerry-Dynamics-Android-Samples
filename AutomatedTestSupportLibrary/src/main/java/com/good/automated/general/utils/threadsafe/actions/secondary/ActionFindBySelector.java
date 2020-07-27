@@ -16,8 +16,8 @@
 
 package com.good.automated.general.utils.threadsafe.actions.secondary;
 
-import android.support.test.uiautomator.By;
-import android.support.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.UiDevice;
 import android.util.Pair;
 
 import com.good.automated.general.utils.threadsafe.actions.ActionPriority;

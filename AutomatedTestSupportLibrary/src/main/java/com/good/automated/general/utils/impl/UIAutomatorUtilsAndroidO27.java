@@ -16,18 +16,18 @@
 
 package com.good.automated.general.utils.impl;
 
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static com.good.automated.general.utils.Duration.UI_WAIT;
 import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
 import static com.good.automated.general.utils.Duration.of;
-import static com.googlecode.eyesfree.utils.LogUtils.TAG;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.RemoteException;
 import android.provider.Settings;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiObjectNotFoundException;
-import android.support.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiSelector;
 import android.util.Log;
 
 import com.good.automated.general.utils.AbstractUIAutomatorUtils;
@@ -36,6 +36,8 @@ import com.good.automated.general.utils.Duration;
 //Implemented UI interactions with Android O API
 //Oreo - 8.1 API level 27
 public class UIAutomatorUtilsAndroidO27 extends AbstractUIAutomatorUtils {
+
+    private static final String TAG = UIAutomatorUtilsAndroidO27.class.getSimpleName();
 
     private UIAutomatorUtilsAndroidO27() {
         super();
@@ -48,7 +50,7 @@ public class UIAutomatorUtilsAndroidO27 extends AbstractUIAutomatorUtils {
 
     @Override
     public void launchActionSettings(String action) {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
 
         final Intent i = new Intent();
         i.setAction(action);
@@ -134,7 +136,7 @@ public class UIAutomatorUtilsAndroidO27 extends AbstractUIAutomatorUtils {
 
     @Override
     protected void openSecuritySettings() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
 
         final Intent i = new Intent();
         i.setAction(Settings.ACTION_SECURITY_SETTINGS);
@@ -203,5 +205,17 @@ public class UIAutomatorUtilsAndroidO27 extends AbstractUIAutomatorUtils {
             Log.d(TAG, "Fingerprint in not supported by this hardware");
             return true;
         }
+    }
+
+    @Override
+    public boolean addCertificateToTrustedCredentials(String certificateName, String devicePIN) throws RemoteException {
+        //!TODO: implement for Android API 27
+        return false;
+    }
+
+    @Override
+    public boolean removeCertificateFromTrustedCredentials(String certificateName) {
+        //!TODO: implement for Android API 27
+        return false;
     }
 }

@@ -16,12 +16,14 @@
 
 package com.good.automated.general.utils.impl;
 
-import static com.googlecode.eyesfree.utils.LogUtils.TAG;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiObjectNotFoundException;
-import android.support.test.uiautomator.UiScrollable;
-import android.support.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiScrollable;
+import androidx.test.uiautomator.UiSelector;
+
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.good.automated.general.utils.AbstractUIAutomatorUtils;
@@ -30,6 +32,8 @@ import com.good.automated.general.utils.Duration;
 //Implemented UI interactions with Android N API
 //Nougat - 7.0	API level 24
 public class UIAutomatorUtilsAndroidN24 extends AbstractUIAutomatorUtils {
+
+    private static final String TAG = UIAutomatorUtilsAndroidN24.class.getSimpleName();
 
     private UIAutomatorUtilsAndroidN24() {
         super();
@@ -42,7 +46,7 @@ public class UIAutomatorUtilsAndroidN24 extends AbstractUIAutomatorUtils {
 
     @Override
     public void launchActionSettings(String action) {
-        android.content.Context context = android.support.test.InstrumentationRegistry.getTargetContext();
+        android.content.Context context = getInstrumentation().getTargetContext();
 
         final android.content.Intent i = new android.content.Intent();
         i.setAction(action);
@@ -85,6 +89,18 @@ public class UIAutomatorUtilsAndroidN24 extends AbstractUIAutomatorUtils {
         String scrollToTextToCompleteFingerprintScan = "DONE";
 
         return super.completeFingerprintSetup(fingerprintNextButton, completeFingerprintScanScrollViewId, scrollToTextToCompleteFingerprintScan);
+    }
+
+    @Override
+    public boolean addCertificateToTrustedCredentials(String certificateName, String devicePIN) throws RemoteException {
+        //!TODO: implement for Android API 24
+        return false;
+    }
+
+    @Override
+    public boolean removeCertificateFromTrustedCredentials(String certificateName) {
+        //!TODO: implement for Android API 24
+        return false;
     }
 
     /**

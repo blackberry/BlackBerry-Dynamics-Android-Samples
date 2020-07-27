@@ -16,14 +16,15 @@
 
 package com.good.automated.general.utils.uitools.networking;
 
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
+
 import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.uiautomator.UiDevice;
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiObjectNotFoundException;
-import android.support.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiSelector;
 import android.util.Log;
 
 import com.good.automated.general.utils.Duration;
@@ -38,7 +39,7 @@ public abstract class UiNetworkManager {
 
     private static final String TAG = UiNetworkManager.class.getSimpleName();
 
-    private UiDevice mUiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+    private UiDevice mUiDevice = UiDevice.getInstance(getInstrumentation());
 
     UiNetworkManager() {
     }
@@ -152,7 +153,7 @@ public abstract class UiNetworkManager {
      */
     protected void openAirplaneModeSettingsScreen() {
         Log.d(TAG, "Open settings screen with airplane mode switch");
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
 
         Intent openAirplaneModeSettings = new Intent();
         openAirplaneModeSettings.setAction(Settings.ACTION_AIRPLANE_MODE_SETTINGS);

@@ -17,8 +17,8 @@
 package com.good.automated.general.utils;
 
 import static android.provider.Settings.ACTION_WIFI_SETTINGS;
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.view.KeyEvent.KEYCODE_MENU;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static com.good.automated.general.utils.Duration.AUTHORIZE_CALLBACK;
 import static com.good.automated.general.utils.Duration.KNOWN_WIFI_CONNECTION;
 import static com.good.automated.general.utils.Duration.SCREEN_ROTATION;
@@ -26,7 +26,6 @@ import static com.good.automated.general.utils.Duration.UI_ACTION;
 import static com.good.automated.general.utils.Duration.UI_WAIT;
 import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
 import static com.good.automated.general.utils.Duration.of;
-import static com.googlecode.eyesfree.utils.LogUtils.TAG;
 
 import com.good.automated.general.controls.impl.ControlWrapper;
 import com.good.automated.general.controls.impl.RadioButtonImpl;
@@ -36,7 +35,9 @@ import com.good.automated.general.utils.uitools.networking.UiNetworkManagerFacto
 import com.good.automated.test.screens.BBDPermissionUI;
 
 import android.Manifest;
+import android.accessibilityservice.AccessibilityService;
 import android.app.KeyguardManager;
+import android.app.UiAutomation;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -50,19 +51,22 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.RemoteException;
 import android.provider.Settings;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.uiautomator.By;
-import android.support.test.uiautomator.UiDevice;
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiObjectNotFoundException;
-import android.support.test.uiautomator.UiScrollable;
-import android.support.test.uiautomator.UiSelector;
-import android.support.test.uiautomator.Until;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiScrollable;
+import androidx.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.Until;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -79,9 +83,12 @@ import java.util.Locale;
  */
 public abstract class AbstractUIAutomatorUtils {
 
+    private static final String TAG = AbstractUIAutomatorUtils.class.getSimpleName();
+
     protected final String _ID = ":id/";
     protected String packageAndroidSettings = "com.android.settings";
     protected String packageAndroid = "android";
+    protected String packageCertInstaller = "com.android.certinstaller";
 
     protected String idAlertTitle = "alertTitle";
     protected String idAlertMessage = "message";
@@ -102,6 +109,7 @@ public abstract class AbstractUIAutomatorUtils {
     protected String idButtonImagePrev = "prev";
     protected String idWidgetFrame = "widget_frame";
     protected String idSwitchWidget = "switch_widget";
+    protected String idCredentialName = "credential_name";
 
     protected String textForceStop = "force stop";
     protected String textNotifications = "Notifications";
@@ -112,25 +120,51 @@ public abstract class AbstractUIAutomatorUtils {
     protected String textButtonNext = "NEXT";
     protected String textButtonConfirm = "CONFIRM";
     protected String textButtonDone = "DONE";
-    protected String textSetTime = "Set Time";
+    protected String textSetTime = "Set time";
     protected String textSetDate = "Set date";
     protected String textAutomaticDateTime = "Automatic date & time";
+    protected String textEncryptionCredentials = "Encryption & credentials";
+    protected String textInstallFromSDCard = "Install from SD card";
+    protected String textShowRoots = "Show roots";
+    protected String textDownloads = "Downloads";
+    protected String textTrustedCredentials = "Trusted credentials";
+    protected String textUSER = "USER";
+    protected String textBlackBerryRootCA = "BlackBerry Root CA";
+    protected String textUserCredentials = "User credentials";
+    protected String textRecent = "Recent";
 
-    protected static UiDevice uiDevice = UiDevice.getInstance(InstrumentationRegistry
-            .getInstrumentation());
+    protected static UiDevice uiDevice = UiDevice.getInstance(getInstrumentation());
     private GDTestSettings settings;
 
     private static SafeCommandExecutor safeCommandExecutor = new SafeCommandExecutor();
 
     public AbstractUIAutomatorUtils() {
-        this.uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        this.uiDevice = UiDevice.getInstance(getInstrumentation());
         this.settings = GDTestSettings.getInstance();
-        this.settings.initialize(InstrumentationRegistry.getContext(), getAppPackageName());
+        this.settings.initialize(getInstrumentation().getContext(), getAppPackageName());
     }
 
     public abstract void launchDateSettings();
 
     public abstract void launchActionSettings(String action);
+
+    /**
+     * Launches System Location settings screen.
+     */
+    public boolean launchLocationSettings() {
+        Intent openSettingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        Context applicationContext = getInstrumentation().getTargetContext().getApplicationContext();
+
+        // Making sure that device location services intent can be consumed by O.S.
+        PackageManager packageManager = applicationContext.getPackageManager();
+        if (openSettingsIntent.resolveActivity(packageManager) != null) {
+            applicationContext.startActivity(openSettingsIntent);
+        } else {
+            Log.e(TAG, "Could not resolve location settings activity");
+            return false;
+        }
+        return true;
+    }
 
     public UiDevice getUiDevice() {
         return uiDevice;
@@ -171,7 +205,7 @@ public abstract class AbstractUIAutomatorUtils {
      * @param flags         flags to be set for launching activity
      */
     private void launchAppActivityWithFlag(String packageName, int flags) {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
         Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
         if (intent == null) {
             Log.d(TAG, "Cannot find App with package name: " + packageName);
@@ -224,7 +258,7 @@ public abstract class AbstractUIAutomatorUtils {
      * @param appNativeId native id of app to stop
      */
     public void terminateAppADB(String appNativeId) {
-        InstrumentationRegistry.getInstrumentation().getUiAutomation()
+        getInstrumentation().getUiAutomation()
                 .executeShellCommand("am force-stop " + appNativeId);
         // Wait to ensure force stop is finished.
         UIAutomatorUtilsFactory.getUIAutomatorUtils()
@@ -298,7 +332,7 @@ public abstract class AbstractUIAutomatorUtils {
      * @param packageName   test application package name
      */
     public void launchSpecificActivity(Class activityClass, String packageName) {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
         Intent intent = new Intent(context, activityClass);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
@@ -447,7 +481,7 @@ public abstract class AbstractUIAutomatorUtils {
      * @param appPackageName app package name
      */
     public void launchAppSettings(String appPackageName) {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
 
         final Intent i = new Intent();
         i.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -493,7 +527,7 @@ public abstract class AbstractUIAutomatorUtils {
 
     public boolean isTextShownMatchingRegex(String aRegex, int aTimeMilliseconds) {
 
-        UiDevice device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        UiDevice device = UiDevice.getInstance(getInstrumentation());
 
         UiObject textObject = device.findObject(new UiSelector().textMatches(aRegex));
 
@@ -775,13 +809,11 @@ public abstract class AbstractUIAutomatorUtils {
 
         if (objectContainsText != null) {
             try {
-                if (objectContainsText.longClick()) {
-                    Log.d(TAG, "Object containing text: " + aText + " was long tapped");
-                    return true;
-                } else {
-                    Log.d(TAG, "Object containing text: " + aText + " cannot be long tapped");
-                    return false;
-                }
+                Rect longTapButton = objectContainsText.getBounds();
+                getUiDevice().swipe(longTapButton.centerX(), longTapButton.centerY(), longTapButton.centerX(), longTapButton.centerY(), 400);
+                uiDevice.waitForIdle(of(UI_WAIT));
+                Log.d(TAG, "Long click on text was performed: " + aText);
+                return true;
             } catch (UiObjectNotFoundException e) {
                 Log.d(TAG, "UiObjectNotFoundException: " + e.getMessage());
                 return false;
@@ -1078,7 +1110,7 @@ public abstract class AbstractUIAutomatorUtils {
      * Helper method to get App Target API level.
      */
     public int getAppTargetAPILevel() {
-        return InstrumentationRegistry.getTargetContext().getApplicationInfo().targetSdkVersion;
+        return getInstrumentation().getTargetContext().getApplicationInfo().targetSdkVersion;
     }
 
     /**
@@ -1249,7 +1281,7 @@ public abstract class AbstractUIAutomatorUtils {
      * @return the numeric id of the resource
      */
     public int getResourceID(String packageName, String aResourceIDName) {
-        return InstrumentationRegistry.getTargetContext().getResources().getIdentifier(aResourceIDName, "id", packageName);
+        return getInstrumentation().getTargetContext().getResources().getIdentifier(aResourceIDName, "id", packageName);
     }
 
     /**
@@ -1353,14 +1385,14 @@ public abstract class AbstractUIAutomatorUtils {
      * Helper method to get app under test Package Name.
      */
     public String getAppPackageName() {
-        return InstrumentationRegistry.getTargetContext().getPackageName();
+        return getInstrumentation().getTargetContext().getPackageName();
     }
 
     /**
      * Helper method to get app Package Name that is shown in foreground.
      */
     public String getAppPackageNameInForeground() {
-        return UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).getCurrentPackageName();
+        return UiDevice.getInstance(getInstrumentation()).getCurrentPackageName();
     }
 
     /**
@@ -1397,7 +1429,7 @@ public abstract class AbstractUIAutomatorUtils {
      * @param packageName package to work with
      */
     public void initialiseSettings(String packageName) {
-        settings.initialize(InstrumentationRegistry.getContext(), packageName);
+        settings.initialize(getInstrumentation().getContext(), packageName);
     }
 
     /**
@@ -1432,6 +1464,29 @@ public abstract class AbstractUIAutomatorUtils {
      */
     public String getAppUnlockKey(String packageName) {
         return GDTestSettings.getInstance().getAppUnlockKey(packageName);
+    }
+
+    /**
+     * Overrides default credentials
+     *
+     * @throws JSONException exception if json is malformed
+     * @param credentials credentials to be used instead those from test launcher
+     *
+     * JSONArray should be provided in the next format
+     * [
+     *    {
+     *      "GD_TEST_PROVISION_EMAIL": "user@email.com",
+     *      "GD_TEST_PROVISION_ACCESS_KEY": "puam3mr2235xyo1",
+     *      "GD_TEST_PROVISION_CONFIG_NAME": "com.good.gd.example.sample1",
+     *      "GD_TEST_PROVISION_PASSWORD": "abcd"
+     *    },
+     *    {
+     *      //
+     *    }
+     * ]
+     */
+    public void overrideActivationCredentials(JSONArray credentials) throws JSONException {
+        settings.overrideActivationCredentials(credentials);
     }
 
     /**
@@ -1483,7 +1538,7 @@ public abstract class AbstractUIAutomatorUtils {
     public String getAppVersionName(String packageName) {
         String versionName = "";
         try {
-            versionName = InstrumentationRegistry
+            versionName = getInstrumentation()
                     .getTargetContext().getPackageManager().getPackageInfo(
                             packageName, PackageManager.GET_SERVICES).versionName;
         } catch (PackageManager.NameNotFoundException e) {
@@ -1933,7 +1988,7 @@ public abstract class AbstractUIAutomatorUtils {
      * @param settingsToOpen settings to be opened
      */
     private void openSpecifiedSettings(String settingsToOpen) {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
 
         final Intent i = new Intent();
         i.setAction(settingsToOpen);
@@ -2180,7 +2235,7 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     public boolean isDevicePasswordSet() {
-        KeyguardManager keyguardManager = (KeyguardManager) InstrumentationRegistry.getContext()
+        KeyguardManager keyguardManager = (KeyguardManager) getInstrumentation().getContext()
                 .getSystemService(Context.KEYGUARD_SERVICE); //api 23+
         return keyguardManager != null && keyguardManager.isDeviceSecure();
     }
@@ -2188,7 +2243,7 @@ public abstract class AbstractUIAutomatorUtils {
     @SuppressWarnings("MissingPermission")
     public boolean isFingerprintSupported() {
         //Fingerprint API only available on from Android 6.0 (M)
-        FingerprintManager fingerprintManager = (FingerprintManager) InstrumentationRegistry.getTargetContext()
+        FingerprintManager fingerprintManager = (FingerprintManager) getInstrumentation().getTargetContext()
                 .getSystemService(Context.FINGERPRINT_SERVICE);
         return fingerprintManager != null && fingerprintManager.isHardwareDetected();
     }
@@ -2298,8 +2353,18 @@ public abstract class AbstractUIAutomatorUtils {
      * @param shouldBeEnabled true if Automatic Date & Time should be enabled, otherwise false
      * @param totalDelay      wait for UI changes
      * @param timeout         wait for existence of element
+     * @deprecated Use {@link #selectAutomaticDateTime(boolean, long)}
      */
+    @Deprecated
     public void selectAutomaticDateTime(boolean shouldBeEnabled, long totalDelay, long timeout) {
+        selectAutomaticDateTime(shouldBeEnabled, timeout);
+    }
+
+    /**
+     * @param shouldBeEnabled true if Automatic Date & Time should be enabled, otherwise false
+     * @param timeout         wait for existence of element
+     */
+    public void selectAutomaticDateTime(boolean shouldBeEnabled, long timeout) {
 
         UiObject list;
         UiObject switcher;
@@ -2317,14 +2382,13 @@ public abstract class AbstractUIAutomatorUtils {
 
             switcher.waitForExists(timeout);
 
-            if ((switcher.getText().contains("ON") && !shouldBeEnabled) || (switcher.getText().contains("OFF")
-                    && shouldBeEnabled)) {
+            if (switcher.isChecked() != shouldBeEnabled) {
                 clickOnItemWithText(textAutomaticDateTime);
             } else {
                 Log.d(TAG, "No need to change Automatic date & time");
             }
         } catch (UiObjectNotFoundException e) {
-            Log.d(TAG, e.toString());
+            Log.d(TAG, e.getMessage());
         }
         Log.d(TAG, "Text wasn't found on this screen!");
     }
@@ -2595,6 +2659,42 @@ public abstract class AbstractUIAutomatorUtils {
     }
 
     /**
+     * Enables split screen view
+     *
+     * @return whether the operation was performed successfully.
+     */
+    public boolean enableSplitScreenMode(){
+        UiAutomation uiAutomation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+        return uiAutomation.performGlobalAction(AccessibilityService.GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN);
+    }
+
+    /**
+     * Enables/disables Location service on the device.
+     *
+     * @param shouldBeEnabled true if Location Service should be enabled, otherwise false
+     * @param timeout         wait for existence of element
+     */
+    public void selectLocationService(boolean shouldBeEnabled, long timeout) {
+
+        UiObject locationSwitcher;
+
+        try {
+            // com.android.settings:id/switch_widget
+            locationSwitcher = findByResourceId(packageAndroidSettings + _ID + idSwitchWidget);
+
+            locationSwitcher.waitForExists(timeout);
+
+            if (locationSwitcher.isChecked() != shouldBeEnabled) {
+                clickOnItemWithID(packageAndroidSettings, idSwitchWidget);
+            } else {
+                Log.d(TAG, "No need to change location");
+            }
+        } catch (UiObjectNotFoundException e) {
+            Log.d(TAG, e.getMessage());
+        }
+    }
+
+    /**
      * In simulation mode, a valid activation key is not required to open the application
      * because there is no direct communication with BlackBerry Dynamics servers at the enterprise;
      * and, in fact, no need for these servers to even be in place.
@@ -2675,6 +2775,27 @@ public abstract class AbstractUIAutomatorUtils {
         return false;
     }
 
+    /**
+     * Helper method to add user certificate to trusted credentials.
+     * Works only if PIN was set on device before.
+     *
+     * @param certificateName name of certificate to remove
+     * @param devicePIN PIN on device
+     *
+     * @return true if certificate was added
+     *         otherwise - false
+     */
+    public abstract boolean addCertificateToTrustedCredentials(String certificateName, String devicePIN) throws RemoteException;
+
+    /**
+     * Helper method to remove user certificate from trusted credentials.
+     *
+     * @param certificateName name of certificate to remove
+     *
+     * @return true if certificate was added
+     *         otherwise - false
+     */
+    public abstract boolean removeCertificateFromTrustedCredentials(String certificateName);
 
     public GDTestSettings getSettings() {
         return settings;

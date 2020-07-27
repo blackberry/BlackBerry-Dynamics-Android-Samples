@@ -17,23 +17,30 @@
 package com.good.automated.general.utils.impl;
 
 import static android.provider.Settings.ACTION_DATE_SETTINGS;
-import static com.googlecode.eyesfree.utils.LogUtils.TAG;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
+import static com.good.automated.general.utils.Duration.POLICY_UPDATE;
+import static com.good.automated.general.utils.Duration.UI_WAIT;
+import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
+import static com.good.automated.general.utils.Duration.of;
 
 import com.good.automated.general.utils.AbstractUIAutomatorUtils;
 import com.good.automated.general.utils.Duration;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiObjectNotFoundException;
-import android.support.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiSelector;
+
+import android.os.RemoteException;
 import android.util.Log;
 
 
 //Implemented UI interactions with Android O API
 //Oreo - 8.0 API level 26
 public class UIAutomatorUtilsAndroidO26 extends AbstractUIAutomatorUtils {
+
+    private static final String TAG = UIAutomatorUtilsAndroidO26.class.getSimpleName();
 
     private UIAutomatorUtilsAndroidO26() {
         super();
@@ -46,7 +53,7 @@ public class UIAutomatorUtilsAndroidO26 extends AbstractUIAutomatorUtils {
 
     @Override
     public void launchActionSettings(String action) {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
 
         final Intent i = new Intent();
         i.setAction(action);
@@ -170,5 +177,54 @@ public class UIAutomatorUtilsAndroidO26 extends AbstractUIAutomatorUtils {
     @Override
     public boolean selectPermissionSwitchItemWithDescription(String aDescription) {
         return clickOnItemContainingText(aDescription);
+    }
+
+    @Override
+    public boolean addCertificateToTrustedCredentials(String certificateName, String devicePIN) throws RemoteException {
+        terminateAppADB(packageAndroidSettings);
+        openSecuritySettings();
+        scrollToTheEnd(packageAndroidSettings + _ID + idRecyclerViewList);
+
+        if (clickOnItemWithText(textEncryptionCredentials, Duration.of(POLICY_UPDATE))
+                && clickOnItemWithText(textInstallFromSDCard, Duration.of(WAIT_FOR_SCREEN))) {
+            if (isTextShown(textRecent, Duration.of(WAIT_FOR_SCREEN))) {
+                clickOnItemWithContentDescriptionText(textShowRoots, Duration.of(WAIT_FOR_SCREEN));
+                clickOnItemWithText(textDownloads, Duration.of(WAIT_FOR_SCREEN));
+            }
+            if (clickOnItemContainingText(certificateName, Duration.of(WAIT_FOR_SCREEN))
+                    && enterTextToItemWithID(packageAndroidSettings, idPasswordEntry, devicePIN)
+                    && clickKeyboardOk()
+                    && enterTextToItemWithID(packageCertInstaller, idCredentialName, certificateName)
+                    && hideKeyboard()
+                    && clickOnItemWithID(packageAndroid, idButton1, of(UI_WAIT))) {
+                Log.d(TAG, "User certificate was added to trusted credentials.");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean removeCertificateFromTrustedCredentials(String certificateName) {
+        terminateAppADB(packageAndroidSettings);
+        openSecuritySettings();
+        scrollToTheEnd(packageAndroidSettings + _ID + idRecyclerViewList);
+
+        if (clickOnItemWithText(textEncryptionCredentials, Duration.of(POLICY_UPDATE))
+                && clickOnItemWithText(textTrustedCredentials, Duration.of(WAIT_FOR_SCREEN))
+                && clickOnItemWithText(textUSER, Duration.of(WAIT_FOR_SCREEN))
+                && clickOnItemWithText(textBlackBerryRootCA, Duration.of(WAIT_FOR_SCREEN))
+                && clickOnItemWithID(packageAndroid, idButton2, of(WAIT_FOR_SCREEN))
+                && clickOnItemWithID(packageAndroid, idButton1, of(WAIT_FOR_SCREEN))) {
+            Log.d(TAG, "User certificate was removed from trusted credentials.");
+            if (pressBack()
+                    && clickOnItemWithText(textUserCredentials, Duration.of(WAIT_FOR_SCREEN))
+                    && clickOnItemWithText(certificateName, Duration.of(WAIT_FOR_SCREEN))
+                    && clickOnItemWithID(packageAndroid, idButton2, of(WAIT_FOR_SCREEN))) {
+                Log.d(TAG, "User certificate was removed from user credentials.");
+                return true;
+            }
+        }
+        return false;
     }
 }

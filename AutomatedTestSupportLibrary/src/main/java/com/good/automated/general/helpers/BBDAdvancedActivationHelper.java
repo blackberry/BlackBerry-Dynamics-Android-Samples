@@ -41,7 +41,10 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
         AbstractBBDUI screen = new BBDUnlockUI(packageName);
         //Enforce Forgot Password UI
         if (screen.doAction()) {
-            screen = new BBDForgotPasswordActivationUI(packageName, userName, pin1, pin2, pin3);
+            screen = new BBDForgotPasswordActivationUI(
+                    packageName,
+                    userName,
+                    activationPassword);
             if (screen.doAction()) {
                 return doActivation();
             }
@@ -66,7 +69,10 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
                 return false;
             }
         }
-        screen = new BBDRemoteUnlockActivationUI(packageName, userName, pin1, pin2, pin3);
+        screen = new BBDRemoteUnlockActivationUI(
+                packageName,
+                userName,
+                activationPassword);
         if (screen.doAction()) {
             return doActivation();
         }
@@ -75,16 +81,16 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
     }
 
     /**
-     * Login or activation application using Access Key and Unlock password of Auth Delegate (Master) app
+     * Login or activation application using Activation Password and Unlock password of Auth Delegate (Master) app
      *
      * @param ui    object of UIAutomatorUtils
      * @param pName AppUnderTest package name
      * @param uName username
-     * @param aKey  access key (15 characters)
+     * @param aPass activation password
      * @return EnforceNoPasswordActivationBuilder with set required parameters for simple login or activation logic
      */
-    public static EnforceNoPasswordActivationBuilder enforceNoPasswordActivationBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
-        return new BBDAdvancedActivationHelper().new EnforceNoPasswordActivationBuilder(ui, pName, uName, aKey);
+    public static EnforceNoPasswordActivationBuilder enforceNoPasswordActivationBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aPass) {
+        return new BBDAdvancedActivationHelper().new EnforceNoPasswordActivationBuilder(ui, pName, uName, aPass);
     }
 
     /**
@@ -93,11 +99,11 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
      * @param ui    object of UIAutomatorUtils
      * @param pName AppUnderTest package name
      * @param uName username
-     * @param aKey  access key (15 characters)
+     * @param aPass activation password
      * @return ProvisioningProcessBuilder with set required parameters f
      */
-    public static ProvisioningProcessBuilder provisioningProcessBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
-        return new BBDAdvancedActivationHelper().new ProvisioningProcessBuilder(ui, pName, uName, aKey);
+    public static ProvisioningProcessBuilder provisioningProcessBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aPass) {
+        return new BBDAdvancedActivationHelper().new ProvisioningProcessBuilder(ui, pName, uName, aPass);
     }
 
     /**
@@ -121,16 +127,16 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
 
 
     /**
-     * Login or activation application using Access Key and Unlock password of Auth Delegate (Master) app
+     * Login or activation application using Activation Password and Unlock password of Auth Delegate (Master) app
      *
      * @param ui    object of UIAutomatorUtils
      * @param pName AppUnderTest package name
      * @param uName username
-     * @param aKey  access key (15 characters)
+     * @param aPass activation password
      * @return LoginOrActivateEnforceAuthDelegationBuilder with set required parameters for simple login or activation logic
      */
-    public static LoginOrActivateEnforceAuthDelegationBuilder loginOrActivateEnforceAuthDelegationBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
-        return new BBDAdvancedActivationHelper().new LoginOrActivateEnforceAuthDelegationBuilder(ui, pName, uName, aKey);
+    public static LoginOrActivateEnforceAuthDelegationBuilder loginOrActivateEnforceAuthDelegationBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aPass) {
+        return new BBDAdvancedActivationHelper().new LoginOrActivateEnforceAuthDelegationBuilder(ui, pName, uName, aPass);
     }
 
     /**
@@ -150,6 +156,18 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
                 .setAppUnderTestPassword(uiAutomationUtils.getAppProvisionPassword(pName))
                 .doAction();
 
+    }
+
+    /**
+     * Activates slave application via master using Easy Activation feature.
+     * Use this method when App for easy activation is selected automatically
+     *
+     * @param pName    package name of delegator(slave) application
+     * @param masterPackageName     package name of delegate(master) application
+     * @return true in case of success else false
+     */
+    public static boolean easyActivateApp(String pName, String masterPackageName){
+        return easyActivateApp(pName, "", masterPackageName);
     }
 
     /**
@@ -222,34 +240,32 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
     public abstract class AbstractAuthDelegateBuilder extends AbstractAccessKeyBuilder {
 
         /**
-         * Login or activate app under test using Access Key & AuthDelegation
+         * Login or activate app under test using Activation Password & AuthDelegation
          *
          * @param ui      object of uiAutomatorUtils
          * @param pName   AppUnderTest package name
          * @param uName   user name for activation
-         * @param aKey    access key (15 characters)
+         * @param aPass   activation password
          */
-        public AbstractAuthDelegateBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
-            super(ui, pName, uName, aKey);
+        public AbstractAuthDelegateBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aPass) {
+            super(ui, pName, uName, aPass);
             BBDAdvancedActivationHelper.this.userName = uName;
-            BBDAdvancedActivationHelper.this.pin1 = aKey.substring(0, 5);
-            BBDAdvancedActivationHelper.this.pin2 = aKey.substring(5, 10);
-            BBDAdvancedActivationHelper.this.pin3 = aKey.substring(10);
+            BBDAdvancedActivationHelper.this.activationPassword = aPass;
         }
     }
 
     public class EnforceNoPasswordActivationBuilder extends AbstractAccessKeyBuilder {
 
         /**
-         * Login or activate app under test using Access Key
+         * Login or activate app under test using Activation Password
          *
          * @param ui    object of uiAutomatorUtils
          * @param pName AppUnderTest package name
          * @param uName user name for activation
-         * @param aKey  access key (15 characters)
+         * @param aPass activation password
          */
-        public EnforceNoPasswordActivationBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
-            super(ui, pName, uName, aKey);
+        public EnforceNoPasswordActivationBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aPass) {
+            super(ui, pName, uName, aPass);
         }
 
         @Override
@@ -258,9 +274,7 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
             bb.uiAutomationUtils = BBDAdvancedActivationHelper.this.uiAutomationUtils;
             bb.packageName = BBDAdvancedActivationHelper.this.packageName;
             bb.userName = BBDAdvancedActivationHelper.this.userName;
-            bb.pin1 = BBDAdvancedActivationHelper.this.pin1;
-            bb.pin2 = BBDAdvancedActivationHelper.this.pin2;
-            bb.pin3 = BBDAdvancedActivationHelper.this.pin3;
+            bb.activationPassword = BBDAdvancedActivationHelper.this.activationPassword;
             return bb.doActivation();
         }
     }
@@ -268,15 +282,15 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
     public class ProvisioningProcessBuilder extends AbstractAccessKeyBuilder {
 
         /**
-         * Provision app under test using Access Key
+         * Provision app under test using Activation Password
          *
          * @param ui    object of uiAutomatorUtils
          * @param pName AppUnderTest package name
          * @param uName user name for activation
-         * @param aKey  access key (15 characters)
+         * @param aPass activation password
          */
-        public ProvisioningProcessBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
-            super(ui, pName, uName, aKey);
+        public ProvisioningProcessBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aPass) {
+            super(ui, pName, uName, aPass);
         }
 
         @Override
@@ -285,15 +299,13 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
             bb.uiAutomationUtils = BBDAdvancedActivationHelper.this.uiAutomationUtils;
             bb.packageName = BBDAdvancedActivationHelper.this.packageName;
             bb.userName = BBDAdvancedActivationHelper.this.userName;
-            bb.pin1 = BBDAdvancedActivationHelper.this.pin1;
-            bb.pin2 = BBDAdvancedActivationHelper.this.pin2;
-            bb.pin3 = BBDAdvancedActivationHelper.this.pin3;
+            bb.activationPassword = BBDAdvancedActivationHelper.this.activationPassword;
             return bb.doProvisioning();
         }
     }
 
     /**
-     * Login or activate AppUnderTest using Access Key, unlock AppUnderTest using Auth Delegator app
+     * Login or activate AppUnderTest using Activation Password, unlock AppUnderTest using Auth Delegator app
      */
     public class LoginOrActivateEnforceAuthDelegationBuilder extends AbstractAuthDelegateBuilder {
 
@@ -303,10 +315,10 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
          * @param ui    object of uiAutomatorUtils
          * @param pName AppUnderTest package name
          * @param uName user name for activation
-         * @param aKey  access key (15 characters)
+         * @param aPass activation password
          */
-        private LoginOrActivateEnforceAuthDelegationBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
-            super(ui, pName, uName, aKey);
+        private LoginOrActivateEnforceAuthDelegationBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aPass) {
+            super(ui, pName, uName, aPass);
         }
 
         /**
@@ -345,9 +357,7 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
             bb.uiAutomationUtils = BBDAdvancedActivationHelper.this.uiAutomationUtils;
             bb.packageName = BBDAdvancedActivationHelper.this.packageName;
             bb.userName = BBDAdvancedActivationHelper.this.userName;
-            bb.pin1 = BBDAdvancedActivationHelper.this.pin1;
-            bb.pin2 = BBDAdvancedActivationHelper.this.pin2;
-            bb.pin3 = BBDAdvancedActivationHelper.this.pin3;
+            bb.activationPassword = BBDAdvancedActivationHelper.this.activationPassword;
             bb.authDelPackageName = BBDAdvancedActivationHelper.this.authDelPackageName;
             bb.authDelPassword = isEAProviderLocked ? BBDAdvancedActivationHelper.this.authDelPassword : null;
             bb.eaPackageName = authDelPackageName;
@@ -449,7 +459,7 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
     }
 
     /**
-     * Enforce Forgot Password screen and activate AppUnderTest using Unlock Key, unlock AppUnderTest using it's own password
+     * Enforce Forgot Password screen and activate AppUnderTest using Unlock Key, unlock AppUnderTest using its own password
      * This logic start working from Unlock password screen by tapping on Forgot Password label.
      */
     public class EnforceForgotPasswordActivationBuilder extends LoginOrActivateBuilder {
@@ -476,15 +486,13 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
             bb.packageName = BBDAdvancedActivationHelper.this.packageName;
             bb.appPassword = BBDAdvancedActivationHelper.this.appPassword;
             bb.userName = BBDAdvancedActivationHelper.this.userName;
-            bb.pin1 = BBDAdvancedActivationHelper.this.pin1;
-            bb.pin2 = BBDAdvancedActivationHelper.this.pin2;
-            bb.pin3 = BBDAdvancedActivationHelper.this.pin3;
+            bb.activationPassword = BBDAdvancedActivationHelper.this.activationPassword;
             return bb.doEnforceForgotPasswordActivation();
         }
     }
 
     /**
-     * Enforce Remote Unlock screen and activate AppUnderTest using Unlock Key, unlock AppUnderTest using it's own password.
+     * Enforce Remote Unlock screen and activate AppUnderTest using Unlock Key, unlock AppUnderTest using its own password.
      * If app was running in foreground we will start Unlocking it from RemoteBlock screen
      * If app was force re-started, then we will start activation process from Unlock Key screen.
      */
@@ -512,9 +520,7 @@ public class BBDAdvancedActivationHelper extends BBDActivationHelper {
             bb.packageName = BBDAdvancedActivationHelper.this.packageName;
             bb.appPassword = BBDAdvancedActivationHelper.this.appPassword;
             bb.userName = BBDAdvancedActivationHelper.this.userName;
-            bb.pin1 = BBDAdvancedActivationHelper.this.pin1;
-            bb.pin2 = BBDAdvancedActivationHelper.this.pin2;
-            bb.pin3 = BBDAdvancedActivationHelper.this.pin3;
+            bb.activationPassword = BBDAdvancedActivationHelper.this.activationPassword;
             return bb.doRemoteUnlockActivation();
         }
     }

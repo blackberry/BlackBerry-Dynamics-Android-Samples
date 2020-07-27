@@ -16,15 +16,16 @@
 
 package com.good.automated.general.utils.uitools.applicationsettings;
 
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Settings;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.uiautomator.UiDevice;
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiObjectNotFoundException;
-import android.support.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiSelector;
 import android.util.Log;
 
 import com.good.automated.general.utils.Duration;
@@ -38,7 +39,7 @@ public abstract class UiApplicationSettingsManager {
 
     private static final String TAG = UiApplicationSettingsManager.class.getSimpleName();
 
-    private UiDevice mUiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+    private UiDevice mUiDevice = UiDevice.getInstance(getInstrumentation());
 
     protected String selectorTextForStop;
 
@@ -54,7 +55,7 @@ public abstract class UiApplicationSettingsManager {
      */
     public void launchAppSettings(String appPackageName) {
 
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
 
         final Intent i = new Intent();
         i.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
