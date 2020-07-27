@@ -65,9 +65,7 @@ public class BBDActivationHelper {
     protected String authDelPassword;
     protected String eaPassword;
     protected String userName;
-    protected String pin1;
-    protected String pin2;
-    protected String pin3;
+    protected String activationPassword;
     protected boolean fingerPrintEnabled = false;
 
     protected List<String> shownScreensQueue;
@@ -120,7 +118,7 @@ public class BBDActivationHelper {
     }
 
     /**
-     * Unlock application with it's own password
+     * Unlock application with its own password
      * @return LoginBuilder with set required parameters for simple login
      */
     public static boolean loginApp() {
@@ -129,7 +127,7 @@ public class BBDActivationHelper {
     }
 
     /**
-     * Unlock application with it's own password
+     * Unlock application with its own password
      * @param pName AppUnderTest package name
      * @return LoginBuilder with set required parameters for simple login
      */
@@ -163,7 +161,7 @@ public class BBDActivationHelper {
     }
 
     /**
-     * Unlock application with it's own password
+     * Unlock application with its own password
      *
      * @param ui    object of uiAutomatorUtils
      * @param pName AppUnderTest package name
@@ -174,8 +172,8 @@ public class BBDActivationHelper {
     }
 
     /**
-     * Login or activation application using Access Key and it's own Unlock password
-     * @return LoginOrActivateBuilder with set required parameters for simple login or activation logic
+     * Login or activate application using Activation Password and its own Unlock password
+     * @return LoginOrActivateBuilder with set required parameters for simple login or activate logic
      */
     public static boolean loginOrActivateApp() {
         AbstractUIAutomatorUtils uiAutomationUtils = UIAutomatorUtilsFactory.getUIAutomatorUtils();
@@ -183,8 +181,8 @@ public class BBDActivationHelper {
     }
 
     /**
-     * Login or activation application using Access Key and it's own Unlock password
-     * @return LoginOrActivateBuilder with set required parameters for simple login or activation logic
+     * Login or activate application using Activation Password and its own Unlock password
+     * @return LoginOrActivateBuilder with set required parameters for simple login or activate logic
      */
     public static boolean loginOrActivateApp(String pName) {
         AbstractUIAutomatorUtils uiAutomationUtils = UIAutomatorUtilsFactory.getUIAutomatorUtils();
@@ -197,18 +195,18 @@ public class BBDActivationHelper {
     }
 
     /**
-     * Login or activation application using Access Key and it's own Unlock password
+     * Login or activate application using Activation Password and its own Unlock password
      *
      * @param ui    object of uiAutomatorUtils
      * @param pName AppUnderTest package name
-     * @return LoginOrActivateBuilder with set required parameters for simple login or activation logic
+     * @return LoginOrActivateBuilder with set required parameters for simple login or activate logic
      */
-    public static LoginOrActivateBuilder loginOrActivateBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
-        return new BBDActivationHelper().new LoginOrActivateBuilder(ui, pName, uName, aKey);
+    public static LoginOrActivateBuilder loginOrActivateBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aPass) {
+        return new BBDActivationHelper().new LoginOrActivateBuilder(ui, pName, uName, aPass);
     }
 
     /**
-     * Unlock application with it's own password. Cancel fingerprint after activation
+     * Unlock application with its own password. Cancel fingerprint after activation
      *
      * @param ui    object of uiAutomatorUtils
      * @param pName AppUnderTest package name
@@ -219,29 +217,29 @@ public class BBDActivationHelper {
     }
 
     /**
-     * Login or activation application using Access Key and it's own Unlock password. Cancel fingerprint after activation
+     * Login or activate application using Activation Password and its own Unlock password. Cancel fingerprint after activation
      *
      * @param ui    object of uiAutomatorUtils
      * @param pName AppUnderTest package name
-     * @return LoginOrActivateWithFingerprintBuilder with set required parameters for simple login or activation logic
+     * @return LoginOrActivateWithFingerprintBuilder with set required parameters for simple login or activate logic
      */
-    public static LoginOrActivateWithFingerprintBuilder loginOrActivateWithFingerprintBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
-        return new BBDActivationHelper().new LoginOrActivateWithFingerprintBuilder(ui, pName, uName, aKey);
+    public static LoginOrActivateWithFingerprintBuilder loginOrActivateWithFingerprintBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aPass) {
+        return new BBDActivationHelper().new LoginOrActivateWithFingerprintBuilder(ui, pName, uName, aPass);
     }
 
     /**
-     * Login or activation application using Access Key and it's own Unlock password. Cancel fingerprint after activation
+     * Login or activate application using Activation Password and its own Unlock password. Cancel fingerprint after activation
      *
      * @param ui    object of uiAutomatorUtils
      * @param pName AppUnderTest package name
-     * @return LoginOrActivateWithFingerprintBuilder with set required parameters for simple login or activation logic
+     * @return LoginOrActivateWithFingerprintBuilder with set required parameters for simple login or activate logic
      */
-    public static LoginOrEasyActivateWithFingerprintBuilder loginOrEasyActivateWithFingerprintBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
-        return new BBDActivationHelper().new LoginOrEasyActivateWithFingerprintBuilder(ui, pName, uName, aKey);
+    public static LoginOrEasyActivateWithFingerprintBuilder loginOrEasyActivateWithFingerprintBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aPass) {
+        return new BBDActivationHelper().new LoginOrEasyActivateWithFingerprintBuilder(ui, pName, uName, aPass);
     }
 
     /**
-     * Unlock application with it's own password. Cancel fingerprint after activation
+     * Unlock application with its own password. Cancel fingerprint after activation
      * Note: recommended to use only in APP tests
      *
      * @param ui                   object of uiAutomatorUtils
@@ -256,13 +254,13 @@ public class BBDActivationHelper {
     }
 
     /**
-     * Login or activation application using Access Key and it's own Unlock password. Cancel fingerprint after activation
+     * Login or activate application using Activation Password and its own Unlock password. Cancel fingerprint after activation
      * Note: recommended to use only in APP tests
      *
      * @param ui                   object of uiAutomatorUtils
      * @param pName                AppUnderTest package name
      * @param isFingerprintEnabled true if fingerprint is enabled in user policy and device supports it, otherwise false
-     * @return LoginOrActivateWithFingerprintBuilder with set required parameters for simple login or activation logic
+     * @return LoginOrActivateWithFingerprintBuilder with set required parameters for simple login or activate logic
      */
     public static boolean loginOrActivateWithFingerprint(AbstractUIAutomatorUtils ui, String pName, boolean isFingerprintEnabled) {
         return new BBDActivationHelper().new LoginOrActivateWithFingerprintBuilder(ui, pName,
@@ -372,7 +370,7 @@ public class BBDActivationHelper {
                 unsupportedScreenCounter++;
                 //This variable can be True only after activating of the app
                 noPasswordCanBeEnabled = false;
-                uiElement = new BBDActivationUI(packageName, userName, pin1, pin2, pin3);
+                uiElement = new BBDActivationUI(packageName, userName, activationPassword);
                 break;
             case 7:
                 uiElement = new BBDActivationProgressUI(packageName, true);
@@ -495,7 +493,7 @@ public class BBDActivationHelper {
     }
 
     /**
-     * Do activation of the app under test despite on displayed screen.
+     * Starts the activation of the AppUnderTest regardless of the app currently in foreground.
      *
      * @return true if activation was successful otherwise false
      */
@@ -507,12 +505,12 @@ public class BBDActivationHelper {
             result = screen.doAction();
         }
         printScreensQueue();
-        Log.d(TAG, "Result of login or activation: " + result);
+        Log.d(TAG, "Result of Login or activate: " + result);
         return result;
     }
 
     /**
-     * Do activation of the app under test despite on displayed screen.
+     * Starts the activation of the AppUnderTest regardless of the app currently in foreground.
      * Auth Delegation is enabled in policy
      *
      * @return true if activation was successful otherwise false
@@ -535,12 +533,12 @@ public class BBDActivationHelper {
         }
 
         printScreensQueue();
-        Log.d(TAG, "Result of login or activation: " + result);
+        Log.d(TAG, "Result of Login or activate: " + result);
         return result;
     }
 
     /**
-     * Do provision of the app under test despite on displayed screen.
+     * Starts the provisioning of the AppUnderTest regardless of the app currently in foreground.
      *
      * @return true if provision was successful otherwise false
      */
@@ -573,7 +571,7 @@ public class BBDActivationHelper {
     }
 
     /**
-     * Do activation of the app under test despite on displayed screen. Cancel fingerprint screen after setting up new password
+     * Starts the activation of the AppUnderTest regardless of the app currently in foreground. Cancel fingerprint screen after setting up new password
      *
      * @return true if activation was successful otherwise false
      */
@@ -588,7 +586,7 @@ public class BBDActivationHelper {
     }
 
     /**
-     * Do activation of the app under test despite the displayed screens. Cancel fingerprint screen during easy activation.
+     * Starts the activation of the AppUnderTest regardless of the app currently in foreground. Cancel fingerprint screen during easy activation.
      *
      * @return true if activation was successful otherwise false
      */
@@ -636,24 +634,22 @@ public class BBDActivationHelper {
     public abstract class AbstractAccessKeyBuilder extends AbstractBaseBuilder {
 
         /**
-         * Login or activate app under test using Access Key
+         * Login or activate AppUnderTest using Activation Password
          *
          * @param ui    object of uiAutomatorUtils
          * @param pName AppUnderTest package name
          * @param uName user name for activation
-         * @param aKey  access key (15 characters)
+         * @param aPass activation password
          */
-        public AbstractAccessKeyBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
+        public AbstractAccessKeyBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aPass) {
             super(ui, pName);
             BBDActivationHelper.this.userName = uName;
-            BBDActivationHelper.this.pin1 = aKey.substring(0, 5);
-            BBDActivationHelper.this.pin2 = aKey.substring(5, 10);
-            BBDActivationHelper.this.pin3 = aKey.substring(10);
+            BBDActivationHelper.this.activationPassword = aPass;
         }
     }
 
     /**
-     * Unlock AppUnderTest using it's own password
+     * Unlock AppUnderTest using its own password
      */
     public class LoginBuilder extends AbstractBaseBuilder {
 
@@ -688,7 +684,7 @@ public class BBDActivationHelper {
     }
 
     /**
-     * Unlock AppUnderTest using it's own password
+     * Unlock AppUnderTest using its own password
      * closes fingerprint setup dialog in case if it exists
      */
     public class LoginWithFingerprintBuilder extends LoginBuilder {
@@ -734,20 +730,20 @@ public class BBDActivationHelper {
     }
 
     /**
-     * Login or activate AppUnderTest using Access Key, unlock AppUnderTest using it's own password
+     * Login or activate AppUnderTest using Activation Password, unlock AppUnderTest using its own password
      */
     public class LoginOrActivateBuilder extends AbstractAccessKeyBuilder {
 
         /**
-         * Login or activate AppUnderTest using Access Key
+         * Login or activate AppUnderTest using Activation Password
          *
          * @param ui    object of uiAutomatorUtils
          * @param pName AppUnderTest package name
          * @param uName user name for activation
-         * @param aKey  access key (15 characters)
+         * @param aPass activation password
          */
-        protected LoginOrActivateBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
-            super(ui, pName, uName, aKey);
+        protected LoginOrActivateBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aPass) {
+            super(ui, pName, uName, aPass);
         }
 
         /**
@@ -769,29 +765,27 @@ public class BBDActivationHelper {
             bb.packageName = BBDActivationHelper.this.packageName;
             bb.appPassword = BBDActivationHelper.this.appPassword;
             bb.userName = BBDActivationHelper.this.userName;
-            bb.pin1 = BBDActivationHelper.this.pin1;
-            bb.pin2 = BBDActivationHelper.this.pin2;
-            bb.pin3 = BBDActivationHelper.this.pin3;
+            bb.activationPassword = BBDActivationHelper.this.activationPassword;
             return bb.doActivation();
         }
     }
 
     /**
-     * Login or activate AppUnderTest using Access Key, unlock AppUnderTest using it's own password
+     * Login or activate AppUnderTest using Activation Password, unlock AppUnderTest using its own password
      * closes fingerprint setup dialog in case if it exists
      */
     public class LoginOrActivateWithFingerprintBuilder extends LoginOrActivateBuilder {
 
         /**
-         * Login or activate AppUnderTest using Access Key
+         * Login or activate AppUnderTest using Activation Password
          *
          * @param ui    object of uiAutomatorUtils
          * @param pName AppUnderTest package name
          * @param uName user name for activation
-         * @param aKey  access key (15 characters)
+         * @param aPass activation password
          */
-        protected LoginOrActivateWithFingerprintBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
-            super(ui, pName, uName, aKey);
+        protected LoginOrActivateWithFingerprintBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aPass) {
+            super(ui, pName, uName, aPass);
         }
 
         /**
@@ -822,30 +816,28 @@ public class BBDActivationHelper {
             bb.packageName = BBDActivationHelper.this.packageName;
             bb.appPassword = BBDActivationHelper.this.appPassword;
             bb.userName = BBDActivationHelper.this.userName;
-            bb.pin1 = BBDActivationHelper.this.pin1;
-            bb.pin2 = BBDActivationHelper.this.pin2;
-            bb.pin3 = BBDActivationHelper.this.pin3;
+            bb.activationPassword = BBDActivationHelper.this.activationPassword;
             bb.fingerPrintEnabled = BBDActivationHelper.this.fingerPrintEnabled;
             return bb.doActivationWithFingerprint();
         }
     }
 
     /**
-     * Login or activate AppUnderTest using Access Key, unlock AppUnderTest using it's own password
+     * Login or activate AppUnderTest using Activation Password, unlock AppUnderTest using its own password
      * closes fingerprint setup dialog during easy activation
      */
     public class LoginOrEasyActivateWithFingerprintBuilder extends LoginOrActivateBuilder {
 
         /**
-         * Login or activate AppUnderTest using Access Key
+         * Login or activate AppUnderTest using Activation Password
          *
          * @param ui    object of uiAutomatorUtils
          * @param pName AppUnderTest package name
          * @param uName user name for activation
-         * @param aKey  access key (15 characters)
+         * @param aPass activation password
          */
-        protected LoginOrEasyActivateWithFingerprintBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aKey) {
-            super(ui, pName, uName, aKey);
+        protected LoginOrEasyActivateWithFingerprintBuilder(AbstractUIAutomatorUtils ui, String pName, String uName, String aPass) {
+            super(ui, pName, uName, aPass);
         }
 
         /**
@@ -858,9 +850,7 @@ public class BBDActivationHelper {
             bb.packageName = BBDActivationHelper.this.packageName;
             bb.appPassword = BBDActivationHelper.this.appPassword;
             bb.userName = BBDActivationHelper.this.userName;
-            bb.pin1 = BBDActivationHelper.this.pin1;
-            bb.pin2 = BBDActivationHelper.this.pin2;
-            bb.pin3 = BBDActivationHelper.this.pin3;
+            bb.activationPassword = BBDActivationHelper.this.activationPassword;
             bb.fingerPrintEnabled = BBDActivationHelper.this.fingerPrintEnabled;
             return bb.doEasyActivationWithFingerprint();
         }

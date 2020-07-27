@@ -16,15 +16,16 @@
 
 package com.good.automated.general.utils.impl;
 
-import static com.googlecode.eyesfree.utils.LogUtils.TAG;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiObjectNotFoundException;
-import android.support.test.uiautomator.UiScrollable;
-import android.support.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiScrollable;
+import androidx.test.uiautomator.UiSelector;
+
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.good.automated.general.utils.AbstractUIAutomatorUtils;
@@ -33,6 +34,8 @@ import com.good.automated.general.utils.Duration;
 //Implemented UI interactions with Android N API
 //Nougat - 7.1	API level 25
 public class UIAutomatorUtilsAndroidN25 extends AbstractUIAutomatorUtils {
+
+    private static final String TAG = UIAutomatorUtilsAndroidN25.class.getSimpleName();
 
     private UIAutomatorUtilsAndroidN25() {
         super();
@@ -45,7 +48,7 @@ public class UIAutomatorUtilsAndroidN25 extends AbstractUIAutomatorUtils {
 
     @Override
     public void launchActionSettings(String action) {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
 
         final Intent i = new Intent();
         i.setAction(action);
@@ -103,6 +106,18 @@ public class UIAutomatorUtilsAndroidN25 extends AbstractUIAutomatorUtils {
         String scrollToTextForFingerprint = "NEXT";
 
         return super.completeGettingOfFingerprintScan(fingerprintNextButton, fingerprintScrollViewId, scrollToTextForFingerprint, scanYourFinger);
+    }
+
+    @Override
+    public boolean addCertificateToTrustedCredentials(String certificateName, String devicePIN) throws RemoteException {
+        //!TODO: implement for Android API 25
+        return false;
+    }
+
+    @Override
+    public boolean removeCertificateFromTrustedCredentials(String certificateName) {
+        //!TODO: implement for Android API 25
+        return false;
     }
 
     /**

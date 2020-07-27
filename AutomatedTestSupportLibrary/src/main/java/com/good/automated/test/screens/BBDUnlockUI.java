@@ -18,6 +18,7 @@ package com.good.automated.test.screens;
 
 import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
 
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.good.automated.general.controls.Button;
@@ -81,14 +82,39 @@ public class BBDUnlockUI extends AbstractBBDUI {
     /**
      *
      * @return true if click on button OK was successful, otherwise false
+     * @deprecated since S BBD SDK series there is not OK button, use {@link #clickEnter()} instead
      */
+    @Deprecated
     public boolean clickOK() {
         try {
-            return controls.getBtnOK().click();
+            if (controls.getBtnOK() != null) {
+                return controls.getBtnOK().click();
+            } else {
+                Log.e(TAG, "OK button could not be found.");
+            }
         } catch (NullPointerException e) {
             Log.d(TAG, "NullPointerException: " + e.getMessage());
-            return false;
         }
+        return false;
+    }
+
+    /**
+     * Taps on the Enter button of the keyboard.
+     *
+     * @return  true - if click was successful / false - otherwise
+     */
+    public boolean clickEnter() {
+        try {
+            if (getUiAutomationUtils().isKeyboardShown()) {
+                Log.d(TAG, "Try click keyboard OK button");
+                return getUiAutomationUtils().clickKeyboardOk();
+            } else {
+                Log.d(TAG, "Keyboard not shown");
+            }
+        } catch (RemoteException e) {
+            Log.d(TAG, "Keyboard not shown. RemoteException: " + e.getMessage());
+        }
+        return false;
     }
 
     /**
@@ -123,7 +149,7 @@ public class BBDUnlockUI extends AbstractBBDUI {
      * @return true if unlock was performed successfully, otherwise false
      */
     public boolean unlockAppWithPassword(String enterPassword) {
-        return enterPassword(enterPassword) && clickOK();
+        return enterPassword(enterPassword) && (clickOK() || clickEnter());
     }
 
     /**
@@ -133,6 +159,18 @@ public class BBDUnlockUI extends AbstractBBDUI {
     public boolean forgotPassword() {
         try {
             return controls.getForgotPassword().click();
+        } catch (NullPointerException e) {
+            Log.d(TAG, "NullPointerException: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * @return true if click on password field was performed successfully, otherwise false
+     */
+    public boolean clickOnPasswordField() {
+        try {
+            return controls.getEnterPassword().click();
         } catch (NullPointerException e) {
             Log.d(TAG, "NullPointerException: " + e.getMessage());
             return false;

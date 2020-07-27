@@ -18,6 +18,10 @@ package com.good.automated.test.screens;
 
 import android.util.Log;
 
+import com.good.automated.general.utils.Duration;
+
+import static com.good.automated.general.utils.Duration.UI_ACTION;
+
 public class BBDSetPasswordUI extends AbstractBBDPasswordUI {
 
     private String TAG = BBDSetPasswordUI.class.getSimpleName();
@@ -65,7 +69,14 @@ public class BBDSetPasswordUI extends AbstractBBDPasswordUI {
      * @return true if password was set otherwise false
      */
     public boolean setPassword(String newPassword) {
-        boolean result = enterNewPassword(newPassword) && enterConfirmPassword(newPassword) && clickOK();
+        boolean result = enterNewPassword(newPassword) && enterConfirmPassword(newPassword);
+
+        if (getUiAutomationUtils().isResourceWithIDShown(packageName, "COM_GOOD_GD_EPROV_ACCESS_BUTTON", Duration.of(UI_ACTION))) {
+            result = result && clickOK();
+        } else {
+            result = result && clickEnter();
+        }
+
         BBDAlertDialogUI alert = new BBDAlertDialogUI();
         if (result && (alert.getAlertTitle() == null)){
             Log.d(TAG, "Password was successfully set");
