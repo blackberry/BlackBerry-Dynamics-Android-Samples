@@ -51,6 +51,9 @@ public enum Duration {
     // Duration of easy activation
     EASY_ACTIVATION(1, TimeUnit.MINUTES),
 
+    // Max time to wait BIS permission UI
+    BIS_PRIMER_UI_WAIT(15, TimeUnit.SECONDS),
+
     // Delay after click on "Accept" button
     ACCEPTING_PASSWORD(SECONDS_10),
 

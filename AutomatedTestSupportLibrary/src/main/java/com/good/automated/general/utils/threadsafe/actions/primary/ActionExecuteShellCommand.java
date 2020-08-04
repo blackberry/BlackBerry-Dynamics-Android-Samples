@@ -16,7 +16,7 @@
 
 package com.good.automated.general.utils.threadsafe.actions.primary;
 
-import android.support.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiDevice;
 import android.util.Pair;
 
 import com.good.automated.general.utils.threadsafe.actions.ActionPriority;
