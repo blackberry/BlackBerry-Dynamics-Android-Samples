@@ -16,7 +16,7 @@
 
 package com.good.automated.general.utils.threadsafe.actions;
 
-import android.support.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiDevice;
 
 public abstract class UiDeviceBasedAbstractAction<T> implements IAction<T> {
 

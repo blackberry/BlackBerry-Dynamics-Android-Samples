@@ -67,7 +67,7 @@ public class BBDPermissionAlertDialogUI {
      *
      */
     private BBDPermissionAlertDialogUI(String packageName, UIMap uiMap) {
-        this.packageName = "com.android.packageinstaller";
+        this.packageName = packageName;
         this.permissionAlertDialog = uiMap;
     }
 
@@ -82,6 +82,40 @@ public class BBDPermissionAlertDialogUI {
             Log.d(TAG, "NullPointerException: " + e.getMessage());
             return false;
         }
+    }
+
+    /**
+     * Clicks allow button in the way it present on the popup:
+     * There are different options available depending on OS version:
+     * - Allow
+     * - Allow all the time
+     * - Allow only while using the app
+     *
+     * @return true if click on button Allow was performed successfully, otherwise false
+     */
+    public boolean clickAllowIfPresentAny() {
+
+        try {
+            Button btnAllow = permissionAlertDialog.getBtnAllow();
+            if (btnAllow.isAvailable()) {
+                return btnAllow.click();
+            }
+
+            Button btnAllowAlways = permissionAlertDialog.getBtnAllowAlways();
+            if (btnAllowAlways.isAvailable()) {
+                return btnAllowAlways.click();
+            }
+
+            Button btnAllowOnlyForeground = permissionAlertDialog.getBtnAllowOnlyForeground();
+            if (btnAllowOnlyForeground.isAvailable()) {
+                return btnAllowOnlyForeground.click();
+            }
+        } catch (NullPointerException e) {
+            Log.d(TAG, "NullPointerException: " + e.getMessage());
+            return false;
+        }
+
+        return false;
     }
 
     /**
@@ -145,6 +179,8 @@ public class BBDPermissionAlertDialogUI {
         TextView getTextMessage();
         Button getBtnDeny();
         Button getBtnAllow();
+        Button getBtnAllowAlways();
+        Button getBtnAllowOnlyForeground();
         CheckBox getCheckBoxDontAskAgain();
     }
 
@@ -169,6 +205,18 @@ public class BBDPermissionAlertDialogUI {
         }
 
         @Override
+        public Button getBtnAllowAlways() {
+            return ButtonImpl.getByID(packageName, "permission_allow_always_button",
+                    Duration.of(UI_WAIT));
+        }
+
+        @Override
+        public Button getBtnAllowOnlyForeground() {
+            return ButtonImpl.getByID(packageName, "permission_allow_foreground_only_button",
+                    Duration.of(UI_WAIT));
+        }
+
+        @Override
         public CheckBox getCheckBoxDontAskAgain() {
             return CheckBoxImpl.getByID(packageName,"do_not_ask_checkbox",
                     Duration.of(WAIT_FOR_SCREEN));
@@ -189,6 +237,16 @@ public class BBDPermissionAlertDialogUI {
 
         @Override
         public Button getBtnAllow() {
+            return ButtonStub.getStub();
+        }
+
+        @Override
+        public Button getBtnAllowAlways() {
+            return ButtonStub.getStub();
+        }
+
+        @Override
+        public Button getBtnAllowOnlyForeground() {
             return ButtonStub.getStub();
         }
 

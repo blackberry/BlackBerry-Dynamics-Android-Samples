@@ -16,7 +16,7 @@
 
 package com.good.automated.general.utils.uitools.networking;
 
-import android.support.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.UiSelector;
 import android.widget.Switch;
 
 /**

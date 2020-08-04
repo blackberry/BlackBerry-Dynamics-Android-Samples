@@ -18,11 +18,12 @@ package com.good.automated.general.utils.impl;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiObjectNotFoundException;
-import android.support.test.uiautomator.UiScrollable;
-import android.support.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiScrollable;
+import androidx.test.uiautomator.UiSelector;
+
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.good.automated.general.utils.AbstractUIAutomatorUtils;
@@ -30,14 +31,16 @@ import com.good.automated.general.utils.Duration;
 
 import static android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS;
 import static android.provider.Settings.ACTION_DATE_SETTINGS;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static com.good.automated.general.utils.Duration.UI_WAIT;
 import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
 import static com.good.automated.general.utils.Duration.of;
-import static com.googlecode.eyesfree.utils.LogUtils.TAG;
 
 //Implemented UI interactions with Android Q API
 //? - 10 API level 29
 public class UIAutomatorUtilsAndroidQ29 extends AbstractUIAutomatorUtils {
+
+    private static final String TAG = UIAutomatorUtilsAndroidQ29.class.getSimpleName();
 
     private UIAutomatorUtilsAndroidQ29() {
         super();
@@ -59,7 +62,7 @@ public class UIAutomatorUtilsAndroidQ29 extends AbstractUIAutomatorUtils {
      */
     @Override
     public void launchActionSettings(String action) {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
 
         final Intent i = new Intent();
         i.setAction(action);
@@ -78,10 +81,10 @@ public class UIAutomatorUtilsAndroidQ29 extends AbstractUIAutomatorUtils {
     @Override
     public UiObject findTaskWithTextInRecentApps(String aText) throws UiObjectNotFoundException  {
         openRecentApps();
-
+        waitForUI(of(WAIT_FOR_SCREEN));
         UiObject taskViewSelector = getUiDevice().findObject(new UiSelector().className("android.widget.FrameLayout"));
         UiObject fileViewer = taskViewSelector.getChild(new UiSelector().descriptionMatches(aText));
-        fileViewer.waitForExists(Duration.of(Duration.UI_WAIT));
+        fileViewer.waitForExists(Duration.of(Duration.WAIT_FOR_SCREEN));
         if (fileViewer.exists()) {
             return fileViewer;
         }
@@ -237,6 +240,18 @@ public class UIAutomatorUtilsAndroidQ29 extends AbstractUIAutomatorUtils {
     }
 
     @Override
+    public boolean addCertificateToTrustedCredentials(String certificateName, String devicePIN) throws RemoteException {
+        //!TODO: implement for Android API 29
+        return false;
+    }
+
+    @Override
+    public boolean removeCertificateFromTrustedCredentials(String certificateName) {
+        //!TODO: implement for Android API 29
+        return false;
+    }
+
+    @Override
     public boolean forceStopApp(String applicationId) {
         launchAppSettings(applicationId);
 
@@ -283,15 +298,15 @@ public class UIAutomatorUtilsAndroidQ29 extends AbstractUIAutomatorUtils {
     public boolean selectPermissionSwitchItemWithDescription(String aDescription) {
 
         UiObject appPermissionsLabel = getUiDevice().findObject(new UiSelector().text("App permissions"));
-        appPermissionsLabel.waitForExists(Duration.of(Duration.UI_WAIT));
+        appPermissionsLabel.waitForExists(Duration.of(Duration.WAIT_FOR_SCREEN));
         UiScrollable permissionList = new UiScrollable(new UiSelector().resourceId("com.android.permissioncontroller" + _ID + idRecyclerViewList));
-        permissionList.waitForExists(Duration.of(UI_WAIT));
+        permissionList.waitForExists(Duration.of(WAIT_FOR_SCREEN));
 
         try {
             UiObject object = permissionList.getChildByText(new UiSelector().className(packageAndroid + ".widget.TextView"), aDescription);
-            object.waitForExists(Duration.of(UI_WAIT));
+            object.waitForExists(Duration.of(WAIT_FOR_SCREEN));
             object.click();
-            return clickOnItemContainingText("Allow", Duration.of(UI_WAIT));
+            return clickOnItemContainingText("Allow", Duration.of(WAIT_FOR_SCREEN));
         } catch (UiObjectNotFoundException e) {
             return false;
         }

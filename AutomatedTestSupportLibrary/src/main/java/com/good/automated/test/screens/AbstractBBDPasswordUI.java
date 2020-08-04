@@ -18,6 +18,7 @@ package com.good.automated.test.screens;
 
 import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
 
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.good.automated.general.controls.Button;
@@ -58,6 +59,39 @@ public abstract class AbstractBBDPasswordUI extends AbstractBBDUI {
             }
         } catch (NullPointerException e) {
             Log.d(TAG, "Couldn't perform action click. NullPointerException: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * @return true if click was performed, otherwise false
+     */
+    public boolean clickCancel() {
+        try {
+            if (controls.getBtnCancel() != null) {
+                return controls.getBtnCancel().click();
+            } else {
+                Log.d(TAG, "Button Cancel is null");
+            }
+        } catch (NullPointerException e) {
+            Log.d(TAG, "Couldn't perform action  cancel. NullPointerException: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * @return true if click on button ENTER on keyboard was successful, otherwise false
+     */
+    public boolean clickEnter() {
+        try {
+            if (getUiAutomationUtils().isKeyboardShown()) {
+                Log.d(TAG, "Try click keyboard OK button");
+                return getUiAutomationUtils().clickKeyboardOk();
+            } else {
+                Log.d(TAG, "Keyboard not shown");
+            }
+        } catch (RemoteException e) {
+            Log.d(TAG, "Keyboard not shown. RemoteException: " + e.getMessage());
         }
         return false;
     }
@@ -161,6 +195,11 @@ public abstract class AbstractBBDPasswordUI extends AbstractBBDUI {
 
         public Button getBtnOK() {
             return ButtonImpl.getByID(packageName, "COM_GOOD_GD_EPROV_ACCESS_BUTTON",
+                    Duration.of(WAIT_FOR_SCREEN));
+        }
+
+        public Button getBtnCancel() {
+            return ButtonImpl.getByID(packageName, "COM_GOOD_GD_EPROV_CANCEL_BUTTON",
                     Duration.of(WAIT_FOR_SCREEN));
         }
 

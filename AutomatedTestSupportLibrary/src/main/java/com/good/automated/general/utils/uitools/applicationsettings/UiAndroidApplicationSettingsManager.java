@@ -16,7 +16,7 @@
 
 package com.good.automated.general.utils.uitools.applicationsettings;
 
-import android.support.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.UiSelector;
 
 /**
  * UI Application settings manager that works with default Android platform.

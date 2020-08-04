@@ -16,8 +16,9 @@
 
 package com.good.automated.test.screenFinder.parsing;
 
-import android.support.test.InstrumentationRegistry;
-import android.support.test.uiautomator.UiDevice;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
+
+import androidx.test.uiautomator.UiDevice;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -43,7 +44,7 @@ public class DumpQueue {
     private final Condition queueNotEmpty = aLock.newCondition();
 
     public DumpQueue() {
-        uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        uiDevice = UiDevice.getInstance(getInstrumentation());
     }
 
     public void dumpWindow() throws InterruptedException {

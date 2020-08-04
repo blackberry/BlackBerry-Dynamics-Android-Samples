@@ -16,7 +16,7 @@
 
 package com.good.automated.test.screenFinder.view;
 
-import android.support.test.uiautomator.UiObject2;
+import androidx.test.uiautomator.UiObject2;
 
 import com.good.automated.test.screenFinder.mapping.MappingDefaultBBD;
 

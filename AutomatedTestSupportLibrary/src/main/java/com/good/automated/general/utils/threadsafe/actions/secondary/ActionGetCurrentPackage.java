@@ -16,11 +16,10 @@
 
 package com.good.automated.general.utils.threadsafe.actions.secondary;
 
-import android.support.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiDevice;
 import android.util.Pair;
 
 import com.good.automated.general.utils.threadsafe.actions.ActionPriority;
-import com.good.automated.general.utils.threadsafe.actions.IAction;
 import com.good.automated.general.utils.threadsafe.actions.UiDeviceBasedAbstractAction;
 
 public class ActionGetCurrentPackage extends UiDeviceBasedAbstractAction<String> {

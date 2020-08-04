@@ -16,17 +16,19 @@
 
 package com.good.automated.general.controls.impl;
 
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
 import static com.good.automated.general.utils.Duration.UI_WAIT;
 
 import com.good.automated.general.utils.Duration;
 
-import android.support.test.InstrumentationRegistry;
-import android.support.test.uiautomator.UiDevice;
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiObjectNotFoundException;
-import android.support.test.uiautomator.UiSelector;
 import android.util.Log;
 import android.view.accessibility.AccessibilityWindowInfo;
+
+import androidx.test.InstrumentationRegistry;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiSelector;
 
 
 /**
@@ -40,11 +42,11 @@ public class ControlWrapper {
     private String resourceID;
 
     public ControlWrapper() {
-        this.uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        this.uiDevice = UiDevice.getInstance(getInstrumentation());
     }
 
     public ControlWrapper(UiObject uIObject) {
-        this.uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        this.uiDevice = UiDevice.getInstance(getInstrumentation());
         this.uiObject = uIObject;
     }
 

@@ -18,11 +18,12 @@ package com.good.automated.general.utils.impl;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiObjectNotFoundException;
-import android.support.test.uiautomator.UiScrollable;
-import android.support.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiScrollable;
+import androidx.test.uiautomator.UiSelector;
+
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.good.automated.general.utils.AbstractUIAutomatorUtils;
@@ -30,14 +31,16 @@ import com.good.automated.general.utils.Duration;
 
 import static android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS;
 import static android.provider.Settings.ACTION_DATE_SETTINGS;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static com.good.automated.general.utils.Duration.UI_WAIT;
 import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
 import static com.good.automated.general.utils.Duration.of;
-import static com.googlecode.eyesfree.utils.LogUtils.TAG;
 
 //Implemented UI interactions with Android P API
 //? - 9 API level 28
 public class UIAutomatorUtilsAndroidP28 extends AbstractUIAutomatorUtils {
+
+    private static final String TAG = UIAutomatorUtilsAndroidP28.class.getSimpleName();
 
     private UIAutomatorUtilsAndroidP28() {
         super();
@@ -54,7 +57,7 @@ public class UIAutomatorUtilsAndroidP28 extends AbstractUIAutomatorUtils {
      */
     @Override
     public void launchActionSettings(String action) {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
 
         final Intent i = new Intent();
         i.setAction(action);
@@ -183,6 +186,18 @@ public class UIAutomatorUtilsAndroidP28 extends AbstractUIAutomatorUtils {
             Log.d(TAG, "Fingerprint in not supported by this hardware");
             return true;
         }
+    }
+
+    @Override
+    public boolean addCertificateToTrustedCredentials(String certificateName, String devicePIN) throws RemoteException {
+        //!TODO: implement for Android API 28
+        return false;
+    }
+
+    @Override
+    public boolean removeCertificateFromTrustedCredentials(String certificateName) {
+        //!TODO: implement for Android API 28
+        return false;
     }
 
     @Override

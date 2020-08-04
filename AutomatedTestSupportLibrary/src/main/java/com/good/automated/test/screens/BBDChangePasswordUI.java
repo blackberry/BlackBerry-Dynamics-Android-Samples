@@ -75,8 +75,7 @@ public class BBDChangePasswordUI extends AbstractBBDPasswordUI {
         return enterOldPassword(oldPass)
                 && enterNewPassword(newPass)
                 && enterConfirmPassword(newPass)
-                && getUiAutomationUtils().clickKeyboardOk()
-                && clickOK();
+                && getUiAutomationUtils().clickKeyboardOk();
     }
 
     /**
@@ -129,6 +128,14 @@ public class BBDChangePasswordUI extends AbstractBBDPasswordUI {
      */
     public boolean setDifferentPasswords(String oldPass, String newPass, String confirmPass) {
         return enterDifferentPasswords(oldPass, newPass, confirmPass) && clickOK();
+    }
+
+    /**
+     *
+     * @return true if password change was cancelled, otherwise false
+     */
+    public boolean clickCancel() {
+        return super.clickCancel();
     }
 
     /**

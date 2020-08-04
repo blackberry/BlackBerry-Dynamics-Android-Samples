@@ -19,8 +19,7 @@ package com.good.automated.test.screenFinder.handlers;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiDevice;
 import android.util.Log;
 import android.util.Pair;
 
@@ -35,6 +34,7 @@ import java.util.List;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
 import static com.good.automated.test.screenFinder.general.Constants.RESOURCE_ID_SEPARATOR;
 
 public class ViewHandler extends Handler {
@@ -152,7 +152,7 @@ public class ViewHandler extends Handler {
     private BBDView getCurrentUI() {
         BBDView currentView = null;
         try {
-            UiDevice uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+            UiDevice uiDevice = UiDevice.getInstance(getInstrumentation());
             Pair<Boolean, String> packageResult = executor.getCurrentPackageName(uiDevice);
 
             if (packageResult != null && packageResult.first) {
