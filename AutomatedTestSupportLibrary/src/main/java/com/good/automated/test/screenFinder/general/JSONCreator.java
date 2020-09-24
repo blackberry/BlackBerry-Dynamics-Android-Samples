@@ -39,6 +39,7 @@ public class JSONCreator {
     private static final String KEY_INTERNAL_ID = "uniqueId";
     private static final String KEY_TIME_VISIBLE = "timeVisible";
     private static final String KEY_VIEW_STACK = "viewStack";
+    private static final String KEY_APPEARANCE_TIME = "appearanceTime";
 
     private BlockingDeque<BBDView> viewStack;
 
@@ -76,8 +77,6 @@ public class JSONCreator {
         JSONObject viewMappingJSON = new JSONObject();
         JSONArray viewStackJson = new JSONArray();
 
-        Iterator<BBDView> it = viewStack.descendingIterator();
-
         while (viewIterator.hasNext()) {
             BBDView view = viewIterator.next();
             try {
@@ -87,6 +86,7 @@ public class JSONCreator {
                 bbdViewJson.put(KEY_PACKAGE, view.getPackageName());
                 bbdViewJson.put(KEY_RESOURCE_ID, view.getResourceId());
                 bbdViewJson.put(KEY_TIME_VISIBLE, view.getTimeOnTheTop());
+                bbdViewJson.put(KEY_APPEARANCE_TIME, view.getAppearanceTime());
 
                 viewStackJson.put(bbdViewJson);
             } catch (JSONException ex) {

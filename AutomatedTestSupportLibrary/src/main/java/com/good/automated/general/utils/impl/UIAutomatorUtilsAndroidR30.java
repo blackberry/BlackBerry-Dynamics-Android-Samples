@@ -1,4 +1,4 @@
-/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+/* Copyright (c) 2020 BlackBerry Limited.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@ package com.good.automated.general.utils.impl;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.RemoteException;
+import android.util.Log;
+
 import androidx.test.uiautomator.UiObject;
 import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.test.uiautomator.UiScrollable;
 import androidx.test.uiautomator.UiSelector;
-
-import android.os.RemoteException;
-import android.util.Log;
 
 import com.good.automated.general.utils.AbstractUIAutomatorUtils;
 import com.good.automated.general.utils.Duration;
@@ -32,17 +32,20 @@ import com.good.automated.general.utils.Duration;
 import static android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS;
 import static android.provider.Settings.ACTION_DATE_SETTINGS;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
+import static com.good.automated.general.utils.Duration.POLICY_UPDATE;
+import static com.good.automated.general.utils.Duration.SCREEN_ROTATION;
+import static com.good.automated.general.utils.Duration.UI_ACTION;
 import static com.good.automated.general.utils.Duration.UI_WAIT;
 import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
 import static com.good.automated.general.utils.Duration.of;
 
-//Implemented UI interactions with Android Q API
-//? - 10 API level 29
-public class UIAutomatorUtilsAndroidQ29 extends AbstractUIAutomatorUtils {
+//Implemented UI interactions with Android R API
+//? - 11 API level 30
+public class UIAutomatorUtilsAndroidR30 extends AbstractUIAutomatorUtils {
 
-    private static final String TAG = UIAutomatorUtilsAndroidQ29.class.getSimpleName();
+    private static final String TAG = UIAutomatorUtilsAndroidR30.class.getSimpleName();
 
-    private UIAutomatorUtilsAndroidQ29() {
+    private UIAutomatorUtilsAndroidR30() {
         super();
         idButtonNext = "fingerprint_next_button";
         idRecyclerViewList = "recycler_view";
@@ -75,7 +78,7 @@ public class UIAutomatorUtilsAndroidQ29 extends AbstractUIAutomatorUtils {
     }
 
     public static AbstractUIAutomatorUtils getInstance() {
-        return new UIAutomatorUtilsAndroidQ29();
+        return new UIAutomatorUtilsAndroidR30();
     }
 
     @Override
@@ -170,7 +173,7 @@ public class UIAutomatorUtilsAndroidQ29 extends AbstractUIAutomatorUtils {
      */
     @Override
     protected boolean setDevicePasswordOrPIN(String passwordPIN, String devicePasscode) {
-        Log.d(TAG, "Setting device PIN or Password for 29 API level");
+        Log.d(TAG, "Setting device PIN or Password for 30 API level");
         String setupPasswordPinText = "Set screen lock";
         String confirmYourPasswordPinText = "Re-enter your " + passwordPIN;
         String completeToSetPasswordPINButton = "redaction_done_button";
@@ -241,13 +244,46 @@ public class UIAutomatorUtilsAndroidQ29 extends AbstractUIAutomatorUtils {
 
     @Override
     public boolean addCertificateToTrustedCredentials(String certificateName, String devicePIN) throws RemoteException {
-        //!TODO: implement for Android API 29
+        terminateAppADB(packageAndroidSettings);
+        openSecuritySettings();
+        scrollToTheEnd(packageAndroidSettings + _ID + idRecyclerViewList);
+
+        if (clickOnItemWithText(textEncryptionCredentials, Duration.of(POLICY_UPDATE))
+                && clickOnItemWithText(textInstallCertificate, Duration.of(WAIT_FOR_SCREEN))
+                && clickOnItemWithText("CA certificate", Duration.of(WAIT_FOR_SCREEN))) {
+            if (isTextShown("Your data won’t be private", Duration.of(WAIT_FOR_SCREEN))) {
+                clickOnItemWithText("Install anyway", Duration.of(WAIT_FOR_SCREEN));
+                printScreenMap();
+                enterTextToItemWithID(packageAndroidSystemUI, idLockPassEditText, devicePIN);
+                clickKeyboardOk();
+            }
+            if (isTextShown(textRecent, Duration.of(WAIT_FOR_SCREEN))) {
+                clickOnItemWithContentDescriptionText(textShowRoots, Duration.of(WAIT_FOR_SCREEN));
+                clickOnItemWithText(textDownloads, Duration.of(WAIT_FOR_SCREEN));
+            }
+            if (clickOnItemContainingText(certificateName, Duration.of(WAIT_FOR_SCREEN))) {
+                Log.d(TAG, "User certificate was added to trusted credentials.");
+                return true;
+            }
+        }
         return false;
     }
 
     @Override
     public boolean removeCertificateFromTrustedCredentials(String certificateName) {
-        //!TODO: implement for Android API 29
+        terminateAppADB(packageAndroidSettings);
+        openSecuritySettings();
+        scrollToTheEnd(packageAndroidSettings + _ID + idRecyclerViewList);
+
+        if (clickOnItemWithText(textEncryptionCredentials, Duration.of(POLICY_UPDATE))
+                && clickOnItemWithText(textTrustedCredentials, Duration.of(SCREEN_ROTATION))
+                && clickOnItemWithText(textUSER, Duration.of(WAIT_FOR_SCREEN))
+                && clickOnItemWithText(textBlackBerryRootCA, Duration.of(WAIT_FOR_SCREEN))
+                && clickOnItemWithID(packageAndroid, idButton2, of(WAIT_FOR_SCREEN))
+                && clickOnItemWithID(packageAndroid, idButton1, of(WAIT_FOR_SCREEN))) {
+            Log.d(TAG, "User certificate was removed from trusted credentials.");
+            return true;
+        }
         return false;
     }
 
@@ -295,14 +331,25 @@ public class UIAutomatorUtilsAndroidQ29 extends AbstractUIAutomatorUtils {
         UiObject appPermissionsLabel = getUiDevice().findObject(new UiSelector().text("App permissions"));
         appPermissionsLabel.waitForExists(Duration.of(Duration.WAIT_FOR_SCREEN));
         UiScrollable permissionList = new UiScrollable(new UiSelector().resourceId("com.android.permissioncontroller" + _ID + idRecyclerViewList));
-        permissionList.waitForExists(Duration.of(WAIT_FOR_SCREEN));
+        permissionList.waitForExists(Duration.of(UI_WAIT));
 
         try {
-            UiObject object = permissionList.getChildByText(new UiSelector().className(packageAndroid + ".widget.TextView"), aDescription);
-            object.waitForExists(Duration.of(WAIT_FOR_SCREEN));
-            object.click();
-            return clickOnItemContainingText("Allow", Duration.of(WAIT_FOR_SCREEN));
+            if (permissionList.exists()) {
+                UiObject object = permissionList.getChild(new UiSelector().className(this.packageAndroid + ".widget.TextView").text(aDescription));
+                object.waitForExists(Duration.of(UI_WAIT));
+                object.click();
+                boolean result = clickOnItemContainingText("Allow", Duration.of(WAIT_FOR_SCREEN));
+                if (this.isScreenShown(packageAndroid, idButton1, Duration.of(UI_ACTION))) {
+                    Log.d(TAG, "Confirmation pop-up displayed, will tap Allow");
+                    result &= this.clickOnItemWithID(packageAndroid, idButton1);
+                }
+                return result;
+            } else {
+                Log.d(TAG, "List with permissions wasn't shown");
+                return false;
+            }
         } catch (UiObjectNotFoundException e) {
+            Log.d(TAG, String.format("UI object with description=%s wasn't found in permission list", aDescription));
             return false;
         }
     }

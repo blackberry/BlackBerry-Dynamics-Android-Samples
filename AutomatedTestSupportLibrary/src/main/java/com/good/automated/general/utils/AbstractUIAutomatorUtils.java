@@ -18,10 +18,12 @@ package com.good.automated.general.utils;
 
 import static android.provider.Settings.ACTION_WIFI_SETTINGS;
 import static android.view.KeyEvent.KEYCODE_MENU;
+import static androidx.core.content.PermissionChecker.checkSelfPermission;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static com.good.automated.general.utils.Duration.AUTHORIZE_CALLBACK;
 import static com.good.automated.general.utils.Duration.KNOWN_WIFI_CONNECTION;
 import static com.good.automated.general.utils.Duration.SCREEN_ROTATION;
+import static com.good.automated.general.utils.Duration.SECONDS_10;
 import static com.good.automated.general.utils.Duration.UI_ACTION;
 import static com.good.automated.general.utils.Duration.UI_WAIT;
 import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
@@ -55,6 +57,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import androidx.core.content.PermissionChecker;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
@@ -87,6 +90,7 @@ public abstract class AbstractUIAutomatorUtils {
 
     protected final String _ID = ":id/";
     protected String packageAndroidSettings = "com.android.settings";
+    protected String packageAndroidSystemUI = "com.android.systemui";
     protected String packageAndroid = "android";
     protected String packageCertInstaller = "com.android.certinstaller";
 
@@ -101,6 +105,7 @@ public abstract class AbstractUIAutomatorUtils {
     protected String idButton3 = "button3";
     protected String idButtonNext = "next_button";
     protected String idPasswordEntry = "password_entry";
+    protected String idLockPassEditText = "lockPassword";
     protected String idEncryptDontRequirePassword = "encrypt_dont_require_password";
     protected String idShowAll = "show_all";
     protected String idDateTimeRadialPicker = "radial_picker";
@@ -125,6 +130,7 @@ public abstract class AbstractUIAutomatorUtils {
     protected String textAutomaticDateTime = "Automatic date & time";
     protected String textEncryptionCredentials = "Encryption & credentials";
     protected String textInstallFromSDCard = "Install from SD card";
+    protected String textInstallCertificate = "Install a certificate";
     protected String textShowRoots = "Show roots";
     protected String textDownloads = "Downloads";
     protected String textTrustedCredentials = "Trusted credentials";
@@ -1135,17 +1141,17 @@ public abstract class AbstractUIAutomatorUtils {
     public boolean enterTextScreenWithClass(String aClass, String aText) {
 
         UiObject textScreen = uiDevice.findObject(new UiSelector().className(aClass));
-        textScreen.waitForExists(Duration.of(UI_WAIT));
 
-        if (textScreen.exists()) {
-
+        if (textScreen.waitForExists(Duration.of(SECONDS_10))) {
             try {
                 textScreen.setText(aText);
             } catch (UiObjectNotFoundException e) {
+                Log.e(TAG, "Failed to enter text into element: " + aClass);
                 return false;
             }
             return true;
         }
+        Log.e(TAG, "Element for a class " + aClass + " was not found");
         return false;
     }
 
@@ -1364,9 +1370,10 @@ public abstract class AbstractUIAutomatorUtils {
     public void cancelSystemCrashDialogueIfShown() {
         // We don't wait for long duration, if it is showing then deal with it, otherwise move on
         if (isTextShown("has stopped", of(WAIT_FOR_SCREEN))) {
-            clickOnItemWithText("OK", of(UI_WAIT));
+            if (!clickOnItemWithText("OK", of(UI_WAIT))) {
+                clickOnItemContainingText("Close app", of(UI_WAIT));
+            }
         }
-
     }
 
     /**
@@ -1858,7 +1865,7 @@ public abstract class AbstractUIAutomatorUtils {
         String resourceID = computeResourceId(packageName, aResourceID);
         UiObject testItem = findByResourceId(resourceID);
         try {
-            if (testItem.waitForExists(of(UI_WAIT))) {
+            if (testItem.waitForExists(of(SECONDS_10))) {
                 testItem.legacySetText(textToEnter);
                 Log.d(TAG, "Text: \"" + textToEnter + "\" was entered");
                 if (testItem.getText() != null) {
@@ -2620,8 +2627,15 @@ public abstract class AbstractUIAutomatorUtils {
             Log.d(TAG, "Folder for screenshot does not exist. Try to create it.");
             if (!dir.mkdirs()) {
 
+                if (checkSelfPermission(getInstrumentation().getTargetContext(),
+                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PermissionChecker.PERMISSION_GRANTED) {
+                    Log.v(TAG,"Permission was not granted for EXTERNAL_STORAGE");
+                    grantPermissionsInRuntime(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE});
+                }
+
                 //wait till permissions be granted
-                waitForUI(of(WAIT_FOR_SCREEN));
+                waitForUI(of(UI_WAIT));
 
                 if (!dir.mkdirs()) {
                     Log.d(TAG, "Could not create hierarchy of folders for screenshot: " + dir.getAbsolutePath());
