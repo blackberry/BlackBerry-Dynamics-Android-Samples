@@ -329,7 +329,7 @@ public abstract class AbstractBBDActivationUI extends AbstractBBDUI {
     protected class BBDActivationUIMap {
 
         public EditText getUserLogin() {
-            return EditTextImpl.getByID(packageName, "COM_GOOD_GD_EPROV_EMAIL_FIELD");
+            return EditTextImpl.getByID(packageName, "COM_GOOD_GD_EPROV_EMAIL_FIELD", Duration.of(WAIT_FOR_SCREEN));
         }
 
         public EditText getActivationPasswordField() {

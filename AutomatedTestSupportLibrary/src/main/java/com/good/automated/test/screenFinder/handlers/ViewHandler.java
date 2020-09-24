@@ -30,7 +30,10 @@ import com.good.automated.test.screenFinder.parsing.UIParsingFacade;
 import com.good.automated.test.screenFinder.view.BBDView;
 import com.good.automated.test.screenFinder.view.BBDViewFactory;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -103,6 +106,12 @@ public class ViewHandler extends Handler {
 
             if (viewChanged) {
                 currentUi.setTimeOnTheTop(System.currentTimeMillis() - uiTimeStart);
+
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(uiTimeStart);
+                String timeString = new SimpleDateFormat("HH:mm:ss:SSS", Locale.getDefault()).format(cal.getTime());
+
+                currentUi.setAppearanceTime(timeString);
 
                 if (currentUi.getResourceId().equals(MappingDefaultBBD.unknownAppUI.getResourceId())) {
                     // dump UI xml
