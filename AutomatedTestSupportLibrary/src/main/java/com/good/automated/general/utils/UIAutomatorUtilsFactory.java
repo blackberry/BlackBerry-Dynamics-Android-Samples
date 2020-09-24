@@ -24,6 +24,7 @@ import com.good.automated.general.utils.impl.UIAutomatorUtilsAndroidO26;
 import com.good.automated.general.utils.impl.UIAutomatorUtilsAndroidO27;
 import com.good.automated.general.utils.impl.UIAutomatorUtilsAndroidP28;
 import com.good.automated.general.utils.impl.UIAutomatorUtilsAndroidQ29;
+import com.good.automated.general.utils.impl.UIAutomatorUtilsAndroidR30;
 
 /**
  * UIAutomatorUtilsFactory is a helper class that return us concrete realisation of interactions with
@@ -53,6 +54,9 @@ public abstract class UIAutomatorUtilsFactory {
                     break;
                 case 29:
                     uiAutomatorUtils = UIAutomatorUtilsAndroidQ29.getInstance();
+                    break;
+                case 30:
+                    uiAutomatorUtils = UIAutomatorUtilsAndroidR30.getInstance();
                     break;
                 default:
                     uiAutomatorUtils = UIAutomatorUtilsAndroidO26.getInstance();

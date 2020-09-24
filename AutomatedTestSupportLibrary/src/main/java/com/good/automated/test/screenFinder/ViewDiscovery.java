@@ -108,6 +108,7 @@ public class ViewDiscovery {
         for (BBDView view : handlerThread.getUiStack()) {
             Log.d("TEST_GD", "Received stack: " + view.getPackageName() +
                     " / " + view.getResourceId() +
+                    " / " + view.getAppearanceTime() +
                     " / " + view.getTimeOnTheTop() + "ms");
         }
     }

@@ -23,6 +23,7 @@ public class BBDView {
     private SearchableView searchableView;
     private String packageName;
     private long timeOnTheTop = 0;
+    private String appearanceTime;
 
     public BBDView() {
         searchableView = MappingDefaultBBD.unknownView;
@@ -54,6 +55,14 @@ public class BBDView {
 
     public void setTimeOnTheTop(long timeOnTheTop) {
         this.timeOnTheTop = timeOnTheTop;
+    }
+
+    public String getAppearanceTime() {
+        return appearanceTime;
+    }
+
+    public void setAppearanceTime(String appearanceTime) {
+        this.appearanceTime = appearanceTime;
     }
 
     @Override
