@@ -1,7 +1,7 @@
 TheConfigurator
 ===============
 
-This sample pairs deomonstrates how to use a custom App Policy uploaded into the BlackBerry UEM Admin Console,
+This sample demonstrates how to use a custom App Policy uploaded into the BlackBerry UEM Admin Console,
 which can be used to remotely configure an application.  After adding this sample to BlackBerry UEM, you'll need to upload
 the included policy file "The Configurator App Policy.xml".  For more information refer to the following post on the 
 BlackBerry Developer Blog:  http://devblog.blackberry.com/2016/08/custom-app-policies-in-good-dynamics-applications/
