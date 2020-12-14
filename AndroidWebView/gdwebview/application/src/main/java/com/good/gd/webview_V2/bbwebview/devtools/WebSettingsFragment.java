@@ -30,7 +30,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.good.gd.example.apachehttp.R;
+import com.good.gd.webview_V2.R;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ import java.util.List;
  */
 public class WebSettingsFragment extends Fragment implements WebSettingsAccess{
 
-    private static final String TAG = "APP_LOG" +  WebSettingsFragment.class.getSimpleName();
+    private static final String TAG = "GDWebView-" +  WebSettingsFragment.class.getSimpleName();
 
     private WebSettings webSettings;
 
@@ -53,8 +53,7 @@ public class WebSettingsFragment extends Fragment implements WebSettingsAccess{
 
 
     public static WebSettingsFragment newInstance() {
-        WebSettingsFragment fragment = new WebSettingsFragment();
-        return fragment;
+        return new WebSettingsFragment();
     }
 
     @Override

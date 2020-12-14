@@ -16,6 +16,7 @@
  */
 package com.good.gd.webview_V2;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -24,24 +25,23 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.good.gd.GDAndroid;
 import com.good.gd.GDStateListener;
-import com.good.gd.example.apachehttp.R;
 import com.good.gd.webview_V2.bbwebview.BBWebViewClient;
+import com.good.gd.webview_V2.bbwebview.WebClientObserver;
 import com.good.gd.webview_V2.bbwebview.devtools.OnCookiesFilterEdit;
 import com.good.gd.webview_V2.bbwebview.devtools.OnJsEditListener;
+import com.good.gd.webview_V2.bbwebview.devtools.WebSettingsFragment;
 import com.good.gd.webview_V2.bbwebview.devtools.onPaneEditListener;
 import com.good.gd.webview_V2.bbwebview.tasks.http.GDHttpClientProvider;
-import com.good.gd.webview_V2.bbwebview.devtools.WebSettingsFragment;
-import com.good.gd.webview_V2.bbwebview.tasks.http.InitHttpClient;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static android.widget.Toast.LENGTH_SHORT;
@@ -49,11 +49,16 @@ import static android.widget.Toast.LENGTH_SHORT;
 public class BrowserActivity extends AppCompatActivity implements GDStateListener {
 
     private static final String TAG = "APP_LOG" +  BrowserActivity.class.getSimpleName();
-    private static final int HTTP_CLIENTS_POOL_SIZE = 256;
+
+    public static final String EXTRA_URL = "extra url";
+
+    private static final String EXTRA_PROGRESS_BAR = "progress bar";
 
     private BBWebViewClient bbWebViewClient;
     private WebView webview;
     private TextView urlField;
+    private String passedUrl;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,53 +68,112 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
         GDAndroid.getInstance().activityInit(this);
 
         initViews();
+
+        Intent intent = getIntent();
+        if (intent != null && intent.getExtras() != null) {
+            String url = intent.getExtras().getString(EXTRA_URL);
+            if (url != null) {
+                passedUrl = url;
+            }
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        Log.i(TAG,"onStart");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         webview.onResume();
+        Log.i(TAG,"onResume");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        webview.onResume();
+        webview.onPause();
+        Log.i(TAG,"onPause");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        Log.i(TAG,"onStop");
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        Log.i(TAG,"onDestroy IN");
+
         disposeViews();
+        GDHttpClientProvider.getInstance().disposeHttpClientsPool();
+
+        super.onDestroy();
+
+        Log.i(TAG,"onDestroy OUT");
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        webview.saveState(outState);
+
+        outState.putInt(EXTRA_PROGRESS_BAR, progressBar.getProgress());
+
+        Log.i(TAG,"onSaveInstanceState");
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        webview.restoreState(savedInstanceState);
+
+        progressBar.setProgress(savedInstanceState.getInt(EXTRA_PROGRESS_BAR, 0));
+
+        Log.i(TAG,"onRestoreInstanceState");
     }
 
     private void disposeViews() {
-
         webview.stopLoading();
+        webview.destroy();
         webview = null;
         urlField = null;
     }
 
     private void initViews() {
-
         webview = findViewById(R.id.gd_web_view);
-        if(bbWebViewClient == null) {
+        if (bbWebViewClient == null) {
             bbWebViewClient = new BBWebViewClient();
         }
 
-
         webview.setWebViewClient(bbWebViewClient);
         urlField = findViewById(R.id.url_input);
+
+        progressBar = findViewById(R.id.progress_bar);
+
+        bbWebViewClient.getObserver().addOnPageFinishedListener(new WebClientObserver.OnPageFinished() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                progressBar.setProgress(100);
+            }
+        });
+
+        bbWebViewClient.getObserver().addOnPageStartedListener(new WebClientObserver.OnPageStarted() {
+            @Override
+            public void onPageStarted(WebView view, String url) {
+                progressBar.setProgress(20);
+            }
+        });
+
+        bbWebViewClient.getObserver().addOnContentVisibleListener(new WebClientObserver.OnPageContentVisible() {
+            @Override
+            public void onPageContentVisible(WebView view, String url) {
+                progressBar.setProgress(70);
+            }
+        });
 
         setupPane(R.id.console, new OnJsEditListener());
         setupPane(R.id.cookies_list, new OnCookiesFilterEdit());
@@ -131,8 +195,6 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
 
         consoleEdit.setOnEditorActionListener(editActionListener);
     }
-
-
 
     public void onGo(View view) {
 
@@ -210,27 +272,30 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        Log.i(TAG,"onBackPressed");
     }
 
     @Override
     public void onAuthorized() {
+        Log.i(TAG,"onAuthorized");
+
         WebView webview = findViewById(R.id.gd_web_view);
 
-        Log.i(TAG,"SDK callback onAuthorized");
-
-        List<InitHttpClient> clients = new ArrayList<>();
-        for (int i = 0; i < HTTP_CLIENTS_POOL_SIZE; i++) {
-             clients.add(new InitHttpClient());
-        }
-
-        GDHttpClientProvider.getInstance().initHttpClientsPool(clients);
+        GDHttpClientProvider.getInstance().initHttpClientsPool();
 
         BBWebViewClient.init(webview,bbWebViewClient);
+
+        if (passedUrl != null) {
+            Log.i(TAG, "loadUrl(" + passedUrl + ")");
+            webview.loadUrl(passedUrl);
+            urlField.setText(passedUrl);
+        }
+
     }
 
     @Override
     public void onLocked() {
-        GDHttpClientProvider.getInstance().disposeHttpClientsPool();
+        Log.i(TAG,"onLocked");
     }
 
     @Override

@@ -98,6 +98,8 @@ document.addEventListener('submit', function (e) {
 			'value': value
 		});
 
+        console.log('GD XHR setHeaders addRequestBody url = ' + this.xRequest.url);
+
 		RequestInterceptor.addRequestBody(this.xRequest.requestId, "",this.xRequest.url || "",'{"this": "XHR.prototype.setRequestHeader"}');
 	};
 
@@ -109,6 +111,9 @@ document.addEventListener('submit', function (e) {
         url += INTERCEPT_REQUEST_MARKER + this.xRequest.requestId;
 
         this.xRequest.url = url;
+
+        console.log('GD XHR open addRequestBody url = ' + this.xRequest.url);
+
 		RequestInterceptor.addRequestBody(this.xRequest.requestId, "",this.xRequest.url+'','{"this": "XHR.prototype.open"}');
 
 		open.call(this, method, url, async, user, pass);
@@ -123,6 +128,9 @@ document.addEventListener('submit', function (e) {
 				body = serializeMultipart(data, boundary);
 				this.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
 			}
+
+			console.log('GD XHR send addRequestBody url = ' + this.xRequest.url);
+
 			RequestInterceptor.addRequestBody(this.xRequest.requestId, body || "", this.xRequest.url || "", '{"this": "XHR.prototype.send"}');
 		} else {
 		    RequestInterceptor.addRequestBody("baad", "", this.xRequest.url || "", '{"this": "XHR.prototype.send"}');
@@ -137,23 +145,30 @@ document.addEventListener('submit', function (e) {
 	const originalFetch = window.fetch;
 
 	window.fetch = function () {
+
+	    console.log('GD fetch, url = ' + arguments[0]);
+
 	    let requestId = generateRandom();
-	    console.log('fetch gd ' + arguments);
-
-	    let url = arguments[0] + INTERCEPT_REQUEST_MARKER + requestId;
-
-	    console.log('fetch gd ' + url);
-
+	    let url = arguments[0];
 		let options = arguments[1];
+
+		url += INTERCEPT_REQUEST_MARKER + requestId;
+		arguments[0] = url;
+
+		console.log('GD fetch, requestId = ' + requestId);
+
 		if (options != undefined) {
+
+            console.log('GD fetch, method = ' + options.method);
+            console.log('GD fetch, mode = ' + options.mode);
+
+            let fetchMode = ' "mode" : "' + options.mode + '"';
+
 			if (options.method && options.method != 'GET' && options.method != 'HEAD' && options.method != 'OPTIONS') {
 
-
-
 				let body = options.body || null;
-				console.log('fetch gd ' + requestId);
+
 				if (body instanceof FormData) {
-				    console.log('fetch gd addBody' + requestId);
 
                     let boundary = '----WebKitBoundary' + randowmStr();
 
@@ -165,18 +180,21 @@ document.addEventListener('submit', function (e) {
 
                     serializedFetchBody.push('--' + boundary + '--\n');
 
-                    console.log('fetch gd addBody' + serializedFetchBody.join(''));
+                    console.log('GD fetch, addBody 1 requestId = ' + requestId + ', ' + serializedFetchBody.join(''));
 
-					RequestInterceptor.addRequestBody(requestId, serializedFetchBody.join(''),url+"",'{"this":"window.fetch","bodyType":"FormData"}');
-
-					arguments[0] = url;
+					RequestInterceptor.addRequestBody(requestId, serializedFetchBody.join(''),url+"",'{"this":"window.fetch","bodyType":"FormData"},' + fetchMode + '}');
 				} else {
-				    RequestInterceptor.addRequestBody(requestId, body+"",url+"",'{"this":"window.fetch","bodyType": "string"}');
+				    console.log('GD fetch, addBody 2 requestId = ' + requestId);
+
+				    RequestInterceptor.addRequestBody(requestId, body+"",url+"",'{"this":"window.fetch","bodyType": "string",' + fetchMode + '}' );
 				}
 			} else {
-			    RequestInterceptor.addRequestBody(requestId, "",url+"",'{"this":"window.fetch", "method": "'+(!options?'':options.method)+'"}');
+			    console.log('GD fetch addBody, 3 requestId = ' + requestId);
+
+			    RequestInterceptor.addRequestBody(requestId, "",url+"",'{"this":"window.fetch", "method": "'+(!options?'':options.method)+',' + fetchMode + '}');
 			}
 		}
+
 		return originalFetch.apply(this, arguments);
 	}
 })();

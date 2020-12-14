@@ -24,22 +24,17 @@ import android.webkit.WebView;
 
 public class BBDServiceWorkerClient extends ServiceWorkerClient {
 
-
-    private static final String TAG = "APP_LOG" +  BBDServiceWorkerClient.class.getSimpleName();
+    private static final String TAG = "GDWebView-" +  BBDServiceWorkerClient.class.getSimpleName();
     private final RequestInterceptor requestInterceptor = new RequestInterceptor();
     private WebView webView;
 
     public BBDServiceWorkerClient(WebView webView) {
-
         this.webView = webView;
     }
 
     @Override
     public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {
-
         Log.i(TAG, "shouldInterceptRequest ServiceWorker URL: " + request.getUrl());
-
         return requestInterceptor.invoke(request,webView);
-
     }
 }

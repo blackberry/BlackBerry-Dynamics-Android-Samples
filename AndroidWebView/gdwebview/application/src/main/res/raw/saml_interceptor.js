@@ -14,13 +14,12 @@
  * limitations under the License.
  *
  */
-package com.good.gd.webview_V2.bbwebview.devtools;
-
-import android.webkit.WebSettings;
-
-public interface WebSettingsAccess {
-
-    void setWebSettings(WebSettings ws);
-    WebSettings getWebSettings();
-
-}
+(function retrieveSamlResponse() {
+    var content = document.getElementsByName('SAMLResponse');
+    if (content.length) {
+        console.log('Element SAMLResponse is found');
+        SamlListener.setContent(content.item(0).value);
+    } else {
+        console.log('Element SAMLResponse is not found');
+    }
+})();

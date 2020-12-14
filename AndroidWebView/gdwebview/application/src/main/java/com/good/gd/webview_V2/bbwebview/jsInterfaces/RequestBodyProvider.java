@@ -20,7 +20,6 @@ import android.webkit.JavascriptInterface;
 
 import com.good.gd.webview_V2.bbwebview.BBWebViewClient;
 
-
 public class RequestBodyProvider {
 
     private BBWebViewClient webViewClient;

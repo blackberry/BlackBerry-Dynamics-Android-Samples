@@ -29,15 +29,11 @@ import com.good.gd.pki.Certificate;
 import com.good.gd.pki.CertificateHandler;
 import com.good.gd.pki.CertificateListener;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
+public class InitHttpClient {
 
-/**
- * @see
- */
-public class InitHttpClient implements Callable<GDHttpClient> {
+    private static final String TAG = "GDWebView-" +  InitHttpClient.class.getSimpleName();
 
-    private static final String TAG = "APP_LOG" +  InitHttpClient.class.getSimpleName();
+    private static final int TIMEOUT = 1000 * 90; // miliseconds
 
     private static CertificateListener GLOBAL_CERTIFICATE_STORE_LISTENER = new CertificateListener() {
         @Override
@@ -51,32 +47,23 @@ public class InitHttpClient implements Callable<GDHttpClient> {
         }
     };
 
-    private static AtomicBoolean s_certListenerAdded = new AtomicBoolean();
-
-    @Override
-    public GDHttpClient call() throws Exception {
+    public static GDHttpClient createGDHttpClient() {
 
         Log.i(TAG, "GDHttpClient >>");
 
         final GDHttpClient httpClient = new GDHttpClient();
 
         HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, 1000 * 60);
-        HttpConnectionParams.setSoTimeout(params, 1000 * 60);
+        HttpConnectionParams.setConnectionTimeout(params, TIMEOUT);
+        HttpConnectionParams.setSoTimeout(params, TIMEOUT);
         params.setBooleanParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS,true);
 
         HttpClientParams.setCookiePolicy(params, CookiePolicy.BROWSER_COMPATIBILITY);
 
-
-
         httpClient.setParams(params);
-        httpClient.disablePeerVerification();
         httpClient.setRedirectHandler(new BBRedirectHandler());
 
-        if(s_certListenerAdded.compareAndSet(false,true)) {
-            CertificateHandler.getInstance().addCertificateListener(GLOBAL_CERTIFICATE_STORE_LISTENER);
-            Log.i(TAG, "GLOBAL_CERTIFICATE_STORE_LISTENER added");
-        }
+        CertificateHandler.getInstance().addCertificateListener(GLOBAL_CERTIFICATE_STORE_LISTENER);
 
         Log.i(TAG, "GDHttpClient <<");
         return httpClient;

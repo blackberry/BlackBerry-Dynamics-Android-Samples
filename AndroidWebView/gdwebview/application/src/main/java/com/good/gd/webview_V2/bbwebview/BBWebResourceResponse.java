@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class BBWebResourceResponse extends WebResourceResponse {
-    private final String TAG = "APP_LOG" +  BBWebResourceResponse.class.getSimpleName() + "_" + hashCode();
+    private final String TAG = "GDWebView-" +  BBWebResourceResponse.class.getSimpleName() + "_" + hashCode();
     private final String clientId;
     private Future<Pair<HttpResponse, HttpContext>> futureResp;
     private BBWebView webView;
@@ -86,19 +86,20 @@ public class BBWebResourceResponse extends WebResourceResponse {
         return super.getStatusCode();
     }
 
-
     // Entry point called from the chromium native
     @Override
     public Map<String, String> getResponseHeaders()
     {
-        Log.i(TAG,"getResponseHeaders [" + Process.myTid() + "]");
+        Log.i(TAG,"getResponseHeaders [" + Process.myTid() + "] IN");
 
         redirectingResponse = null;
 
         HttpResponse response;
         HashMap<String, String> respHeaders = new LinkedHashMap<>();
         try {
+            Log.w(TAG,"getResponseHeaders Blocked [" + Process.myTid() + "]" );
             response = futureResp.get().first;
+            Log.w(TAG,"getResponseHeaders retrieved response [" + Process.myTid() + "]" );
 
             if(response == null) {
                 Log.w(TAG,"getResponseHeaders RESPONSE NULL [" + Process.myTid() + "]" );
@@ -134,7 +135,7 @@ public class BBWebResourceResponse extends WebResourceResponse {
             e.printStackTrace();
         }
 
-        Log.i(TAG,"getResponseHeaders [" + Process.myTid() + "]");
+        Log.i(TAG,"getResponseHeaders [" + Process.myTid() + "] OUT");
 
         return respHeaders;
     }
@@ -150,44 +151,40 @@ public class BBWebResourceResponse extends WebResourceResponse {
         GDHttpClientProvider.getInstance().cacheResponseData(connId,new BBWebResourceResponse("text/html","utf-8",
                 new BBResponseInputStream(futureResp, this.clientId,webView),futureResp,this.clientId, webView));
 
-        //final CountDownLatch pageActionSet = new CountDownLatch(1);
         webView.post(new Runnable() {
             @Override
             public void run() {
-
-
                 Log.i(TAG,">> redirect: setOnPageFinishedAction for " + webView.getOriginalUrl());
 
-                webView.setOnPageFinishedAction(new BBWebView.OnPageFinished() {
+                final BBWebViewClient webViewClient = (BBWebViewClient) webView.getWebViewClient();
+                webViewClient.getObserver().addOnPageFinishedListener(new WebClientObserver.OnPageFinished() {
                     @Override
                     public void onPageFinished(WebView view, String url) {
                         Log.i(TAG,String.format(">> redirect: webview(%s) new url(%s)", url, locationURL));
 
+                        HashMap<String, String> additionalHttpHeaders = new HashMap<>();
+                        additionalHttpHeaders.put(BBWebViewClient.X_REDIRECT_REPONSE_ID, connId);
 
-//                        if(url.replaceAll("#.*","").equalsIgnoreCase(locationURL.toString().replaceAll("#.*",""))){
-//                            Log.w(TAG, "<< redirect: not updating webview");
-//                        } else {
+                        // Unregister to do not receive a notification about redirect url loading
+                        ((BBWebViewClient) webView.getWebViewClient()).getObserver().removeLoadUrlListener(GDHttpClientProvider.getInstance());
 
-                            HashMap<String, String> additionalHttpHeaders = new HashMap<>();
-                            additionalHttpHeaders.put(BBWebViewClient.X_REDIRECT_REPONSE_ID, connId);
+                        webView.loadUrl(locationURL.toString(), additionalHttpHeaders);
 
-                            webView.loadUrl(locationURL.toString(), additionalHttpHeaders);
-                            Log.i(TAG, "<< redirect: loaded location url into webview " + locationURL);
-                        //}
+                        // Register to get a notification about next url loading
+                        ((BBWebViewClient) webView.getWebViewClient()).getObserver().addLoadUrlListener(GDHttpClientProvider.getInstance());
+
+                        // Unregister listener
+                        webViewClient.getObserver().removeOnPageFinishedListener(this);
+                        Log.i(TAG, "<< redirect: loaded location url into webview " + locationURL);
                     }
                 });
 
                 Log.i(TAG,"<> redirect: setOnPageFinishedAction for " + webView.getOriginalUrl());
                 Log.i(TAG,"<< redirect: setOnPageFinishedAction for " + locationURL);
-
-                //pageActionSet.countDown();
             }
         });
 
-        //pageActionSet.await();
-
-
-        String responseBody = "<html>" +
+        final String responseBody = "<html>" +
                 "<body>" +
                 "<h3>Redirecting to <span style=\"color:blue\">" + locationURL.toString() + "</span></h3>" +
                 "</body>" +
@@ -208,13 +205,12 @@ public class BBWebResourceResponse extends WebResourceResponse {
 
         setStatusCodeAndReasonPhrase(200,"OK");
 
-
         return basicResponseHeaders;
     }
 
     @Override
     public InputStream getData() {
-
+        Log.i(TAG,"getData [" + Process.myTid() + "] IN");
         if(redirectingResponse != null){
             return redirectingResponse.getData();
         }

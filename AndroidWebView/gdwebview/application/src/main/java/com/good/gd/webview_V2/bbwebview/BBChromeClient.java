@@ -16,13 +16,34 @@
  */
 package com.good.gd.webview_V2.bbwebview;
 
+import android.util.Log;
+import android.webkit.JsPromptResult;
 import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+
+import com.good.gd.webview_V2.bbwebview.utils.JsDialogHelper;
 
 class BBChromeClient extends WebChromeClient {
 
+    private static final String TAG = "GDWebView-" + BBChromeClient.class.getSimpleName();
+
     @Override
     public boolean onConsoleMessage(android.webkit.ConsoleMessage consoleMessage) {
+
+        Log.i(TAG, "JS console: " + consoleMessage.lineNumber() + " " + consoleMessage.messageLevel() + " " + consoleMessage.message() + " " + consoleMessage.sourceId());
+
         return super.onConsoleMessage(consoleMessage);
+    }
+
+    @Override
+    public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
+
+        Log.i(TAG, "onJsPrompt");
+
+        JsDialogHelper dialogHelper = new JsDialogHelper(message, result, defaultValue);
+        dialogHelper.showDialog(view.getContext());
+
+        return true;
     }
 
 }
