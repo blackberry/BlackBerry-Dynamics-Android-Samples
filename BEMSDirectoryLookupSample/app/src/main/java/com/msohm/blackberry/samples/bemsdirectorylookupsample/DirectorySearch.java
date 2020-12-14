@@ -17,7 +17,7 @@
 package com.msohm.blackberry.samples.bemsdirectorylookupsample;
 
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -39,7 +39,6 @@ import com.good.gd.utility.GDAuthTokenCallback;
 import com.good.gd.utility.GDUtility;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;

@@ -19,6 +19,11 @@ If you'd like to learn more about BlackBerry UEM, be sure to head on over to our
 
 * To contribute code to this repository you must be [signed up as an official contributor](http://blackberry.github.com/howToContribute.html).
 
+**This sample was tested with the following environment:**
+- BlackBerry Dynamics SDK 6.0.1.83
+- Android Studio 3.4.2
+- Android 8.1.0
+
 **How to Open the Project**
 
 **Note that you must install the BlackBerry Dynamics SDK for Android in order to build this sample. Get started [here](https://community.blackberry.com/community/gdn/get-started?product=dynamics)**
@@ -27,8 +32,7 @@ If you'd like to learn more about BlackBerry UEM, be sure to head on over to our
 2. Launch Android Studio.
 3. Click on File menu, Open.
 4. Navigate to the directory you saved the project and click OK.
-5. Import the GD module in the project.
-6. Open the settings.json file in the assets directory and update the GDApplicationID to be unique.
+5. Open the settings.json file in the assets directory and update the GDApplicationID to be unique.
 
 
 ## Disclaimer

@@ -1,37 +1,36 @@
 BEMSPresenceServiceSample
+=========================
+
 This sample demonstrates the use of the BlackBerry Enterprise Mobility Server (BEMS) Presence Service, which
 can be used to poll for and receive updates of contacts presence status within Microsoft Lync.
 
 Applies To
-Android Studio
-BlackBerry Dynamics SDK
+- Android Studio
+- BlackBerry Dynamics SDK
 
 Author(s)
-Mark Sohm
+- Mark Sohm
 
 Contributing
 
 To contribute code to this repository you must be signed up as an official contributor.
 
-This sample was tested with the following environment:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Good Dynamics SDK 4.0.0.5079
-Android Studio 3.1.2
-Android 7.1.1
+**This sample was tested with the following environment:**
+- BlackBerry Dynamics SDK 6.0.1.83
+- Android Studio 3.4.2
+- Android 8.1.0
 
 
-How To Open the Project
-~~~~~~~~~~~~~~~~~~~~~~~
+**How To Open the Project**
 
-**Note that you must install the BlackBerry Dynamics SDK for Android in order to build this sample.**
+Note that you must install the BlackBerry Dynamics SDK for Android in order to build this sample.
 
 1. Clone the repo to your computer.
 2. Launch Android Studio.
 3. Click on File menu, Open.
 4. Navigate to the directory you saved the project and click OK.
-5. Open the settings.grade file and update the gd projectDir to point to the BlackBerry Dynamics SDK location on your computer.
-6. Open the settings.json file in the assets directory and update the GDApplicationID to be unique.
-7. Open AppConstants.java and complete the 2 TODO items.
+5. Open the settings.json file in the assets directory and update the GDApplicationID to be unique.
+6. Open AppConstants.java and complete the 2 TODO items.
 	a) Add email addresses for your contacts.
 	b) Create a unique identifier for your application that will identify it with the BEMS Presence Service.
 

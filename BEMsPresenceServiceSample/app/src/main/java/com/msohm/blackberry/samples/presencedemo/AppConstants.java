@@ -26,8 +26,9 @@ public class AppConstants {
     public static final String NOTIFY_KEY = "320ac69e-b8c2-11e6-80f5-76304dec7eb7";
 
     //TODO:  Update the email addresses below to match some of your contacts.
-    public static final String CONTACT_ADDRESSES = "\"you@yourDomain.com\", " +
+	public static final String CONTACT_ADDRESSES = "\"you@yourDomain.com\", " +
             "\"someoneElse@yourDomain.com\"";
+
 
 
     // JSON Node names

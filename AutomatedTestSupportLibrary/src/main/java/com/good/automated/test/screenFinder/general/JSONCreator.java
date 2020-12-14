@@ -1,3 +1,19 @@
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.test.screenFinder.general;
 
 import android.util.Log;
@@ -23,6 +39,7 @@ public class JSONCreator {
     private static final String KEY_INTERNAL_ID = "uniqueId";
     private static final String KEY_TIME_VISIBLE = "timeVisible";
     private static final String KEY_VIEW_STACK = "viewStack";
+    private static final String KEY_APPEARANCE_TIME = "appearanceTime";
 
     private BlockingDeque<BBDView> viewStack;
 
@@ -60,8 +77,6 @@ public class JSONCreator {
         JSONObject viewMappingJSON = new JSONObject();
         JSONArray viewStackJson = new JSONArray();
 
-        Iterator<BBDView> it = viewStack.descendingIterator();
-
         while (viewIterator.hasNext()) {
             BBDView view = viewIterator.next();
             try {
@@ -71,6 +86,7 @@ public class JSONCreator {
                 bbdViewJson.put(KEY_PACKAGE, view.getPackageName());
                 bbdViewJson.put(KEY_RESOURCE_ID, view.getResourceId());
                 bbdViewJson.put(KEY_TIME_VISIBLE, view.getTimeOnTheTop());
+                bbdViewJson.put(KEY_APPEARANCE_TIME, view.getAppearanceTime());
 
                 viewStackJson.put(bbdViewJson);
             } catch (JSONException ex) {

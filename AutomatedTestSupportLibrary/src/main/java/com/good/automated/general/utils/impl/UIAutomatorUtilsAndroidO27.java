@@ -1,20 +1,33 @@
-/*
- * (c) 2017 BlackBerry Limited. All rights reserved.
- */
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.general.utils.impl;
 
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static com.good.automated.general.utils.Duration.UI_WAIT;
 import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
 import static com.good.automated.general.utils.Duration.of;
-import static com.googlecode.eyesfree.utils.LogUtils.TAG;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.RemoteException;
 import android.provider.Settings;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiObjectNotFoundException;
-import android.support.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiSelector;
 import android.util.Log;
 
 import com.good.automated.general.utils.AbstractUIAutomatorUtils;
@@ -23,6 +36,8 @@ import com.good.automated.general.utils.Duration;
 //Implemented UI interactions with Android O API
 //Oreo - 8.1 API level 27
 public class UIAutomatorUtilsAndroidO27 extends AbstractUIAutomatorUtils {
+
+    private static final String TAG = UIAutomatorUtilsAndroidO27.class.getSimpleName();
 
     private UIAutomatorUtilsAndroidO27() {
         super();
@@ -34,26 +49,17 @@ public class UIAutomatorUtilsAndroidO27 extends AbstractUIAutomatorUtils {
     }
 
     @Override
-    public boolean switchOffWindowAnimationScale() {
-        //TODO: implement for Android O
-        return false;
-    }
-
-    @Override
-    public boolean switchOffTransitionAnimationScale() {
-        //TODO: implement for Android O
-        return false;
-    }
-
-    @Override
-    public boolean switchOffAnimatorDurationScale() {
-        //TODO: implement for Android O
-        return false;
-    }
-
-    @Override
     public void launchActionSettings(String action) {
-        //TODO: implement for Android O
+        Context context = getInstrumentation().getTargetContext();
+
+        final Intent i = new Intent();
+        i.setAction(action);
+        i.addCategory(Intent.CATEGORY_DEFAULT);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+
+        context.startActivity(i);
     }
 
     public static AbstractUIAutomatorUtils getInstance() {
@@ -130,7 +136,7 @@ public class UIAutomatorUtilsAndroidO27 extends AbstractUIAutomatorUtils {
 
     @Override
     protected void openSecuritySettings() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
 
         final Intent i = new Intent();
         i.setAction(Settings.ACTION_SECURITY_SETTINGS);
@@ -199,5 +205,17 @@ public class UIAutomatorUtilsAndroidO27 extends AbstractUIAutomatorUtils {
             Log.d(TAG, "Fingerprint in not supported by this hardware");
             return true;
         }
+    }
+
+    @Override
+    public boolean addCertificateToTrustedCredentials(String certificateName, String devicePIN) throws RemoteException {
+        //!TODO: implement for Android API 27
+        return false;
+    }
+
+    @Override
+    public boolean removeCertificateFromTrustedCredentials(String certificateName) {
+        //!TODO: implement for Android API 27
+        return false;
     }
 }

@@ -1,14 +1,31 @@
-/*
- * (c) 2017 BlackBerry Limited. All rights reserved.
- */
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.general.utils.impl;
 
-import static com.googlecode.eyesfree.utils.LogUtils.TAG;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiObjectNotFoundException;
-import android.support.test.uiautomator.UiScrollable;
-import android.support.test.uiautomator.UiSelector;
+import android.content.Context;
+import android.content.Intent;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiScrollable;
+import androidx.test.uiautomator.UiSelector;
+
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.good.automated.general.utils.AbstractUIAutomatorUtils;
@@ -17,6 +34,8 @@ import com.good.automated.general.utils.Duration;
 //Implemented UI interactions with Android N API
 //Nougat - 7.1	API level 25
 public class UIAutomatorUtilsAndroidN25 extends AbstractUIAutomatorUtils {
+
+    private static final String TAG = UIAutomatorUtilsAndroidN25.class.getSimpleName();
 
     private UIAutomatorUtilsAndroidN25() {
         super();
@@ -28,26 +47,17 @@ public class UIAutomatorUtilsAndroidN25 extends AbstractUIAutomatorUtils {
     }
 
     @Override
-    public boolean switchOffWindowAnimationScale() {
-        //TODO: implement for Android N
-        return false;
-    }
-
-    @Override
-    public boolean switchOffTransitionAnimationScale() {
-        //TODO: implement for Android N
-        return false;
-    }
-
-    @Override
-    public boolean switchOffAnimatorDurationScale() {
-        //TODO: implement for Android N
-        return false;
-    }
-
-    @Override
     public void launchActionSettings(String action) {
-        //TODO: implement for Android N
+        Context context = getInstrumentation().getTargetContext();
+
+        final Intent i = new Intent();
+        i.setAction(action);
+        i.addCategory(Intent.CATEGORY_DEFAULT);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+
+        context.startActivity(i);
     }
 
     public static AbstractUIAutomatorUtils getInstance() {
@@ -96,6 +106,18 @@ public class UIAutomatorUtilsAndroidN25 extends AbstractUIAutomatorUtils {
         String scrollToTextForFingerprint = "NEXT";
 
         return super.completeGettingOfFingerprintScan(fingerprintNextButton, fingerprintScrollViewId, scrollToTextForFingerprint, scanYourFinger);
+    }
+
+    @Override
+    public boolean addCertificateToTrustedCredentials(String certificateName, String devicePIN) throws RemoteException {
+        //!TODO: implement for Android API 25
+        return false;
+    }
+
+    @Override
+    public boolean removeCertificateFromTrustedCredentials(String certificateName) {
+        //!TODO: implement for Android API 25
+        return false;
     }
 
     /**

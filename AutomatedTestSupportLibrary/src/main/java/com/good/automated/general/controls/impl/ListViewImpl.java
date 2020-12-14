@@ -1,24 +1,32 @@
-/*
- * (c) 2017 BlackBerry Limited. All rights reserved.
- */
-package com.good.automated.general.controls.impl;
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
 
-import android.util.Log;
+package com.good.automated.general.controls.impl;
 
 import com.good.automated.general.controls.ListView;
 
-public class ListViewImpl implements ListView {
-    private static final String TAG = ListViewImpl.class.getCanonicalName();
-    private final ControlWrapper control;
+public class ListViewImpl extends ControlBase implements ListView {
 
     public ListViewImpl(ControlWrapper control)  {
-        this.control = control;
+        super(control, ListViewImpl.class.getCanonicalName());
     }
 
     @Override
     public String getText() {
-        Log.d(TAG, "getText() = " + control.getText());
-        return this.control.getText();
+        return super.getText();
     }
 
     @Override

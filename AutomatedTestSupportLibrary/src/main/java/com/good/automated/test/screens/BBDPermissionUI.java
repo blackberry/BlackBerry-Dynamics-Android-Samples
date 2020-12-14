@@ -1,6 +1,19 @@
-/*
- * (c) 2017 BlackBerry Limited. All rights reserved.
- */
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.test.screens;
 
 import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
@@ -10,7 +23,9 @@ import android.util.Log;
 import com.good.automated.general.controls.Button;
 import com.good.automated.general.controls.TextView;
 import com.good.automated.general.controls.impl.ButtonImpl;
+import com.good.automated.general.controls.stub.ButtonStub;
 import com.good.automated.general.controls.impl.TextViewImpl;
+import com.good.automated.general.controls.stub.TextViewStub;
 import com.good.automated.general.utils.Duration;
 
 public class BBDPermissionUI extends AbstractBBDUI {
@@ -18,8 +33,10 @@ public class BBDPermissionUI extends AbstractBBDUI {
     private static final String SCREEN_ID = "bbd_runtimepermissions_introfragment_UI";
 
     private String packageName;
-    private PermissionUIMap controls;
+    private UIMap controls;
     private String TAG = BBDPermissionUI.class.getSimpleName();
+
+    private BBDPermissionAlertDialogUI alertDialogUI;
 
     /**
      *
@@ -38,9 +55,11 @@ public class BBDPermissionUI extends AbstractBBDUI {
     public BBDPermissionUI(String packageName, long delay) {
         this.packageName = packageName;
         if (!getUiAutomationUtils().isResourceWithIDShown(packageName, getScreenID(), delay)){
-            throw new RuntimeException("Needed screen was not shown within provided time!");
+            this.controls = new PermissionUIStub();
+            this.alertDialogUI = BBDPermissionAlertDialogUI.getUiWithStub();
+        } else {
+            this.controls = new PermissionUIMap();
         }
-        this.controls = new PermissionUIMap();
     }
 
     public static String getScreenID() {
@@ -92,6 +111,9 @@ public class BBDPermissionUI extends AbstractBBDUI {
      */
     public boolean grantPermissions() {
         clickAllow();
+        if (alertDialogUI != null){
+            return alertDialogUI.clickAllow();
+        }
         return new BBDPermissionAlertDialogUI().clickAllow();
     }
 
@@ -102,6 +124,9 @@ public class BBDPermissionUI extends AbstractBBDUI {
      */
     public boolean denyPermissions() {
         clickAllow();
+        if (alertDialogUI != null){
+            return alertDialogUI.clickDeny();
+        }
         return new BBDPermissionAlertDialogUI().clickDeny();
     }
 
@@ -112,6 +137,9 @@ public class BBDPermissionUI extends AbstractBBDUI {
      */
     public boolean denyPermissionsCheckboxEnabled() {
         clickAllow();
+        if (alertDialogUI != null){
+            return alertDialogUI.clickDeny();
+        }
         BBDPermissionAlertDialogUI permissionAlertDialogUI = new BBDPermissionAlertDialogUI();
         permissionAlertDialogUI.enableCheckBoxDontAskAgain();
         return permissionAlertDialogUI.clickDeny();
@@ -123,27 +151,61 @@ public class BBDPermissionUI extends AbstractBBDUI {
         return grantPermissions();
     }
 
-    private class PermissionUIMap {
+    private interface UIMap {
+        TextView getTextTitle();
+        TextView getTextPermissionsBody();
+        Button getBtnDeny();
+        Button getBtnAllow();
+    }
 
+    private class PermissionUIMap implements UIMap {
+
+        @Override
         public TextView getTextTitle() {
             return TextViewImpl.getByID(packageName, "gd_header_base_title_text",
                     Duration.of(WAIT_FOR_SCREEN));
         }
 
+        @Override
         public TextView getTextPermissionsBody() {
             return TextViewImpl.getByID(packageName, "gd_runtimepermissions_body",
                     Duration.of(WAIT_FOR_SCREEN));
         }
 
+        @Override
         public Button getBtnDeny() {
             return ButtonImpl.getByID(packageName, "gd_cancel_button1",
                     Duration.of(WAIT_FOR_SCREEN));
         }
 
+        @Override
         public Button getBtnAllow() {
             return ButtonImpl.getByID(packageName, "gd_ok_button2",
                     Duration.of(WAIT_FOR_SCREEN));
         }
 
+    }
+
+    private class PermissionUIStub implements UIMap {
+
+        @Override
+        public TextView getTextTitle() {
+            return TextViewStub.getStub();
+        }
+
+        @Override
+        public TextView getTextPermissionsBody() {
+            return TextViewStub.getStub();
+        }
+
+        @Override
+        public Button getBtnDeny() {
+            return ButtonStub.getStub();
+        }
+
+        @Override
+        public Button getBtnAllow() {
+            return ButtonStub.getStub();
+        }
     }
 }

@@ -16,17 +16,14 @@
 package com.example.gghangura.adminconsole;
 
 import android.content.Intent;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextClock;
-import android.widget.TextView;
 
 import com.good.gd.GDStateListener;
 import com.good.gd.widget.GDTextView;
