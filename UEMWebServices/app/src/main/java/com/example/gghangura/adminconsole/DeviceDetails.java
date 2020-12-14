@@ -1,17 +1,14 @@
 package com.example.gghangura.adminconsole;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.MenuInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.good.gd.GDStateListener;
 import com.good.gd.widget.GDTextView;
@@ -20,7 +17,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

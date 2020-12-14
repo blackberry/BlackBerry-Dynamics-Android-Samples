@@ -1,6 +1,19 @@
-/*
- * (c) 2017 BlackBerry Limited. All rights reserved.
- */
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.test.screens;
 
 import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
@@ -20,7 +33,8 @@ public class BBDAlertDialogUI implements Clickable {
 
     private static final String TAG = BBDAlertDialogUI.class.getSimpleName();
     private String packageName;
-    private String buttonId = "button1";
+    private String okButtonId = "button1";
+    private String cancelButtonId = "button2";
     private AlertDialogUIMap alertDialogScreen;
     private AbstractUIAutomatorUtils uiAutomationUtils = UIAutomatorUtilsFactory.getUIAutomatorUtils();
 
@@ -38,13 +52,13 @@ public class BBDAlertDialogUI implements Clickable {
     }
 
     public BBDAlertDialogUI(String customButtonId) {
-        this.buttonId = customButtonId;
+        this.okButtonId = customButtonId;
         this.packageName = "android";
         alertDialogScreen = new AlertDialogUIMap();
     }
 
     public BBDAlertDialogUI(String customButtonId, long delay) {
-        this.buttonId = customButtonId;
+        this.okButtonId = customButtonId;
         this.packageName = "android";
         if (!uiAutomationUtils.isResourceWithIDShown(packageName, "alertTitle", delay)){
             throw new RuntimeException("Alert was not shown within provided time!");
@@ -59,6 +73,18 @@ public class BBDAlertDialogUI implements Clickable {
     public boolean click() {
         try {
             return alertDialogScreen.getBtnOK().click();
+        } catch (NullPointerException e) {
+            Log.d(TAG, "NullPointerException: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * @return true if click on button Cancel was performed successfully, otherwise false
+     */
+    public boolean cancel() {
+        try {
+            return alertDialogScreen.getBtnCancel().click();
         } catch (NullPointerException e) {
             Log.d(TAG, "NullPointerException: " + e.getMessage());
             return false;
@@ -100,7 +126,11 @@ public class BBDAlertDialogUI implements Clickable {
         }
 
         public Button getBtnOK() {
-            return ButtonImpl.getByID(packageName, buttonId, Duration.of(WAIT_FOR_SCREEN));
+            return ButtonImpl.getByID(packageName, okButtonId, Duration.of(WAIT_FOR_SCREEN));
+        }
+
+        public Button getBtnCancel() {
+            return ButtonImpl.getByID(packageName, cancelButtonId, Duration.of(WAIT_FOR_SCREEN));
         }
     }
 }

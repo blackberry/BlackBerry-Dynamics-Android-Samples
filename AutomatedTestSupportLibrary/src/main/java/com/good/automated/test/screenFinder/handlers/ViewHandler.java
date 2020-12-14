@@ -1,24 +1,43 @@
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.test.screenFinder.handlers;
 
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.uiautomator.UiDevice;
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.UiDevice;
 import android.util.Log;
+import android.util.Pair;
 
+import com.good.automated.general.utils.threadsafe.SafeCommandExecutor;
 import com.good.automated.test.screenFinder.checker.ViewChecker;
 import com.good.automated.test.screenFinder.mapping.MappingDefaultBBD;
 import com.good.automated.test.screenFinder.parsing.UIParsingFacade;
 import com.good.automated.test.screenFinder.view.BBDView;
 import com.good.automated.test.screenFinder.view.BBDViewFactory;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
 import static com.good.automated.test.screenFinder.general.Constants.RESOURCE_ID_SEPARATOR;
 
 public class ViewHandler extends Handler {
@@ -35,11 +54,13 @@ public class ViewHandler extends Handler {
 
     private UIParsingFacade facade;
 
+    private SafeCommandExecutor executor;
 
-    public ViewHandler(Looper looper) {
+    public ViewHandler(Looper looper, SafeCommandExecutor executor) {
         super(looper);
-        viewStack = new LinkedBlockingDeque<>();
-        facade = new UIParsingFacade();
+        this.viewStack = new LinkedBlockingDeque<>();
+        this.facade = new UIParsingFacade();
+        this.executor = executor;
     }
 
     public void setChecker(ViewChecker listener) {
@@ -85,6 +106,12 @@ public class ViewHandler extends Handler {
 
             if (viewChanged) {
                 currentUi.setTimeOnTheTop(System.currentTimeMillis() - uiTimeStart);
+
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(uiTimeStart);
+                String timeString = new SimpleDateFormat("HH:mm:ss:SSS", Locale.getDefault()).format(cal.getTime());
+
+                currentUi.setAppearanceTime(timeString);
 
                 if (currentUi.getResourceId().equals(MappingDefaultBBD.unknownAppUI.getResourceId())) {
                     // dump UI xml
@@ -134,12 +161,16 @@ public class ViewHandler extends Handler {
     private BBDView getCurrentUI() {
         BBDView currentView = null;
         try {
-            UiDevice uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-            String currentPackage = uiDevice.getCurrentPackageName();
+            UiDevice uiDevice = UiDevice.getInstance(getInstrumentation());
+            Pair<Boolean, String> packageResult = executor.getCurrentPackageName(uiDevice);
 
-            String resIdShown = getUiElementShown(uiDevice, currentPackage, resourceToSearch);
+            if (packageResult != null && packageResult.first) {
+                String currentPackage = packageResult.second;
 
-            currentView = viewFactory.getViewForResourceName(currentPackage, resIdShown);
+                String resIdShown = getUiElementShown(uiDevice, currentPackage, resourceToSearch);
+
+                currentView = viewFactory.getViewForResourceName(currentPackage, resIdShown);
+            }
 
         } catch (IllegalStateException ex) {
             Log.e("ViewDiscovery", "Could not catch view");
@@ -157,12 +188,17 @@ public class ViewHandler extends Handler {
      * @return              id of the element shown or null if none of the passed list elements is on the screen
      */
     public String getUiElementShown(UiDevice uiDevice, String packageName, List<String> uiElements) {
-        UiObject ob;
+        Pair<Boolean, Boolean> searchResult;
         for (String res : uiElements) {
-            ob = uiDevice.findObject(new UiSelector().resourceId(packageName + RESOURCE_ID_SEPARATOR + res));
-            if (ob.exists()) {
+            searchResult = executor.hasUiObject(uiDevice, packageName, RESOURCE_ID_SEPARATOR, res);
+
+            if (!searchResult.first) // Shell command is in progress.
+                return null;
+
+            if (searchResult.second) {
                 return res;
             }
+
         }
         return null;
     }

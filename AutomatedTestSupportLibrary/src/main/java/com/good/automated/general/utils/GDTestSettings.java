@@ -1,13 +1,26 @@
-/*
- *  This file contains Good Sample Code subject to the Good Dynamics SDK Terms and Conditions.
- *  (c) 2016 Good Technology Corporation. All rights reserved.
- */
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.general.utils;
 
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -23,6 +36,7 @@ public class GDTestSettings {
     private static final String GD_TEST_PROVISION_ACCESS_KEY = "GD_TEST_PROVISION_ACCESS_KEY";
     private static final String GD_TEST_PROVISION_PASSWORD = "GD_TEST_PROVISION_PASSWORD";
     private static final String GD_TEST_UNLOCK_KEY = "GD_TEST_UNLOCK_KEY";
+    private static final String GD_TEST_PROVISION_CONFIG_NAME = "GD_TEST_PROVISION_CONFIG_NAME";
 
     private static final String GD_TESTSETTINGS_FILENAME = "com.good.gd.test.json";
 
@@ -113,6 +127,21 @@ public class GDTestSettings {
     }
 
     /**
+     * Overrides default credentials.
+     */
+    public void overrideActivationCredentials(JSONArray credentials) throws JSONException{
+        for (int i = 0; i < credentials.length(); i++) {
+
+            JSONObject jsonObject = credentials.getJSONObject(i);
+
+            String packageName = jsonObject.getString(GD_TEST_PROVISION_CONFIG_NAME);
+
+            // Put or replace credentials for package name
+            gdTestSettingsJsonObjects.put(packageName, jsonObject);
+        }
+    }
+
+    /**
      * Return unlock key for default package
      *
      * @throws IllegalArgumentException if json file does not unlock key entry
@@ -161,7 +190,7 @@ public class GDTestSettings {
         if (gdTestSettingsJsonObjects != null) {
             try {
                 result = gdTestSettingsJsonObjects.get(packageName).getString(key);
-            } catch (JSONException e) {
+            } catch (JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
         }

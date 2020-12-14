@@ -1,15 +1,29 @@
-/*
- * (c) 2017 BlackBerry Limited. All rights reserved.
- */
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.general.utils.impl;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiObjectNotFoundException;
-import android.support.test.uiautomator.UiScrollable;
-import android.support.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiScrollable;
+import androidx.test.uiautomator.UiSelector;
+
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.good.automated.general.utils.AbstractUIAutomatorUtils;
@@ -17,14 +31,16 @@ import com.good.automated.general.utils.Duration;
 
 import static android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS;
 import static android.provider.Settings.ACTION_DATE_SETTINGS;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static com.good.automated.general.utils.Duration.UI_WAIT;
 import static com.good.automated.general.utils.Duration.WAIT_FOR_SCREEN;
 import static com.good.automated.general.utils.Duration.of;
-import static com.googlecode.eyesfree.utils.LogUtils.TAG;
 
 //Implemented UI interactions with Android P API
 //? - 9 API level 28
 public class UIAutomatorUtilsAndroidP28 extends AbstractUIAutomatorUtils {
+
+    private static final String TAG = UIAutomatorUtilsAndroidP28.class.getSimpleName();
 
     private UIAutomatorUtilsAndroidP28() {
         super();
@@ -35,28 +51,13 @@ public class UIAutomatorUtilsAndroidP28 extends AbstractUIAutomatorUtils {
         launchActionSettings(ACTION_DATE_SETTINGS);
     }
 
-    @Override
-    public boolean switchOffWindowAnimationScale() {
-        return setAnimationScaleByText("Animation off", "Window animation scale");
-    }
-
-    @Override
-    public boolean switchOffTransitionAnimationScale() {
-        return setAnimationScaleByText("Animation off", "Transition animation scale");
-    }
-
-    @Override
-    public boolean switchOffAnimatorDurationScale() {
-        return setAnimationScaleByText("Animation off", "Animator duration scale");
-    }
-
     /**
      *
      * @param action action from system Settings
      */
     @Override
     public void launchActionSettings(String action) {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
 
         final Intent i = new Intent();
         i.setAction(action);
@@ -99,7 +100,7 @@ public class UIAutomatorUtilsAndroidP28 extends AbstractUIAutomatorUtils {
      */
     @Override
     protected boolean completeGettingOfFingerprintScan() {
-        //No buttons and click for Android 27
+        //No buttons and click for Android Q-28
         return true;
     }
 
@@ -185,6 +186,18 @@ public class UIAutomatorUtilsAndroidP28 extends AbstractUIAutomatorUtils {
             Log.d(TAG, "Fingerprint in not supported by this hardware");
             return true;
         }
+    }
+
+    @Override
+    public boolean addCertificateToTrustedCredentials(String certificateName, String devicePIN) throws RemoteException {
+        //!TODO: implement for Android API 28
+        return false;
+    }
+
+    @Override
+    public boolean removeCertificateFromTrustedCredentials(String certificateName) {
+        //!TODO: implement for Android API 28
+        return false;
     }
 
     @Override

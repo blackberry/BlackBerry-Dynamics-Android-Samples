@@ -1,6 +1,19 @@
-/*
- * (c) 2017 BlackBerry Limited. All rights reserved.
- */
+/* Copyright (c) 2017 - 2020 BlackBerry Limited.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+
 package com.good.automated.test.screens;
 
 import com.good.automated.general.utils.Duration;
@@ -38,7 +51,10 @@ public class BBDActivationUI extends AbstractBBDActivationUI {
      * @param pin1        pin1
      * @param pin2        pin2
      * @param pin3        pin3
+     * @deprecated        Use {@link #BBDActivationUI(String, String, String)}
+     *                    constructor with activation password instead.
      */
+    @Deprecated
     public BBDActivationUI(String packageName,
                            String userName,
                            String pin1,
@@ -54,7 +70,10 @@ public class BBDActivationUI extends AbstractBBDActivationUI {
      * @param pin2        pin2
      * @param pin3        pin3
      * @param delay       duration to wait for screen
+     * @deprecated        Use {@link #BBDActivationUI(String, String, String, long)}
+     *                    constructor with activation password instead.
      */
+    @Deprecated
     public BBDActivationUI(String packageName,
                            String userName,
                            String pin1,
@@ -62,7 +81,35 @@ public class BBDActivationUI extends AbstractBBDActivationUI {
                            String pin3,
                            long delay) {
         super(packageName, userName, pin1, pin2, pin3);
-        if (!getUiAutomationUtils().isResourceWithIDShown(packageName, getScreenID(), delay)){
+        if (!getUiAutomationUtils().isResourceWithIDShown(packageName, getScreenID(), delay)) {
+            throw new RuntimeException("Needed screen was not shown within provided time!");
+        }
+        this.controls = new BBDActivationUIMap();
+    }
+
+    /**
+     * @param packageName app under test packageName
+     * @param userName    user name to provision with
+     * @param activationPassword        activation password
+     */
+    public BBDActivationUI(String packageName,
+                           String userName,
+                           String activationPassword) {
+        this(packageName, userName, activationPassword, Duration.of(AUTHORIZE_CALLBACK));
+    }
+
+    /**
+     * @param packageName app under test packageName
+     * @param userName    user name to provision with
+     * @param activationPassword        activation password
+     * @param delay       duration to wait for screen
+     */
+    public BBDActivationUI(String packageName,
+                           String userName,
+                           String activationPassword,
+                           long delay) {
+        super(packageName, userName, activationPassword);
+        if (!getUiAutomationUtils().isResourceWithIDShown(packageName, getScreenID(), delay)) {
             throw new RuntimeException("Needed screen was not shown within provided time!");
         }
         this.controls = new BBDActivationUIMap();
