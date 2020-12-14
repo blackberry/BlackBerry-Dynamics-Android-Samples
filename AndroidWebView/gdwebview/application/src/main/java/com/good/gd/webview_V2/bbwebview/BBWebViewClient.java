@@ -20,6 +20,7 @@ package com.good.gd.webview_V2.bbwebview;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.ClientCertRequest;
@@ -36,8 +37,11 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.good.gd.example.apachehttp.R;
+import com.good.gd.webview_V2.R;
+import com.good.gd.webview_V2.bbwebview.jsInterfaces.ClipboardEventListener;
+import com.good.gd.webview_V2.bbwebview.jsInterfaces.SamlListener;
 import com.good.gd.webview_V2.bbwebview.jsInterfaces.RequestBodyProvider;
+import com.good.gd.webview_V2.bbwebview.tasks.http.GDHttpClientProvider;
 import com.good.gd.webview_V2.bbwebview.tasks.http.RequestTask;
 import com.good.gd.webview_V2.bbwebview.utils.Utils;
 
@@ -48,15 +52,25 @@ import java.io.InputStreamReader;
 
 public class BBWebViewClient extends WebViewClient {
 
-    private static final String TAG = "APP_LOG" +  "BBWebViewClient_";
-    private static final String TAG_LC = "APP_LOG" +  "BBWebViewClient_LC";//lifeCycle
+    private static final String TAG = "GDWebView-" +  BBWebViewClient.class.getSimpleName();
+    private static final String TAG_LC = "GDWebView-" +  "BBWebViewClient_LC";//lifeCycle
     public static final String PIXEL_2XL_UA = "Mozilla/5.0 (Linux; Android 10; Pixel 2 XL) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.119 Mobile Safari/537.36";
 
     private static final DownloadListener DOWNLOAD_LISTENER = new BBDownloadListener();
     public static final String X_REDIRECT_REPONSE_ID = "x-redirect-response-id";
 
+    private static RequestBodyProvider requestBodyProvider;
+    public final static SamlListener samlListener = new SamlListener();
+    private static ClipboardEventListener clipboardEventListener;
 
-    static private RequestBodyProvider requestBodyProvider;
+    private WebClientObserver webClientObserver = new WebClientObserver();
+
+    public BBWebViewClient() {
+        super();
+
+        getObserver().addOnPageFinishedListener(GDHttpClientProvider.getInstance());
+        getObserver().addLoadUrlListener(GDHttpClientProvider.getInstance());
+    }
 
     public static void init(WebView webView, BBWebViewClient wvClient){
 
@@ -72,11 +86,20 @@ public class BBWebViewClient extends WebViewClient {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDisplayZoomControls(true);
         webView.getSettings().setBuiltInZoomControls(true);
+        webView.getSettings().setDomStorageEnabled(true);
 
         requestBodyProvider = new RequestBodyProvider(wvClient);
 
         webView.removeJavascriptInterface("RequestInterceptor");
         webView.addJavascriptInterface(requestBodyProvider, "RequestInterceptor");
+
+        webView.removeJavascriptInterface("SamlListener");
+        webView.addJavascriptInterface(samlListener,"SamlListener");
+
+        clipboardEventListener = new ClipboardEventListener(webView.getContext());
+
+        webView.removeJavascriptInterface("AndroidClipboardListener");
+        webView.addJavascriptInterface(clipboardEventListener,"AndroidClipboardListener");
 
         //disable webview networking, all the requests should go via GDHttpClient calls
         webView.getSettings().setBlockNetworkLoads(true);
@@ -89,7 +112,7 @@ public class BBWebViewClient extends WebViewClient {
         CookieManager.getInstance().removeSessionCookies(null);
         //CookieManager.getInstance().removeAllCookies(null);
 
-
+        GDHttpClientProvider.getInstance().setWebViewReference(webView);
     }
 
     public final void addRequestBody(String requestId, String body, String url, String browserContext) {
@@ -98,7 +121,7 @@ public class BBWebViewClient extends WebViewClient {
             Log.i(TAG, "addRequestBody ID: " + requestId + ", URL:" + url);
             Log.i(TAG, "addRequestBody ID: " + requestId + ", browserContext:" + browserContext);
 
-            if(!Utils.Strings.isNullOrEmpty(body)) {
+            if(!TextUtils.isEmpty(body)) {
                 RequestTask.REQUESTS_BODIES.put(requestId, new RequestTask.BrowserContext(body, url, browserContext));
             }else{
                 Log.w(TAG, "addRequestBody ID: " + requestId + ", BODY is empty");
@@ -106,15 +129,12 @@ public class BBWebViewClient extends WebViewClient {
         }
     }
 
-    public BBWebViewClient() {
-        super();
-    }
-
-
     @Override
     public void onPageCommitVisible( WebView view,  String url) {
         Log.i(TAG_LC, "onPageCommitVisible " + url);
         super.onPageCommitVisible(view, url);
+
+        webClientObserver.notifyPageContentVisible(view, url);
         
     }
 
@@ -160,7 +180,7 @@ public class BBWebViewClient extends WebViewClient {
     public void onReceivedHttpError( WebView view,  WebResourceRequest request,  WebResourceResponse errorResponse) {
         Log.i(TAG_LC, "onReceivedHttpError " + request.getUrl() +" => " + errorResponse);
         super.onReceivedHttpError(view, request, errorResponse);
-        
+
     }
 
     /**
@@ -176,7 +196,7 @@ public class BBWebViewClient extends WebViewClient {
     public void onFormResubmission(WebView view, Message dontResend, Message resend) {
         Log.i(TAG_LC,"onFormResubmission");
         super.onFormResubmission(view, dontResend, resend);
-        
+
     }
 
     /**
@@ -190,29 +210,24 @@ public class BBWebViewClient extends WebViewClient {
     public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
         Log.i(TAG_LC,"doUpdateVisitedHistory " + url + " isReload: " + isReload);
         super.doUpdateVisitedHistory(view, url, isReload);
-        
     }
-
 
     @Override
     public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
         Log.i(TAG_LC,"onReceivedSslError");
         super.onReceivedSslError(view, handler, error);
-        
     }
 
     @Override
     public void onReceivedClientCertRequest(WebView view, ClientCertRequest request) {
         Log.i(TAG_LC,"onReceivedClientCertRequest");
         super.onReceivedClientCertRequest(view, request);
-        
     }
 
     @Override
     public void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm) {
         Log.i(TAG_LC,"onReceivedHttpAuthRequest");
         super.onReceivedHttpAuthRequest(view, handler, host, realm);
-        
     }
 
     /**
@@ -228,14 +243,12 @@ public class BBWebViewClient extends WebViewClient {
     @Override
     public void onUnhandledKeyEvent(WebView view, KeyEvent event) {
         super.onUnhandledKeyEvent(view, event);
-        
     }
 
     @Override
     public void onScaleChanged(WebView view, float oldScale, float newScale) {
         Log.i(TAG_LC,"onScaleChanged");
         super.onScaleChanged(view, oldScale, newScale);
-        
     }
 
     /**
@@ -253,58 +266,57 @@ public class BBWebViewClient extends WebViewClient {
     public void onReceivedLoginRequest(WebView view, String realm,  String account, String args) {
         Log.i(TAG_LC,"onReceivedLoginRequest");
         super.onReceivedLoginRequest(view, realm, account, args);
-        
     }
 
     @Override
     public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
         Log.i(TAG_LC,"onRenderProcessGone");
         return super.onRenderProcessGone(view, detail);
-        
     }
-
 
     @Override
     public boolean shouldOverrideUrlLoading( WebView view,  WebResourceRequest request) {
         Log.i(TAG_LC,"shouldOverrideUrlLoading " + request.getUrl());
         return super.shouldOverrideUrlLoading(view,request);
-        
     }
 
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
         Log.i(TAG_LC,"onPageStarted >> " + url);
 
+        getObserver().removeLoadUrlListener(GDHttpClientProvider.getInstance());
+
         try {
-            injectJsFromResources(view, url ,R.raw.request_interceptor);
-            //injectJsFromResources(view, R.raw.clipboard_interceptor);
+            injectJsFromResources(view, url, R.raw.request_interceptor);
+            injectJsFromResources(view, url, R.raw.clipboard_interceptor);
         } catch (IOException e) {
-            Log.i(TAG_LC,"onPageStarted << " + url,e);
+            Log.i(TAG_LC,"onPageStarted exception: " + e);
         }
+
+        getObserver().addLoadUrlListener(GDHttpClientProvider.getInstance());
+
+        webClientObserver.notifyPageStarted(view, url);
 
         Log.i(TAG_LC,"onPageStarted << " + url);
         super.onPageStarted(view, url, favicon);
-        
     }
 
     @Override
     public void onPageFinished(WebView view, String url) {
-        Log.i(TAG_LC,"onPageFinished " + url);
+        Log.i(TAG_LC,"onPageFinished " + url + " IN");
 
         url = url.replaceAll("#.*", "");
         super.onPageFinished(view, url);
 
-        BBWebView.OnPageFinished onPageFinishedTask = ((BBWebView) view).getOnPageFinishedTask();
-        ((BBWebView) view).setOnPageFinishedAction(null);// TODO: replace with notify/observe approach
-        onPageFinishedTask.onPageFinished(view,url);
+        webClientObserver.notifyPageFinished(view, url);
 
+        Log.i(TAG_LC,"onPageFinished " + url + " OUT");
     }
 
     @Override
     public void onLoadResource(WebView view, String url) {
         Log.i(TAG_LC,"onLoadResource " + url);
         super.onLoadResource(view, url);
-        
     }
 
     @Override
@@ -312,4 +324,6 @@ public class BBWebViewClient extends WebViewClient {
         Log.i(TAG_LC,"onSafeBrowsingHit");
         super.onSafeBrowsingHit(view, request, threatType, callback);
     }
+
+    public WebClientObserver getObserver() { return webClientObserver; }
 }

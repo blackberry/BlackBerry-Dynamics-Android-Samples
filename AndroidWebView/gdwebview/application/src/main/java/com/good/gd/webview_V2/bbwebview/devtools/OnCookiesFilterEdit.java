@@ -42,7 +42,7 @@ public class OnCookiesFilterEdit extends onPaneEditListener {
 
         List<Cookie> cookies = cookieStore.getCookies();
 
-        String domain = inputView.getText().toString();
+        final String domain = inputView.getText().toString();
         final String domainFilterReversed = new StringBuilder(domain).reverse().toString();
 
         final List<Spannable> filteredCookies = new ArrayList<>();
@@ -65,7 +65,6 @@ public class OnCookiesFilterEdit extends onPaneEditListener {
 
         outputView.setText("");
 
-        //
         final long maxDelay = 2000L;
         final int size = filteredCookies.size();
         long tick = 17L;
@@ -74,7 +73,7 @@ public class OnCookiesFilterEdit extends onPaneEditListener {
         }
 
         long delayMillis = 0L;
-        for (Spannable filteredCookie : filteredCookies) {
+        for (final Spannable filteredCookie : filteredCookies) {
 
             outputView.postDelayed(new Runnable() {
                 @Override

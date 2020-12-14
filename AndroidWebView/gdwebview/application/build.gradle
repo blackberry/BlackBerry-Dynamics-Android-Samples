@@ -77,11 +77,10 @@ repositories {
 
 dependencies {
 
-    def gd_sdk_version = '7.1.0.192'
-    implementation("com.blackberry.blackberrydynamics:android_handheld_platform:$gd_sdk_version")
-    implementation("com.blackberry.blackberrydynamics:android_handheld_gd_safetynet:$gd_sdk_version")
+    implementation("com.blackberry.blackberrydynamics:android_handheld_platform:+")
 
     implementation 'org.brotli:dec:0.1.2'// 'br' content-encoding
+    implementation group: 'org.apache.commons', name: 'commons-pool2', version: '2.6.2'
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.2.0-beta01'

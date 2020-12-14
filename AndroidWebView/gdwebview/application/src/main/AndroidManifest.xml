@@ -1,38 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.good.gd.example.apachehttp">
+    package="com.good.gd.webview_V2">
 
     <application
-        android:enabled="true"
         android:allowBackup="false"
+        android:appComponentFactory="blackberry"
+        android:enabled="true"
         android:icon="@drawable/ic_spike"
         android:label="@string/app_name"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
-        tools:replace="android:appComponentFactory"
-        android:appComponentFactory="blackberry"
-        >
+        tools:replace="android:appComponentFactory">
 
-        <meta-data
-            android:name="GDApplicationVersion"
-            android:value="1.0.0.0" />
-        <meta-data
-            android:name="android.webkit.WebView.MetricsOptOut"
-            android:value="true" />
-
-
-        <activity android:name="com.good.gd.webview_V2.BrowserActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:enabled="true">
-
-
+        <activity
+            android:name=".HomeActivity"
+            android:label="@string/title_activity_home"
+            android:theme="@style/NoActionBar">
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".BrowserActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:enabled="true">
+        </activity>
+
+        <meta-data
+            android:name="android.webkit.WebView.MetricsOptOut"
+            android:value="true" />
+        <meta-data
+            android:name="GDApplicationVersion"
+            android:value="1.0.0.0" />
 
     </application>
 

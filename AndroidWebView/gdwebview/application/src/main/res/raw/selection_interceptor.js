@@ -14,13 +14,6 @@
  * limitations under the License.
  *
  */
-package com.good.gd.webview_V2.bbwebview.devtools;
-
-import android.webkit.WebSettings;
-
-public interface WebSettingsAccess {
-
-    void setWebSettings(WebSettings ws);
-    WebSettings getWebSettings();
-
-}
+ (function getTextSelection() {
+     return window.getSelection().toString();
+ })();

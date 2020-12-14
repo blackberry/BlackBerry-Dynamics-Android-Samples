@@ -30,10 +30,9 @@ import com.good.gd.apache.http.protocol.HttpContext;
 
 import java.net.URI;
 
-
 public class BBRedirectHandler implements RedirectHandler {
 
-    private final String TAG = "RedirectHandler"+hashCode();
+    private final String TAG = "GDWebView-" + BBRedirectHandler.class.getSimpleName() +hashCode();
     private RedirectHandler defaultRedirect = new DefaultRedirectHandler();
 
         @Override
@@ -42,8 +41,8 @@ public class BBRedirectHandler implements RedirectHandler {
             boolean isRedirectRequested = defaultRedirect.isRedirectRequested(httpResponse, httpContext);
             RequestWrapper requestWrapper = (RequestWrapper) httpContext.getAttribute(ExecutionContext.HTTP_REQUEST);
 
-            Log.i(TAG, "isRedirectRequested status line: " + httpResponse.getStatusLine() + " result: " + isRedirectRequested);
-            Log.i(TAG, "-isRedirectRequested requestUri: " + requestWrapper.getURI());
+            Log.i(TAG, "isRedirectRequested, status line: " + httpResponse.getStatusLine() + " result: " + isRedirectRequested);
+            Log.i(TAG, "isRedirectRequested, requestUri: " + requestWrapper.getURI());
 
             return isRedirectRequested;
         }
@@ -54,20 +53,19 @@ public class BBRedirectHandler implements RedirectHandler {
 
             URI locationURI = defaultRedirect.getLocationURI(httpResponse, httpContext);
 
-
             try {
 
-                Log.i(TAG, "redirect locationURI: " + locationURI);
+                Log.i(TAG, "getLocationURI, redirect locationURI: " + locationURI);
 
                 String locationWithoutFragmentPart = locationURI.toString().replaceAll("#.*$", "");
 
-                Log.i(TAG, "redirect locationURI without fragment " + locationWithoutFragmentPart);
+                Log.i(TAG, "getLocationURI, redirect locationURI without fragment " + locationWithoutFragmentPart);
 
                 locationURI = URI.create(locationWithoutFragmentPart);
                 httpContext.setAttribute("webview.redirect.url",locationURI);
 
             } catch (Exception e) {
-                Log.e(TAG,"getLocationURI ", e);
+                Log.e(TAG,"getLocationURI, ", e);
                 throw new RuntimeException("redirect mess");
             }
 
@@ -79,7 +77,15 @@ public class BBRedirectHandler implements RedirectHandler {
             original.removeHeaders("Content-Type");
             original.removeHeaders("Origin");
 
-            original.setHeader("Host",locationURI.getHost());
+            String hostPortStrRep = "";
+            int port = locationURI.getPort();
+            if (port != -1) {
+                hostPortStrRep = ":" + port;
+            }
+
+            original.setHeader("Host",locationURI.getHost() + hostPortStrRep);
+
+            Log.i(TAG, "getLocationURI, set a new host: " + original.getFirstHeader("Host").getValue());
 
             if(original instanceof HttpEntityEnclosingRequestBase){
                 HttpEntityEnclosingRequestBase postReqOrig = (HttpEntityEnclosingRequestBase) original;
