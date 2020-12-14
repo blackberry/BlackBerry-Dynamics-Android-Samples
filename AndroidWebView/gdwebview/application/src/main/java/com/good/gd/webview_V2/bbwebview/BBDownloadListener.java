@@ -20,7 +20,7 @@ import android.util.Log;
 import android.webkit.DownloadListener;
 
 public class BBDownloadListener implements DownloadListener {
-    private static final String TAG = "APP_LOG" +  "BBDownloadListener";
+    private static final String TAG = "GDWebView-" +  BBDownloadListener.class.getSimpleName();
 
     @Override
     public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
@@ -30,4 +30,4 @@ public class BBDownloadListener implements DownloadListener {
         Log.i(TAG, "---onDownloadStart mimetype [" + mimetype+ "]");
         Log.i(TAG, "----onDownloadStart contentLength [" + contentLength + "]");
     }
-};
+}

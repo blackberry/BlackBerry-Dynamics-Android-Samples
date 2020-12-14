@@ -16,9 +16,8 @@
  */
 package com.good.gd.webview_V2.bbwebview.tasks.http;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Process;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.webkit.CookieManager;
@@ -49,12 +48,16 @@ import com.good.gd.apache.http.message.BasicNameValuePair;
 import com.good.gd.apache.http.protocol.BasicHttpContext;
 import com.good.gd.apache.http.protocol.HttpContext;
 import com.good.gd.net.GDHttpClient;
+import com.good.gd.webview_V2.bbwebview.BBWebViewClient;
 import com.good.gd.webview_V2.bbwebview.utils.Utils;
+
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -71,27 +74,50 @@ import static com.good.gd.webview_V2.bbwebview.BBWebViewClient.PIXEL_2XL_UA;
 
 public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<HttpResponse,HttpContext>> {
 
+    private static final String TAG = "GDWebView-" + RequestTask.class.getSimpleName();
 
-    private static final String TAG = "APP_LOG" + "ReqTask";
     private String clientConnId;
     private WebResourceRequest request;
     private String targetUrl;
     private String originalWebViewUrl;
     private WebView vw;
 
-    public static final String INTERCEPT_MARKER = "gdinterceptrequest";
-    public static class BrowserContext{
+    public static final String GD_INTERCEPT_TAG = "gdinterceptrequest";
+
+    public static final ConcurrentHashMap<String, BrowserContext> REQUESTS_BODIES = new ConcurrentHashMap<>();
+
+    public static class BrowserContext {
+
+        private static final String NO_CORS = "no-cors";
+        private static final String FETCH_MODE = "mode";
+
         public static final BrowserContext NULL = new BrowserContext("", "", "");
 
-        final public String body;
-        final public String url;
-        final public String context;
+        public final String body;
+        public final String url;
+
+        private final String context;
 
         public BrowserContext(String body, String url, String context) {
-            this.body = body == null?"":body;
-            this.url = url == null?"":url;
-            this.context = context == null?"":context;
+            this.body = body == null ? "" : body;
+            this.url = url == null ? "" : url;
+            this.context = context == null ? "" : context;
         }
+
+        public boolean isNoCorsModeEnabled() {
+            try {
+                JSONObject object = new JSONObject(context);
+                if (object.get(FETCH_MODE).equals(NO_CORS)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                Log.i(TAG,"isNoCorsModeEnabled, exception: " + e);
+                e.printStackTrace();
+            }
+            return false;
+        }
+
+        public boolean isRequestContextUnknown() { return context.isEmpty(); }
 
         @Override
         public boolean equals(Object o) {
@@ -108,16 +134,15 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
             return Objects.hash(body, url, context);
         }
     }
-    public static final ConcurrentHashMap<String, BrowserContext> REQUESTS_BODIES = new ConcurrentHashMap<>();
 
     private boolean isInterceptedRequest(WebResourceRequest request) {
-        return request.getUrl().toString().contains(INTERCEPT_MARKER);
+        return request.getUrl().toString().contains(GD_INTERCEPT_TAG);
     }
 
     private String getRequestBodyByID(String requestID) {
         synchronized (REQUESTS_BODIES) {
             String body = null;
-            if (!Utils.Strings.isNullOrEmpty(requestID)) {
+            if (!TextUtils.isEmpty(requestID)) {
                 body = REQUESTS_BODIES.getOrDefault(requestID, BrowserContext.NULL).body;
             }
             return body;
@@ -129,23 +154,37 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
         return getRequestBodyByID(requestID);
     }
 
+    private BrowserContext getRequestContext(WebResourceRequest request) {
+        BrowserContext context = BrowserContext.NULL;
+        String requestID = getInterceptedRequestID(request);
+        synchronized (REQUESTS_BODIES) {
+            if (!TextUtils.isEmpty(requestID)) {
+                context = REQUESTS_BODIES.getOrDefault(requestID, BrowserContext.NULL);
+            }
+        }
+        return context;
+    }
+
     static public String[] getUrlSegments(WebResourceRequest request, String divider) {
         String urlString = request.getUrl().toString();
         return urlString.split(divider);
     }
 
     private String getInterceptedRequestID(WebResourceRequest request) {
-        return getUrlSegments(request, INTERCEPT_MARKER)[1];
+        return getUrlSegments(request, GD_INTERCEPT_TAG)[1];
     }
 
-
-    private HttpRequestBase getHttpRequestBase(WebResourceRequest request, URI uri) throws URISyntaxException {
+    private HttpRequestBase getHttpRequestBase(WebResourceRequest request, URI uri) {
 
         HttpRequestBase method;
 
         String body = null;
+        BrowserContext browserContext = BrowserContext.NULL;
+
         if (isInterceptedRequest(request)) {
             body = getRequestBody(request);//"Amount=10&B2=Submit"
+
+            browserContext = getRequestContext(request);
 
             Log.i(TAG,"request body: " + body);
         }
@@ -154,28 +193,24 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
 
             case "GET": {
                     method = new HttpGet(uri);
-                    setGETRequestHeaders(uri,method,request,originalWebViewUrl);
+                    setGETRequestHeaders(uri,method,request,originalWebViewUrl, browserContext);
                 }
                     break;
             case "HEAD": {
                 method = new HttpHead(uri);
-                setGETRequestHeaders(uri,method,request,originalWebViewUrl);
+                setGETRequestHeaders(uri,method,request,originalWebViewUrl, null);
             }
             break;
             case "POST": {
-                    HttpPost httpPost = new HttpPost(uri);
-
-
+                HttpPost httpPost = new HttpPost(uri);
 
                 if (body != null) {
-
                     formRequestEntity(request, uri, body, httpPost);
-
-
+                } else {
+                    Log.i(TAG,"empty POST request body");
                 }
 
-
-                setPOSTRequestHeaders(uri, httpPost, request,originalWebViewUrl);
+                setPOSTRequestHeaders(uri, httpPost, request,originalWebViewUrl, browserContext);
 
                 if(body != null && httpPost.containsHeader("Content-Type")){
                     Header header = httpPost.getHeaders("Content-Type")[0];
@@ -191,7 +226,7 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
                 break;
             case "PUT": {
                     HttpPut httpPut = new HttpPut(uri);
-                    setPOSTRequestHeaders(uri, httpPut, request, originalWebViewUrl);
+                    setPOSTRequestHeaders(uri, httpPut, request, originalWebViewUrl, null);
 
                     if (body != null) {
                         formRequestEntity(request, uri, body, httpPut);
@@ -202,15 +237,15 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
                 break;
             case "OPTIONS":
                 method = new HttpOptions(uri);
-                setGETRequestHeaders(uri,method,request,originalWebViewUrl);
+                setGETRequestHeaders(uri,method,request,originalWebViewUrl, null);
                 break;
             case "DELETE":
                 method = new HttpDelete(uri);
-                setGETRequestHeaders(uri,method,request,originalWebViewUrl);
+                setGETRequestHeaders(uri,method,request,originalWebViewUrl, null);
                 break;
             case "PATCH": {
                     HttpPatch httpPatch = new HttpPatch(uri);
-                    setPOSTRequestHeaders(uri, httpPatch, request, originalWebViewUrl);
+                    setPOSTRequestHeaders(uri, httpPatch, request, originalWebViewUrl, null);
 
 
                     if (body != null) {
@@ -224,17 +259,38 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
                 break;
         }
 
+        Utils.debugLogHeaders(method.getAllHeaders());
+
         Log.i(TAG,"request created: " + request.getMethod() + " " + uri);
 
         return method;
     }
 
-    private static void setGETRequestHeaders(final URI targetUri, final HttpRequestBase httpMethod,final WebResourceRequest webResourceRequest, final String originWebViewUrl) {
+    private static void setGETRequestHeaders(final URI targetUri, final HttpRequestBase httpMethod,final WebResourceRequest webResourceRequest,
+                                             final String originWebViewUrl, BrowserContext browserContext) {
+
+        Log.i(TAG, "setGETRequestHeaders IN ");
 
         Log.i(TAG, "setGETRequestHeaders " + "origin:" + originWebViewUrl);
         Log.i(TAG, "setGETRequestHeaders " + "request:" + targetUri);
 
         final Map<String, String> webViewHeaders = webResourceRequest.getRequestHeaders();
+
+        // Basically, we do not need to override or add headers if the request context is unknown.
+        // Also check for 'Accept' and 'Origin' headers, they are required for a response to be successful.
+        if (webResourceRequest.getRequestHeaders().containsKey("Accept")
+                && webResourceRequest.getRequestHeaders().containsKey("Origin")
+                && browserContext != null && browserContext.isRequestContextUnknown()) {
+
+                Log.i(TAG, "setGETRequestHeaders - unknown context, return");
+
+                // Add WebView provided headers to the request
+                for (Map.Entry<String, String> header : webViewHeaders.entrySet()) {
+                    httpMethod.addHeader(header.getKey(), header.getValue());
+                }
+
+                return;
+        }
 
         Map<String, String> completeRequestHeaders = new TreeMap<String, String>() {{
 
@@ -288,8 +344,12 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
         httpMethod.addHeader("Host", completeRequestHeaders.get("Host"));
 
         for (String headerKey : webViewHeaders.keySet()) {
-            String value = webViewHeaders.get(headerKey).split(INTERCEPT_MARKER)[0];
-            httpMethod.addHeader(headerKey, value);
+            String value = webViewHeaders.get(headerKey).split(GD_INTERCEPT_TAG)[0];
+
+            // Content cache settings are disabled. Do not add the header for images to prevent '304 Not Modified' response with no content.
+            if (!headerKey.equals("If-Modified-Since") && Utils.isImage(targetUri.toString())) {
+                httpMethod.addHeader(headerKey, value);
+            }
         }
 
         for (String key : completeRequestHeaders.keySet()) {
@@ -298,7 +358,7 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
             }
         }
 
-        Log.i(TAG, "setGETRequestHeaders final " + Arrays.toString(httpMethod.getAllHeaders()));
+        Log.i(TAG, "setGETRequestHeaders OUT ");
     }
 
     private static String secFetchDestHeader(final WebResourceRequest webResourceRequest,final Map<String, String> webViewHeaders) {
@@ -369,7 +429,10 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
         return secFetchSite;
     }
 
-    private static void setPOSTRequestHeaders(final URI targetUri,final  HttpRequestBase httpMethod,final  WebResourceRequest webResourceRequest,final  String originWebViewUrl) {
+    private static void setPOSTRequestHeaders(final URI targetUri,final  HttpRequestBase httpMethod,final  WebResourceRequest webResourceRequest,
+                                              final  String originWebViewUrl, final BrowserContext browserContext) {
+
+        Log.i(TAG, "setPOSTRequestHeaders IN ");
 
         final URI originURI = URI.create(originWebViewUrl);
 
@@ -409,8 +472,12 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
             String secFetchDest = secFetchDestHeader(webResourceRequest, webViewHeaders);
             put("Sec-Fetch-Dest", secFetchDest);
 
-            String secFetchMode = secFetchModeHeader(webResourceRequest, webViewHeaders, targetUri);
-            put("Sec-Fetch-Mode", secFetchMode);
+            if (browserContext != null && browserContext.isNoCorsModeEnabled()) {
+                put("Sec-Fetch-Mode", "no-cors");
+            } else {
+                String secFetchMode = secFetchModeHeader(webResourceRequest, webViewHeaders, targetUri);
+                put("Sec-Fetch-Mode", secFetchMode);
+            }
 
             String secFetchSite = secFetchSiteHeader(originURI, refererURI, targetUri);
             put("Sec-Fetch-Site", secFetchSite);
@@ -428,7 +495,7 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
         httpMethod.addHeader("Host", completeRequestHeaders.get("Host"));
 
         for (String headerKey : webViewHeaders.keySet()) {
-            String value = webViewHeaders.get(headerKey).split(INTERCEPT_MARKER)[0];
+            String value = webViewHeaders.get(headerKey).split(GD_INTERCEPT_TAG)[0];
             httpMethod.addHeader(headerKey, value.trim());
         }
 
@@ -438,7 +505,7 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
             }
         }
 
-        Log.i(TAG, "setPOSTRequestHeaders final " + Arrays.toString(httpMethod.getAllHeaders()));
+        Log.i(TAG, "setPOSTRequestHeaders OUT ");
     }
 
 
@@ -491,9 +558,11 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
     }
 
     @Override
-        public Pair<HttpResponse,HttpContext> doInClientThread(GDHttpClient httpClient) {
+        public Pair<HttpResponse,HttpContext> doInClientThread(GDHttpClient httpClient, String id) {
 
-        Log.i(TAG, "REQUEST: " + targetUrl);
+        Log.i(TAG, "doInClientThread IN, targetUrl: " + targetUrl + " clientId: " + id + " requestUrl: " + request.getUrl());
+
+        Utils.debugLogHeaders(request.getRequestHeaders());
 
         HttpResponse response = null;
         HttpContext httpContext = null;
@@ -508,9 +577,7 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
             HttpRequestBase method = getHttpRequestBase(request, targetUri);
             long nano;
 
-            //sync with document.cookies set by js
-
-
+            // Sync with document.cookies set by js
             final CountDownLatch awaitCookies = new CountDownLatch(1);
             final AtomicReference<String> docCookies = new AtomicReference<>();
 
@@ -576,7 +643,7 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
 
             }
 
-            Log.i(TAG, "HTTP_EXEC >> " + "[" + Process.myTid() + "] <" + TimeUnit.NANOSECONDS.toMillis(nano = System.nanoTime()) + "> " + method.getURI().toString());
+            Log.i(TAG, "HTTP_EXEC " + httpClient.hashCode() + " >> " + "[" + Process.myTid() + "] <" + TimeUnit.NANOSECONDS.toMillis(nano = System.nanoTime()) + "> " + method.getURI().toString());
 
             httpContext = createHttpContext(httpClient);
             httpContext.setAttribute("webview.http.method",method.getMethod());
@@ -613,11 +680,13 @@ public class RequestTask implements GDHttpClientProvider.ClientCallback<Pair<Htt
 
             CookieManager.getInstance().flush();
 
-
-            Log.i(TAG, "HTTP_EXEC << " + "[" + Process.myTid() + "] <" + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - nano) + "> " + method.getURI().toString() +" " + response.getStatusLine());
+            Log.i(TAG, "HTTP_EXEC " + httpClient.hashCode() + " << " + "[" + Process.myTid() + "] <" + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - nano) + "> " + method.getURI().toString() +" " + response.getStatusLine());
         } catch (Exception e) {
-            Log.e(TAG, "HTTP_EXEC execute ERROR:", e);
+            Log.e(TAG, "HTTP_EXEC execute ERROR: " + e);
+            e.printStackTrace();
         }
+
+        Log.i(TAG, "doInClientThread OUT, targetUrl: " + targetUrl);
 
         return Pair.create(response,httpContext);
     }

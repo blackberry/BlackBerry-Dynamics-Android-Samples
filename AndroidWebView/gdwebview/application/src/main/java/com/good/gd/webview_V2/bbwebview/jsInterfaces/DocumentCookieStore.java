@@ -30,10 +30,11 @@ import java.util.List;
 
 public class DocumentCookieStore {
 
-    private static final String TAG = "APP_LOG" +  DocumentCookieStore.class.getSimpleName();
-    static class Lazy {
-        static private GDHttpClient httpClient = new GDHttpClient();
-        static private RFC2965Spec rfc2965Spec = new RFC2965Spec();
+    private static final String TAG = "GDWebView-" +  DocumentCookieStore.class.getSimpleName();
+
+    private static class InstanceProvider {
+        private static GDHttpClient httpClient = new GDHttpClient();
+        private static RFC2965Spec rfc2965Spec = new RFC2965Spec();
     }
 
     @JavascriptInterface
@@ -50,10 +51,10 @@ public class DocumentCookieStore {
 
         try {
 
-            List<Cookie> cookies = Lazy.rfc2965Spec.parse(new BasicHeader("Cookie", cookie), new CookieOrigin(host, 0, "/", false));
+            List<Cookie> cookies = InstanceProvider.rfc2965Spec.parse(new BasicHeader("Cookie", cookie), new CookieOrigin(host, 0, "/", false));
 
             for (Cookie cookee : cookies) {
-                Lazy.httpClient.getCookieStore().addCookie(cookee);
+                InstanceProvider.httpClient.getCookieStore().addCookie(cookee);
                 Log.d(TAG, String.format("setDocumentCookie gd(%s)", cookee));
             }
 

@@ -38,13 +38,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BBResponseInputStream extends InputStream {
 
+    private static final String TAG = "GDWebView-" + BBResponseInputStream.class.getSimpleName();
 
     private final HttpResponseParser httpResponseParser = new HttpResponseParser();
     private final IOhelper ioHelper = new IOhelper();
-    Future<Pair<HttpResponse, HttpContext>> futureIS;
-    InputStream contentStream = null;
-    Pair<HttpResponse, HttpContext> response = null;
-    final AtomicBoolean reponseIsAvailable = new AtomicBoolean(false);
+    private Future<Pair<HttpResponse, HttpContext>> futureIS;
+    private InputStream contentStream;
+    private Pair<HttpResponse, HttpContext> response;
+    private final AtomicBoolean reponseIsAvailable = new AtomicBoolean(false);
     private WebView webViewRef;
     private String clientId;
 
@@ -62,17 +63,18 @@ public class BBResponseInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-
-
         try {
+
             if (!reponseIsAvailable.get()) {
                 try {
                     response = futureIS.get();
                 } catch (Exception e) {
-                    Log.w("BBResponseInputStream", "response promise failed");
+                    Log.w(TAG, "response promise failed");
                 }
 
                 reponseIsAvailable.set(true);
+
+                Log.i(TAG, "read() " + clientId + " IN ");
 
                 if (response != null) {
 
@@ -90,48 +92,48 @@ public class BBResponseInputStream extends InputStream {
                     StatusLine statusLine = httpResp.getStatusLine();
                     Header[] allHeaders = httpResp.getAllHeaders();
 
-                    Log.i("BBResponseInputStream", "read() " + clientId + " initial status line: " + statusLine);
-                    Log.i("BBResponseInputStream", "read() " + clientId + " initial headers: " + Arrays.toString(allHeaders));
-
+                    Log.i(TAG, "read() " + clientId + " initial status line: " + statusLine);
+                    Log.i(TAG, "read() " + clientId + " initial headers: " + Arrays.toString(allHeaders));
 
                     HttpEntity responseEntity = httpResp.getEntity();
                     if (responseEntity != null) {
                         long contentLength = responseEntity.getContentLength();
                         contentStream = responseEntity.getContent();
 
-                        Log.i("BBResponseInputStream", "-> read() " + clientId + " responseEntity PRESENT");
-                        Log.i("BBResponseInputStream", "   read() " + clientId + " contentLength " + contentLength);
-                        Log.i("BBResponseInputStream", "   read() " + clientId + " isChunked " + responseEntity.isChunked());
-                        Log.i("BBResponseInputStream", "-< read() " + clientId + " contentStream " + contentStream);
+                        Log.i(TAG, "-> read() " + clientId + " responseEntity PRESENT");
+                        Log.i(TAG, "   read() " + clientId + " contentLength " + contentLength);
+                        Log.i(TAG, "   read() " + clientId + " isChunked " + responseEntity.isChunked());
+                        Log.i(TAG, "-< read() " + clientId + " contentStream " + contentStream);
 
                         String contentEncoding = httpResponseParser.parseContentEncoding(allHeaders, responseEntity);
 
                         contentStream = ioHelper.inputStreamDecorator(contentStream, contentEncoding);
 
                     } else {
-                        Log.w("BBResponseInputStream", "read() " + clientId + " initial NO response entity PRESENT");
+                        Log.w(TAG, "read() " + clientId + " initial NO response entity PRESENT");
                         GDHttpClientProvider.getInstance().releasePooledClient(clientId);
                     }
 
                 } else {
-                    Log.w("BBResponseInputStream", "read() " + clientId + " NO response");
+                    Log.w(TAG, "read() " + clientId + " NO response");
                     GDHttpClientProvider.getInstance().releasePooledClient(clientId);
                 }
             }
 
             if (contentStream == null) {
+                Log.w(TAG, "read() contentStream == NULL");
                 return -1;
             }
-
 
             InputStream inputStream = contentStream;
             return inputStream.read();
         } catch (IOException e) {
-            Log.e("BBResponseInputStream", "read() " + clientId + " ERROR1", e);
-            throw e;
+            Log.e(TAG, "read() " + clientId + " IOException: ", e);
         } catch (Exception e) {
-            Log.e("BBResponseInputStream", "read() " + clientId + " ERROR2", e);
+            Log.e(TAG, "read() " + clientId + " Exception: ", e);
         }
+
+        Log.i(TAG, "read() " + clientId + " OUT ");
 
         return -1;
     }
@@ -139,22 +141,22 @@ public class BBResponseInputStream extends InputStream {
 
     @Override
     public void close() throws IOException {
-        Log.i("BBResponseInputStream", "close()");
+        Log.i(TAG, "close()");
         super.close();
 
-        if(contentStream != null) {
+        if (contentStream != null) {
             try {
                 contentStream.close();
 
-                Log.i("BBResponseInputStream", "+close() io " + webViewRef);
+                Log.i(TAG, "+close() io " + webViewRef);
 
             } catch (IOException e) {
-                Log.e("BBResponseInputStream", "close() contentStream call exception",e);
+                Log.e(TAG, "close() contentStream call exception",e);
             } finally {
                 GDHttpClientProvider.getInstance().releasePooledClient(clientId);
             }
         } else {
-            Log.w("BBResponseInputStream", "close() no contentStream");
+            Log.w(TAG, "close() no contentStream");
             GDHttpClientProvider.getInstance().releasePooledClient(clientId);
         }
 
