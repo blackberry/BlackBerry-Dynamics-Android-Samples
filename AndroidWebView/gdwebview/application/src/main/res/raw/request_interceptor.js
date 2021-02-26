@@ -63,11 +63,15 @@ document.addEventListener('submit', function (e) {
 	let form = e.srcElement;
 	if (form.action && form.method != "get") {
 		let body = serializeForm(form);
-		let requestId = generateRandom();
-		form.action = form.action + INTERCEPT_REQUEST_MARKER + requestId;
-		RequestInterceptor.addRequestBody(requestId, body,form.action+'','{"this": "document.submit event"}');
+		if (!form.action.includes(INTERCEPT_REQUEST_MARKER)) {
+            let requestId = generateRandom();
+            form.action = form.action + INTERCEPT_REQUEST_MARKER + requestId;
+		    RequestInterceptor.addRequestBody(requestId, body, form.action + '', '{"context": "document.submit"}');
+		} else {
+		    console.log('submit previous form url = ' + form.action);
+		}
 	} else {
-        RequestInterceptor.addRequestBody(requestId, "",(form && form.action) || "", '{"this": "document.submit event NO FORM !!!"}');
+        RequestInterceptor.addRequestBody(requestId, "", (form && form.action) || "", '{"context": "document.submit"}');
 	}
 }, false);
 
@@ -98,29 +102,24 @@ document.addEventListener('submit', function (e) {
 			'value': value
 		});
 
-        console.log('GD XHR setHeaders addRequestBody url = ' + this.xRequest.url);
-
-		RequestInterceptor.addRequestBody(this.xRequest.requestId, "",this.xRequest.url || "",'{"this": "XHR.prototype.setRequestHeader"}');
+        console.log('XHR.prototype.setRequestHeader url = ' + this.xRequest.url);
 	};
 
 	XHR.prototype.open = function (method, url, async, user, pass) {
 
-        async = true;
 		console.log('XHR.prototype.open ' + method + ' ' + url + ' ' + async + ' ' + user + ' ' + pass);
         this.xRequest.requestId = generateRandom();
         url += INTERCEPT_REQUEST_MARKER + this.xRequest.requestId;
 
         this.xRequest.url = url;
 
-        console.log('GD XHR open addRequestBody url = ' + this.xRequest.url);
-
-		RequestInterceptor.addRequestBody(this.xRequest.requestId, "",this.xRequest.url+'','{"this": "XHR.prototype.open"}');
+        console.log('XHR.prototype.open url = ' + this.xRequest.url);
 
 		open.call(this, method, url, async, user, pass);
 	};
 
 	XHR.prototype.send = function (data) {
-		console.log('XHR.prototype.send reqID : ' + this.xRequest.requestId);
+		console.log('XHR.prototype.send reqID : ' + this.xRequest.requestId + ' body ' + data);
 		if (this.xRequest.requestId != null) {
 			let body = data;
 			if (data instanceof FormData) {
@@ -129,12 +128,18 @@ document.addEventListener('submit', function (e) {
 				this.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
 			}
 
-			console.log('GD XHR send addRequestBody url = ' + this.xRequest.url);
+			if (body) {
+			    console.log('XHR.prototype.send body ' + body);
+                RequestInterceptor.addRequestBody(this.xRequest.requestId, body, this.xRequest.url || "", '{"this": "XHR.prototype.send"}');
+			} else {
+			    console.log('XHR.prototype.send body is empty ');
+			    RequestInterceptor.addRequestBody(this.xRequest.requestId, "", this.xRequest.url || "", '{"this": "XHR.prototype.send"}');
+			}
 
-			RequestInterceptor.addRequestBody(this.xRequest.requestId, body || "", this.xRequest.url || "", '{"this": "XHR.prototype.send"}');
-		} else {
-		    RequestInterceptor.addRequestBody("baad", "", this.xRequest.url || "", '{"this": "XHR.prototype.send"}');
 		}
+
+		console.log('XHR.prototype.send url = ' + this.xRequest.url);
+
 		send.call(this, data);
 	}
 
@@ -182,7 +187,7 @@ document.addEventListener('submit', function (e) {
 
                     console.log('GD fetch, addBody 1 requestId = ' + requestId + ', ' + serializedFetchBody.join(''));
 
-					RequestInterceptor.addRequestBody(requestId, serializedFetchBody.join(''),url+"",'{"this":"window.fetch","bodyType":"FormData"},' + fetchMode + '}');
+					RequestInterceptor.addRequestBody(requestId, serializedFetchBody.join(''),url+"",'{"this":"window.fetch","bodyType":"FormData",' + fetchMode + '}');
 				} else {
 				    console.log('GD fetch, addBody 2 requestId = ' + requestId);
 
@@ -193,6 +198,8 @@ document.addEventListener('submit', function (e) {
 
 			    RequestInterceptor.addRequestBody(requestId, "",url+"",'{"this":"window.fetch", "method": "'+(!options?'':options.method)+',' + fetchMode + '}');
 			}
+		} else {
+		    RequestInterceptor.addRequestBody(requestId, "", url + "", '{"this":"window.fetch"}');
 		}
 
 		return originalFetch.apply(this, arguments);

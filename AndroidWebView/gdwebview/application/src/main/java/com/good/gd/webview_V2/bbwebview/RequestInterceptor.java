@@ -18,7 +18,6 @@ package com.good.gd.webview_V2.bbwebview;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
@@ -32,103 +31,75 @@ import com.good.gd.webview_V2.bbwebview.tasks.http.GDHttpClientProvider;
 import com.good.gd.webview_V2.bbwebview.tasks.http.RequestTask;
 import com.good.gd.webview_V2.bbwebview.utils.Utils;
 
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.good.gd.webview_V2.bbwebview.BBWebViewClient.X_REDIRECT_REPONSE_ID;
-
 // delegate class for WebViewClient's and ServiceWorkerClient's shouldInterceptRequest method
-class RequestInterceptor {
+public class RequestInterceptor {
 
     private static final String TAG = "GDWebView-" + RequestInterceptor.class.getSimpleName();
     private final List<String> HTTP_VERBS = Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS");
 
-    public RequestInterceptor() {
-    }
-
-    public WebResourceResponse invoke(WebResourceRequest request, final WebView vw) {
-        String requestUrl = request.getUrl().toString();
+    public WebResourceResponse invoke(final WebView webView, final WebResourceRequest request) {
 
         Log.i(TAG,"shouldInterceptRequest IN " + request.getUrl() + " method: " + request.getMethod() + " redirect:" + request.isRedirect()
                 + " hasGesture: " + request.hasGesture()  + " isForMainFrame: " + request.isForMainFrame());
 
         Utils.debugLogHeaders(request.getRequestHeaders());
 
-        if(request.getRequestHeaders().containsKey(X_REDIRECT_REPONSE_ID) ){
-            Log.i(TAG, "-shouldInterceptRequest REDIRECT path: " + request.getUrl());
-            String clientId = request.getRequestHeaders().get(X_REDIRECT_REPONSE_ID);
-            if(!TextUtils.isEmpty(clientId)) {
-                WebResourceResponse cachedWebResponse = GDHttpClientProvider.getInstance().fetchCachedWebResponse(clientId);
-                if (cachedWebResponse == null) {
-                    Log.i(TAG, "cachedWebResponse == null");
-                }
-                return cachedWebResponse;
-            }
-        }
         try {
 
-            requestUrl = getOriginalRequestUri(request, RequestTask.GD_INTERCEPT_TAG);
+            RequestTask.BrowserContext browserContext = RequestTask.BrowserContext.NULL;
+
+            // Retrieve information about the request intercepted by js
+            if (request.getUrl().toString().contains(RequestTask.GD_INTERCEPT_TAG)) {
+                browserContext = RequestTask.getRequestContext(request);
+            }
+
+            String requestUrl = getOriginalRequestUri(request, RequestTask.GD_INTERCEPT_TAG);
             String requestId = getRequestId(request, RequestTask.GD_INTERCEPT_TAG);
 
             Log.i(TAG, "-shouldInterceptRequest GD-marker-stripped URL: " + requestUrl);
             Log.i(TAG, "-shouldInterceptRequest URL requestId: " + requestId);
 
-            requestUrl = Utils.encodeUrl(requestUrl);
-
-            Log.i(TAG, "-shouldInterceptRequest URL encoded: " + requestUrl);
-
             if (HTTP_VERBS.contains(request.getMethod())) {
 
-                String host = request.getUrl().getHost();
-                if (host == null) {
-                    throw new IllegalArgumentException("null host for " + requestUrl);
-                }
-
-                final AtomicReference<String> origUrlRef = getOriginOnWebViewThread(vw);
+                final AtomicReference<String> origUrlRef = getOriginOnWebViewThread(webView);
 
                 String clientId = GDHttpClientProvider.getInstance().obtainPooledClient(request.getUrl().getHost());
 
                 if (clientId == null) {
+                    Log.e(TAG, "-shouldInterceptRequest clientId == null ");
                     return new WebResourceResponse(null, null, null);
                 }
 
                 Future<Pair<HttpResponse, HttpContext>> futureResponse =
                         GDHttpClientProvider.getInstance().execGDHttpClientAsync(clientId,
-                                new RequestTask(clientId, request, requestUrl, origUrlRef.get(), vw));
+                                new RequestTask(clientId, request, requestUrl, origUrlRef.get(), webView, browserContext));
 
-                String resExtention = MimeTypeMap.getFileExtensionFromUrl(requestUrl);
-                String mimeTypeFromExtension = MimeTypeMap.getSingleton().getMimeTypeFromExtension(resExtention);
-                Log.i(TAG,"shouldInterceptRequest:getFileExtensionFromUrl" + resExtention + " mimeType guess is " + mimeTypeFromExtension);
+                String mimeTypeFromExtension = getMimeType(requestUrl);
 
-                WebResourceResponse webResourceResponse = new BBWebResourceResponse(
-                        mimeTypeFromExtension,
-                        null,
-                        new BBResponseInputStream(futureResponse,clientId, vw ),
-                        futureResponse,clientId,vw);
-
-                return webResourceResponse;
+                return new BBWebResourceResponse(mimeTypeFromExtension, null,
+                        new BBResponseInputStream(futureResponse, clientId), futureResponse, clientId);
 
             } else {
-                Log.w(TAG, "shouldInterceptRequest " + request.getMethod());
+                Log.e(TAG, "-shouldInterceptRequest no method: " + request.getMethod());
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "shouldInterceptRequest: " + request.getMethod() + " " + requestUrl,e);
+            Log.e(TAG, "-shouldInterceptRequest: " + request.getMethod() + " " + request.getUrl() + " " + e);
         }
 
-        Log.w(TAG, "shouldInterceptRequest SKIPPING " + request.getMethod()+" " + requestUrl);
+        Log.e(TAG, "-shouldInterceptRequest return empty response ");
 
         return new WebResourceResponse(null, null,null);
     }
 
-    private AtomicReference<String> getOriginOnWebViewThread(final WebView vw) throws InterruptedException {
+    public static AtomicReference<String> getOriginOnWebViewThread(final WebView vw) throws InterruptedException {
         final AtomicReference<String> origUrlRef = new AtomicReference<>();
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -152,6 +123,15 @@ class RequestInterceptor {
         if (!request.getUrl().toString().contains(RequestTask.GD_INTERCEPT_TAG))
             return "not found";
         return RequestTask.getUrlSegments(request, marker)[1];
+    }
+
+    public static String getMimeType(String url) {
+        String fileExtension = MimeTypeMap.getFileExtensionFromUrl(url);
+        String mimeTypeFromExtension = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+
+        Log.i(TAG,"getMimeType, file extension: " + fileExtension + " mimeType: " + mimeTypeFromExtension);
+
+        return mimeTypeFromExtension;
     }
 
 }

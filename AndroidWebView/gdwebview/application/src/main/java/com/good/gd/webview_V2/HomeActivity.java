@@ -30,8 +30,8 @@ public class HomeActivity extends AppCompatActivity implements GDStateListener {
 
         EditText editTextUrl = findViewById(R.id.url);
 
-        Button btn = findViewById(R.id.button_home);
-        btn.setOnClickListener(new View.OnClickListener() {
+        Button goToWebView = findViewById(R.id.go_to_webview_button);
+        goToWebView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String url = editTextUrl.getText().toString();
@@ -47,6 +47,14 @@ public class HomeActivity extends AppCompatActivity implements GDStateListener {
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 intent.putExtra(EXTRA_URL, url);
                 homeActivity.startActivity(intent);
+            }
+        });
+
+        Button clear = findViewById(R.id.button_clear);
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editTextUrl.setText("");
             }
         });
     }

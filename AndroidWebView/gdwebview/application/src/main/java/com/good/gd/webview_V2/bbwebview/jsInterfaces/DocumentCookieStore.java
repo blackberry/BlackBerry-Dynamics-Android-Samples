@@ -17,53 +17,84 @@
 package com.good.gd.webview_V2.bbwebview.jsInterfaces;
 
 import android.util.Log;
-import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 
+import com.good.gd.apache.http.Header;
+import com.good.gd.apache.http.client.CookieStore;
+import com.good.gd.apache.http.client.params.HttpClientParams;
 import com.good.gd.apache.http.cookie.Cookie;
 import com.good.gd.apache.http.cookie.CookieOrigin;
-import com.good.gd.apache.http.impl.cookie.RFC2965Spec;
+import com.good.gd.apache.http.cookie.CookieSpec;
 import com.good.gd.apache.http.message.BasicHeader;
 import com.good.gd.net.GDHttpClient;
+import com.good.gd.webview_V2.bbwebview.tasks.http.InitHttpClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DocumentCookieStore {
 
     private static final String TAG = "GDWebView-" +  DocumentCookieStore.class.getSimpleName();
 
-    private static class InstanceProvider {
-        private static GDHttpClient httpClient = new GDHttpClient();
-        private static RFC2965Spec rfc2965Spec = new RFC2965Spec();
+    private final CookieSpec cookieSpec;
+    private final CookieStore cookieStore;
+
+    public DocumentCookieStore() {
+        GDHttpClient httpClient = InitHttpClient.createGDHttpClient();
+        cookieStore = httpClient.getCookieStore();
+
+        String cookiePolicy = HttpClientParams.getCookiePolicy(httpClient.getParams());
+        cookieSpec = httpClient.getCookieSpecs().getCookieSpec(cookiePolicy);
     }
 
     @JavascriptInterface
     public String getDocumentCookie(String host, String path) {
-        Log.d(TAG, String.format("getDocumentCookie(%s,%s)", host, path));
-        return CookieManager.getInstance().getCookie("https://" + host + path);
+        Log.d(TAG, "getDocumentCookie, host = " + host + ", path = " + path);
+
+        CookieOrigin cookieOrigin = new CookieOrigin(host, 0, path, false);
+
+        List<Cookie> cookies = cookieStore.getCookies();
+
+        List<Cookie> matchedCookies = new ArrayList<Cookie>();
+        for (Cookie cookie : cookies) {
+            if (cookieSpec.match(cookie, cookieOrigin)) {
+                matchedCookies.add(cookie);
+            }
+        }
+
+        String cookie = "";
+
+        if (!matchedCookies.isEmpty()) {
+            List<Header> headers = cookieSpec.formatCookies(matchedCookies);
+            if (!headers.isEmpty()) {
+                cookie = headers.get(0).getValue();
+                Log.d(TAG, "getDocumentCookie, found cookie in the store, size = " + matchedCookies.size() + ", cookie = " + cookie);
+            }
+        } else {
+            Log.d(TAG, "getDocumentCookie, not found cookie in the store");
+        }
+
+        return cookie;
     }
 
     @JavascriptInterface
     public void setDocumentCookie(String cookie, String host, String path) {
-        Log.d(TAG, String.format("setDocumentCookie(%s,%s,%s)", cookie, host, path));
-
-        cookie = cookie.replaceAll("expires=[A-Za-z0-9,\\s:-]+;","");
+        Log.d(TAG, String.format("setDocumentCookie(%s, %s, %s)", cookie, host, path));
 
         try {
 
-            List<Cookie> cookies = InstanceProvider.rfc2965Spec.parse(new BasicHeader("Cookie", cookie), new CookieOrigin(host, 0, "/", false));
+            List<Cookie> cookies = cookieSpec.parse(new BasicHeader("Cookie", cookie), new CookieOrigin(host, 0, path, false));
 
             for (Cookie cookee : cookies) {
-                InstanceProvider.httpClient.getCookieStore().addCookie(cookee);
-                Log.d(TAG, String.format("setDocumentCookie gd(%s)", cookee));
+                cookieStore.addCookie(cookee);
+                Log.d(TAG, "setDocumentCookie, saved cookie to secure store - " + cookee);
             }
 
         } catch (Exception e) {
-            Log.e(TAG, String.format("setDocumentCookie(%s,%s,%s)", cookie, host, path), e);
+            Log.e(TAG, "setDocumentCookie, exception", e);
+            e.printStackTrace();
         }
 
-        CookieManager.getInstance().setCookie("https://" + host + path,cookie);
-        Log.d(TAG, String.format("setDocumentCookie(%s,%s,%s)", cookie, host, path));
     }
 
 }

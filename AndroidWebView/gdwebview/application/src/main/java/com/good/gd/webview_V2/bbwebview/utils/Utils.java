@@ -27,6 +27,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
@@ -61,6 +63,10 @@ public class Utils {
             Log.i(TAG, "debugLogHeaders - header[" + i++ + "] " + header.getKey() + ":" + header.getValue());
         }
         Log.i(TAG, "debugLogHeaders >>");
+    }
+
+    public static String logUrl(String url) {
+        return url.contains("javascript:") ? "[javascript]" : url;
     }
 
     public static String encodeUrl(String urlDecoded) {

@@ -23,8 +23,10 @@ import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,9 +40,7 @@ import com.good.gd.webview_V2.bbwebview.BBWebViewClient;
 import com.good.gd.webview_V2.bbwebview.WebClientObserver;
 import com.good.gd.webview_V2.bbwebview.devtools.OnCookiesFilterEdit;
 import com.good.gd.webview_V2.bbwebview.devtools.OnJsEditListener;
-import com.good.gd.webview_V2.bbwebview.devtools.WebSettingsFragment;
 import com.good.gd.webview_V2.bbwebview.devtools.onPaneEditListener;
-import com.good.gd.webview_V2.bbwebview.tasks.http.GDHttpClientProvider;
 
 import java.util.Map;
 
@@ -51,11 +51,9 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
     private static final String TAG = "APP_LOG" +  BrowserActivity.class.getSimpleName();
 
     public static final String EXTRA_URL = "extra url";
-
     private static final String EXTRA_PROGRESS_BAR = "progress bar";
 
-    private BBWebViewClient bbWebViewClient;
-    private WebView webview;
+    private WebView webView;
     private TextView urlField;
     private String passedUrl;
     private ProgressBar progressBar;
@@ -87,14 +85,14 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
     @Override
     protected void onResume() {
         super.onResume();
-        webview.onResume();
+        webView.onResume();
         Log.i(TAG,"onResume");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        webview.onPause();
+        webView.onPause();
         Log.i(TAG,"onPause");
     }
 
@@ -109,7 +107,6 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
         Log.i(TAG,"onDestroy IN");
 
         disposeViews();
-        GDHttpClientProvider.getInstance().disposeHttpClientsPool();
 
         super.onDestroy();
 
@@ -119,7 +116,7 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        webview.saveState(outState);
+        webView.saveState(outState);
 
         outState.putInt(EXTRA_PROGRESS_BAR, progressBar.getProgress());
 
@@ -129,7 +126,7 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        webview.restoreState(savedInstanceState);
+        webView.restoreState(savedInstanceState);
 
         progressBar.setProgress(savedInstanceState.getInt(EXTRA_PROGRESS_BAR, 0));
 
@@ -137,46 +134,70 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
     }
 
     private void disposeViews() {
-        webview.stopLoading();
-        webview.destroy();
-        webview = null;
+        // Detach WebView from the parent layout
+        // This ensure proper destruction of WebView
+        ViewGroup viewGroup = (ViewGroup) webView.getParent();
+        viewGroup.removeView(webView);
+
+        webView.stopLoading();
+        webView.destroy();
+        webView = null;
         urlField = null;
     }
 
     private void initViews() {
-        webview = findViewById(R.id.gd_web_view);
-        if (bbWebViewClient == null) {
-            bbWebViewClient = new BBWebViewClient();
-        }
+        webView = findViewById(R.id.gd_web_view);
 
-        webview.setWebViewClient(bbWebViewClient);
         urlField = findViewById(R.id.url_input);
 
         progressBar = findViewById(R.id.progress_bar);
 
-        bbWebViewClient.getObserver().addOnPageFinishedListener(new WebClientObserver.OnPageFinished() {
+        BBWebViewClient webViewClient = (BBWebViewClient) webView.getWebViewClient();
+
+        webViewClient.getObserver().addProgressListener(new WebClientObserver.ProgressListener() {
             @Override
-            public void onPageFinished(WebView view, String url) {
-                progressBar.setProgress(100);
+            public void progressChanged(int newProgress) {
+                progressBar.setProgress(newProgress);
             }
         });
 
-        bbWebViewClient.getObserver().addOnPageStartedListener(new WebClientObserver.OnPageStarted() {
+        webViewClient.getObserver().addOnPageStartedListener(new WebClientObserver.OnPageStarted() {
             @Override
             public void onPageStarted(WebView view, String url) {
-                progressBar.setProgress(20);
-            }
-        });
-
-        bbWebViewClient.getObserver().addOnContentVisibleListener(new WebClientObserver.OnPageContentVisible() {
-            @Override
-            public void onPageContentVisible(WebView view, String url) {
-                progressBar.setProgress(70);
+                urlField.setText(url);
             }
         });
 
         setupPane(R.id.console, new OnJsEditListener());
         setupPane(R.id.cookies_list, new OnCookiesFilterEdit());
+
+        ImageButton goBack = findViewById(R.id.back_btn);
+        goBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (webView.canGoBack()) {
+                    webView.goBack();
+                }
+            }
+        });
+
+        ImageButton goForward = findViewById(R.id.forward_btn);
+        goForward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (webView.canGoForward()) {
+                    webView.goForward();
+                }
+            }
+        });
+
+        ImageButton reload = findViewById(R.id.reload_btn);
+        reload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                webView.reload();
+            }
+        });
     }
 
     private void setupPane(int paneId, onPaneEditListener editActionListener) {
@@ -189,7 +210,7 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
         editActionListener.activity = BrowserActivity.this;
         editActionListener.inputView = consoleEdit;
         editActionListener.outputView = consoleOut;
-        editActionListener.targetWebView = webview;
+        editActionListener.targetWebView = webView;
 
         consoleEdit.setImeActionLabel("eval", KeyEvent.KEYCODE_ENTER);
 
@@ -197,55 +218,21 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
     }
 
     public void onGo(View view) {
+        String urlString = urlField.getText().toString();
 
-        switch (view.getId()) {
-            case R.id.go_btn: {
-                String urlString = urlField.getText().toString();
+        if (URLUtil.isValidUrl(urlString)) {
 
-                if (URLUtil.isValidUrl(urlString)) {
+            Log.i(TAG, "loadUrl(" + urlString + ")");
 
-                    Log.i(TAG, "loadUrl(" + urlString + ")");
+            webView.stopLoading();
+            webView.loadUrl(urlString);
 
-                    webview.stopLoading();
-                    webview.loadUrl(urlString);
+        } else {
+            String errMsg = "Invalid url input: " + urlString;
+            Log.e(TAG, errMsg);
 
-                } else {
-                    String errMsg = "Invalid url input: " + urlString;
-                    Log.e(TAG, errMsg);
-
-                    Toast.makeText(BrowserActivity.this, errMsg, LENGTH_SHORT).show();
-                }
-            }
-            break;
-
-            case R.id.back_btn:
-                webview.goBack();
-            break;
-
-            case  R.id.settings_btn:
-                WebSettingsFragment webSettingsFragment = WebSettingsFragment.newInstance();
-                webSettingsFragment.setWebSettings(webview.getSettings());
-
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .add(R.id.fragment_container,webSettingsFragment)
-                        .addToBackStack("s")
-                        .commit();
-
-                break;
+            Toast.makeText(BrowserActivity.this, errMsg, LENGTH_SHORT).show();
         }
-    }
-
-    public void viewPaneInstance(View view) {
-        switch (view.getId()){
-            case R.id.console_btn:
-                toggleViewPaneInstance(R.id.console,R.id.hide_js);
-            break;
-            case R.id.cookies_btn:
-                toggleViewPaneInstance(R.id.cookies_list,R.id.hide_cookies);
-            break;
-        }
-
     }
 
     private final static SparseIntArray VISIBILITY_TOGGLE = new SparseIntArray(){{
@@ -279,49 +266,34 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
     public void onAuthorized() {
         Log.i(TAG,"onAuthorized");
 
-        WebView webview = findViewById(R.id.gd_web_view);
-
-        GDHttpClientProvider.getInstance().initHttpClientsPool();
-
-        BBWebViewClient.init(webview,bbWebViewClient);
-
+        // Load url which is retrieved from the intent
         if (passedUrl != null) {
             Log.i(TAG, "loadUrl(" + passedUrl + ")");
-            webview.loadUrl(passedUrl);
+            webView.loadUrl(passedUrl);
             urlField.setText(passedUrl);
+            
+            // Reset passed url
+            passedUrl = null;
         }
 
     }
 
     @Override
-    public void onLocked() {
-        Log.i(TAG,"onLocked");
-    }
+    public void onLocked() {}
 
     @Override
-    public void onWiped() {
-        //d
-    }
+    public void onWiped() {}
 
     @Override
-    public void onUpdateConfig(Map<String, Object> map) {
-        //d
-    }
+    public void onUpdateConfig(Map<String, Object> map) {}
 
     @Override
-    public void onUpdatePolicy(Map<String, Object> map) {
-        //d
-    }
+    public void onUpdatePolicy(Map<String, Object> map) {}
 
     @Override
-    public void onUpdateServices() {
-        //d
-    }
+    public void onUpdateServices() {}
 
     @Override
-    public void onUpdateEntitlements() {
-        //d
-    }
-
+    public void onUpdateEntitlements() {}
 
 }

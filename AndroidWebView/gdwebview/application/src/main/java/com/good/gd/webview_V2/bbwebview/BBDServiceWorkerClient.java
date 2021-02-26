@@ -35,6 +35,6 @@ public class BBDServiceWorkerClient extends ServiceWorkerClient {
     @Override
     public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {
         Log.i(TAG, "shouldInterceptRequest ServiceWorker URL: " + request.getUrl());
-        return requestInterceptor.invoke(request,webView);
+        return requestInterceptor.invoke(webView, request);
     }
 }

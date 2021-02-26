@@ -16,216 +16,201 @@
  */
 package com.good.gd.webview_V2.bbwebview;
 
-import android.os.Process;
 import android.util.Log;
 import android.util.Pair;
 import android.webkit.WebResourceResponse;
-import android.webkit.WebView;
 
 import com.good.gd.apache.http.Header;
 import com.good.gd.apache.http.HttpResponse;
 import com.good.gd.apache.http.protocol.HttpContext;
-import com.good.gd.webview_V2.bbwebview.tasks.http.GDHttpClientProvider;
+import com.good.gd.webview_V2.bbwebview.tasks.http.HttpResponseParser;
+import com.good.gd.webview_V2.bbwebview.utils.Utils;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BBWebResourceResponse extends WebResourceResponse {
+
     private final String TAG = "GDWebView-" +  BBWebResourceResponse.class.getSimpleName() + "_" + hashCode();
-    private final String clientId;
+
     private Future<Pair<HttpResponse, HttpContext>> futureResp;
-    private BBWebView webView;
-    private WebResourceResponse redirectingResponse;
+    private HttpResponse response;
+    private String clientId;
 
-    public BBWebResourceResponse(String mimeType, String encoding, InputStream data, Future<Pair<HttpResponse,HttpContext>> futureResp, String clientId, WebView webView) {
+    private final AtomicBoolean isResponseRetrieved;
 
-        super(mimeType, encoding, data);
-        this.clientId = clientId;
-        Log.i(TAG,String.format("BBWebResourceResponse mimeType=%s, encoding=%s",mimeType,encoding));
+    public BBWebResourceResponse(String mimeType, String encoding, InputStream inputStream, Future<Pair<HttpResponse, HttpContext>> futureResp, String clientId) {
+        super(mimeType, encoding, inputStream);
+
         this.futureResp = futureResp;
+        this.clientId = clientId;
 
-        this.webView = (BBWebView) webView;
-
+        isResponseRetrieved = new AtomicBoolean(false);
     }
 
-    public BBWebResourceResponse(String mimeType, String encoding, int statusCode,  String reasonPhrase, Map<String, String> responseHeaders, InputStream data) {
-        super(mimeType, encoding, statusCode, reasonPhrase, responseHeaders, data);
-        this.clientId = null;
+    @Override
+    public String getReasonPhrase() {
+
+        if (!isResponseRetrieved.get()) {
+            waitForRequestToFinish();
+        }
+
+        Log.i(TAG,"getReasonPhrase: " + super.getReasonPhrase());
+
+        return super.getReasonPhrase();
+    }
+
+    @Override
+    public int getStatusCode() {
+
+        if (!isResponseRetrieved.get()) {
+            waitForRequestToFinish();
+        }
+
+        Log.i(TAG,"getStatusCode: " + super.getStatusCode());
+
+        return super.getStatusCode();
     }
 
     @Override
     public String getEncoding() {
-        Log.i(TAG,"getEncoding [" + Process.myTid() + "]");
-        String encoding = redirectingResponse == null?super.getEncoding():redirectingResponse.getEncoding();
-        Log.i(TAG,"getEncoding [" + Process.myTid() + "] retVal = " + encoding);
+        Log.i(TAG,"getEncoding: >>");
+
+        if (!isResponseRetrieved.get()) {
+            waitForRequestToFinish();
+        }
+
+        if (super.getEncoding() == null) {
+            retrieveEncoding();
+        }
+
+        String encoding = super.getEncoding();
+
+        Log.i(TAG,"getEncoding: retVal = " + encoding);
         return encoding;
     }
 
     @Override
     public String getMimeType() {
-        Log.i(TAG,"getMimeType [" + Process.myTid() + "]");
-        String mimeType = redirectingResponse == null?super.getMimeType():redirectingResponse.getMimeType();
-        Log.i(TAG,"getMimeType [" + Process.myTid() + "] retVal = " + mimeType);
+        Log.i(TAG,"getMimeType >>");
 
-        return mimeType;
-    }
-
-    @Override
-    public int getStatusCode() {
-        if(redirectingResponse != null){
-            return redirectingResponse.getStatusCode();
+        if (!isResponseRetrieved.get()) {
+            waitForRequestToFinish();
         }
 
-        return super.getStatusCode();
+        if (super.getMimeType() == null) {
+            retrieveMimeType();
+        }
+
+        String mimeType = super.getMimeType();
+
+        Log.i(TAG,"getMimeType: retVal = " + mimeType);
+
+        return mimeType;
     }
 
     // Entry point called from the chromium native
     @Override
     public Map<String, String> getResponseHeaders()
     {
-        Log.i(TAG,"getResponseHeaders [" + Process.myTid() + "] IN");
+        Log.i(TAG,"getResponseHeaders >>");
 
-        redirectingResponse = null;
-
-        HttpResponse response;
         HashMap<String, String> respHeaders = new LinkedHashMap<>();
-        try {
-            Log.w(TAG,"getResponseHeaders Blocked [" + Process.myTid() + "]" );
-            response = futureResp.get().first;
-            Log.w(TAG,"getResponseHeaders retrieved response [" + Process.myTid() + "]" );
 
-            if(response == null) {
-                Log.w(TAG,"getResponseHeaders RESPONSE NULL [" + Process.myTid() + "]" );
+        try {
+
+            if (!isResponseRetrieved.get()) {
+                waitForRequestToFinish();
+            }
+
+            if (response == null) {
+                Log.e(TAG,"getResponseHeaders response = null");
                 return respHeaders;
             }
 
-            HttpContext httpContext = futureResp.get().second;
-
-            final Object locationURL = httpContext.getAttribute("webview.redirect.url");
-            if(locationURL instanceof URI && Boolean.TRUE.equals(httpContext.getAttribute("webview.http.isForMainFrame"))){
-
-                //there was a redirect to another url
-                //we return fake response to the webview for the requested url,
-                //schedule new loadUrl with the location url and
-                //cache the actual response which is then immediately returned in the shouldInterceptRequest method
-                return createTemporaryRedirectResponse(httpContext, locationURL);
+            if (getEncoding() == null) {
+                retrieveEncoding();
             }
 
+            if (getMimeType() == null) {
+                retrieveMimeType();
+            }
 
-            for (final Header header : response.getAllHeaders()) {
+            for (Header header : response.getAllHeaders()) {
                 respHeaders.put(header.getName(), header.getValue());
-                if("content-type".equalsIgnoreCase(header.getName())){
-
-                    String mimeType = header.getValue().replaceAll(";.*", "");
-                    Log.i(TAG,"getResponseHeaders [" + Process.myTid() + "] set mimeType: " + mimeType);
-
-                    setMimeType(mimeType);
-                }
             }
 
-            Log.i(TAG,"getResponseHeaders [" + Process.myTid() + "] map: " + respHeaders);
+            Utils.debugLogHeaders(respHeaders);
+
         } catch (Exception e) {
+            Log.i(TAG,"getResponseHeaders, exception " + e);
             e.printStackTrace();
         }
 
-        Log.i(TAG,"getResponseHeaders [" + Process.myTid() + "] OUT");
+        Log.i(TAG,"getResponseHeaders <<");
 
         return respHeaders;
     }
 
 
-    private Map<String, String> createTemporaryRedirectResponse(final HttpContext httpContext, final Object locationURL) throws ExecutionException, InterruptedException {
-        Log.i(TAG,"getResponseHeaders: navigate to " + locationURL);
-
-        //reset location uri for this webResponse
-        httpContext.removeAttribute("webview.redirect.url");
-
-        final String connId = (String) httpContext.getAttribute("webview.connectionId");
-        GDHttpClientProvider.getInstance().cacheResponseData(connId,new BBWebResourceResponse("text/html","utf-8",
-                new BBResponseInputStream(futureResp, this.clientId,webView),futureResp,this.clientId, webView));
-
-        webView.post(new Runnable() {
-            @Override
-            public void run() {
-                Log.i(TAG,">> redirect: setOnPageFinishedAction for " + webView.getOriginalUrl());
-
-                final BBWebViewClient webViewClient = (BBWebViewClient) webView.getWebViewClient();
-                webViewClient.getObserver().addOnPageFinishedListener(new WebClientObserver.OnPageFinished() {
-                    @Override
-                    public void onPageFinished(WebView view, String url) {
-                        Log.i(TAG,String.format(">> redirect: webview(%s) new url(%s)", url, locationURL));
-
-                        HashMap<String, String> additionalHttpHeaders = new HashMap<>();
-                        additionalHttpHeaders.put(BBWebViewClient.X_REDIRECT_REPONSE_ID, connId);
-
-                        // Unregister to do not receive a notification about redirect url loading
-                        ((BBWebViewClient) webView.getWebViewClient()).getObserver().removeLoadUrlListener(GDHttpClientProvider.getInstance());
-
-                        webView.loadUrl(locationURL.toString(), additionalHttpHeaders);
-
-                        // Register to get a notification about next url loading
-                        ((BBWebViewClient) webView.getWebViewClient()).getObserver().addLoadUrlListener(GDHttpClientProvider.getInstance());
-
-                        // Unregister listener
-                        webViewClient.getObserver().removeOnPageFinishedListener(this);
-                        Log.i(TAG, "<< redirect: loaded location url into webview " + locationURL);
-                    }
-                });
-
-                Log.i(TAG,"<> redirect: setOnPageFinishedAction for " + webView.getOriginalUrl());
-                Log.i(TAG,"<< redirect: setOnPageFinishedAction for " + locationURL);
-            }
-        });
-
-        final String responseBody = "<html>" +
-                "<body>" +
-                "<h3>Redirecting to <span style=\"color:blue\">" + locationURL.toString() + "</span></h3>" +
-                "</body>" +
-                "</html>";
-
-        HashMap<String, String> basicResponseHeaders = new HashMap<String, String>() {{
-            put("Content-Type", "text/html; charset=utf-8");
-            put("Content-Length", responseBody.getBytes().length + "");
-            put("Cache-Control", "no-store");
-
-        }};
-
-        redirectingResponse = buildCustomResponse(responseBody,basicResponseHeaders);
-
-        setData(redirectingResponse.getData());
-        setMimeType("text/html");
-        setEncoding("UTF-8");
-
-        setStatusCodeAndReasonPhrase(200,"OK");
-
-        return basicResponseHeaders;
-    }
-
     @Override
     public InputStream getData() {
-        Log.i(TAG,"getData [" + Process.myTid() + "] IN");
-        if(redirectingResponse != null){
-            return redirectingResponse.getData();
-        }
+
+        Log.i(TAG,"getData >>");
+
+        InputStream inputStream = super.getData();
+
+        Log.i(TAG,"getData " + inputStream);
+
         return super.getData();
     }
 
-    public static WebResourceResponse buildCustomResponse(String message, Map<String, String> headers) {
+    private void waitForRequestToFinish() {
+        Log.i(TAG,"waitForRequestToFinish, wait for http response, clientId " + clientId);
         try {
-            return new WebResourceResponse(
-                    "text/html",
-                    "UTF-8", 200,
-                    "OK", headers,
-                    new ByteArrayInputStream(message.getBytes("UTF-8")));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            response = futureResp.get().first;
+
+            if (response != null && response.getEntity() != null) {
+                Log.i(TAG, "waitForRequestToFinish, content " + response.getEntity().getContentLength());
+
+                setStatusCodeAndReasonPhrase(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+
+            } else {
+                Log.e(TAG, "waitForRequestToFinish, no content ");
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG,"waitForRequestToFinish, failed to get response ", e);
+        }
+
+        isResponseRetrieved.set(true);
+
+        Log.i(TAG,"waitForRequestToFinish, retrieved response");
+    }
+
+    private void retrieveMimeType() {
+        if (response != null) {
+            for (final Header header : response.getAllHeaders()) {
+                if ("content-type".equalsIgnoreCase(header.getName())) {
+
+                    String mimeType = header.getValue().replaceAll(";.*", "");
+                    Log.i(TAG, "retrieveMimeType mimeType: " + mimeType);
+
+                    setMimeType(mimeType);
+                }
+            }
+        }
+    }
+
+    private void retrieveEncoding() {
+        if (response != null && response.getEntity() != null) {
+            String encoding = HttpResponseParser.parseContentEncoding(response.getAllHeaders(), response.getEntity());
+            Log.i(TAG,"retrieveEncoding: " + encoding);
+            setEncoding(encoding);
         }
     }
 

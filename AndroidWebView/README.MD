@@ -1,29 +1,49 @@
 # BlackBerry Dynamics WebView client sample
 This application is a simple web content browser supporting access to private/corporate network resources through BlackBerry Dynamics SDK.
 
-App's functionality includes:                                                       []
+App's functionality includes:                                                      
+ * Secure HTTP request interception (URL loading, xml and fetch http requests)
+ * Cookies saved in BlackBerry Dynamics secure storage
+ * Page resource and content loading
+ * Data Leakage Protection For Cut, Copy & Paste
  * URL input bar
  * Page history navigation
- * http cookies listing
+ * HTTP cookies listing
  * JavaScript evaluate console
- * WebSettings screen
+ * Web Settings screen
 
 <img src="./gitlab.gif" width="270" height="540" />
 
+
+
+The following features are **not** implemented in this sample.
+
+- HTTP authentication
+- Kerberos authentication
+- File downloading / uploading
+- URL schemes ( ‘mailto:’, ‘geo:’ etc. )
+- Web worker (Service worker)
+- Web permissions (i.e. to enable GPS)
+- Safe browsing (Google APIs)
+- Paste from a BlackBerry Dynamics app to WebView using drag-n-drop
+
 ## Requirements
- * Android Studio 3.3+
- * Android Gradle plugin 3.2.0
- * BlackBerry Dynamics SDK 7.0 or newer
+This sample was tested using the following:
+
+ * Android Studio 4.1.1
+ * Android Gradle plugin 4.1.0
+ * BlackBerry Dynamics SDK 9.0
 
 
 ## Runtime
- * Android 7.0 or later (SDK 24+)
+ * Android 8.1.0 or later
  * Android system WebView update 80+
 
 
 ## Author(s)
 
-* [Mykhailo Mykytyn](mailto:mmykytyn@blackberry.com)
+* Mykhailo Mykytyn
+* Serhii Butryk
 
 
 ## How To Build and Deploy
@@ -49,7 +69,7 @@ App's functionality includes:                                                   
     * `BBDServiceWorkerClient` - custom ServiceWorker implementation intercepting service worker requests
     * `BBResponseInputStream` - custom InputStream, provides the response data for a WebView to consume
     * `BBWebResourceResponse` - custom WebResourceResponse class. Manages response codes, headers and data streams.
-    * `RequestInterceptor` - interprets WebView requests and schedules appropriate http reuquests.
+    * `RequestInterceptor` - interprets WebView requests and schedules appropriate http requests.
  * package `com.good.gd.webview_V2.bbwebview.tasks.http`
    
 

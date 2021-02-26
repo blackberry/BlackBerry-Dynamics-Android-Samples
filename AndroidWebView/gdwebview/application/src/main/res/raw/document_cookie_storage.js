@@ -14,15 +14,15 @@
  * limitations under the License.
  *
  */
-(function(bridge) {
+(function() {
     Object.defineProperty(Document.prototype, 'cookie', {
         get: function() {
-            return bridge.getDocumentCookie(
+            return DocumentCookiesBridge.getDocumentCookie(
                 document.location.hostname, document.location.pathname);
         },
         set: function(cookie) {
-            bridge.setDocumentCookie(
+            DocumentCookiesBridge.setDocumentCookie(
                 cookie, document.location.hostname, document.location.pathname);
         }
     });
-})(DocumentCookieStoreBridge);
+})();

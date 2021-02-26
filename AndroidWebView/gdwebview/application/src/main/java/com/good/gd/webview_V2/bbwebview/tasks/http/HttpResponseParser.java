@@ -23,10 +23,8 @@ import com.good.gd.apache.http.HttpEntity;
 import java.util.Arrays;
 
 public class HttpResponseParser {
-    public HttpResponseParser() {
-    }
 
-    public String parseContentEncoding(Header[] allHeaders, HttpEntity responseEntity) {
+    public static String parseContentEncoding(Header[] allHeaders, HttpEntity responseEntity) {
         String contentEncoding = null;
         for (int i = 0; i < allHeaders.length; i++) {
             Header header = allHeaders[i];
@@ -49,8 +47,6 @@ public class HttpResponseParser {
                 }
             }
         }
-
-
 
         return contentEncoding;
     }

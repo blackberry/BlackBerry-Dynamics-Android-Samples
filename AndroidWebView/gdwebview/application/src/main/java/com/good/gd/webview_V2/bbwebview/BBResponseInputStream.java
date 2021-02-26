@@ -18,7 +18,6 @@ package com.good.gd.webview_V2.bbwebview;
 
 import android.util.Log;
 import android.util.Pair;
-import android.webkit.WebView;
 
 import com.good.gd.apache.http.Header;
 import com.good.gd.apache.http.HttpEntity;
@@ -31,7 +30,7 @@ import com.good.gd.webview_V2.bbwebview.utils.IOhelper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,29 +39,19 @@ public class BBResponseInputStream extends InputStream {
 
     private static final String TAG = "GDWebView-" + BBResponseInputStream.class.getSimpleName();
 
-    private final HttpResponseParser httpResponseParser = new HttpResponseParser();
-    private final IOhelper ioHelper = new IOhelper();
     private Future<Pair<HttpResponse, HttpContext>> futureIS;
     private InputStream contentStream;
     private Pair<HttpResponse, HttpContext> response;
     private final AtomicBoolean reponseIsAvailable = new AtomicBoolean(false);
-    private WebView webViewRef;
     private String clientId;
 
-
-    public BBResponseInputStream(Future<Pair<HttpResponse, HttpContext>> futureIS, String clientId, WebView vw) {
-        this(futureIS,vw);
+    public BBResponseInputStream(Future<Pair<HttpResponse, HttpContext>> futureIS, String clientId) {
         this.clientId = clientId;
-    }
-
-    public BBResponseInputStream(Future<Pair<HttpResponse, HttpContext>> futureIS, WebView vwReference) {
         this.futureIS = futureIS;
-        this.webViewRef = vwReference;
     }
-
 
     @Override
-    public int read() throws IOException {
+    public int read() {
         try {
 
             if (!reponseIsAvailable.get()) {
@@ -76,19 +65,13 @@ public class BBResponseInputStream extends InputStream {
 
                 Log.i(TAG, "read() " + clientId + " IN ");
 
-                if (response != null) {
+                if (response != null && response.first != null) {
 
                     HttpResponse httpResp = response.first;
                     HttpContext httpContext = response.second;
 
-                    if(httpContext == null) return -1;
-                    Object redirect = httpContext.getAttribute("webview.redirect.url");
                     clientId = (String) httpContext.getAttribute("webview.connectionId");
                     
-                    if(redirect instanceof URI || httpResp == null) {
-                        return -1;
-                    }
-
                     StatusLine statusLine = httpResp.getStatusLine();
                     Header[] allHeaders = httpResp.getAllHeaders();
 
@@ -103,11 +86,13 @@ public class BBResponseInputStream extends InputStream {
                         Log.i(TAG, "-> read() " + clientId + " responseEntity PRESENT");
                         Log.i(TAG, "   read() " + clientId + " contentLength " + contentLength);
                         Log.i(TAG, "   read() " + clientId + " isChunked " + responseEntity.isChunked());
-                        Log.i(TAG, "-< read() " + clientId + " contentStream " + contentStream);
+                        Log.i(TAG, "   read() " + clientId + " contentStream " + contentStream);
 
-                        String contentEncoding = httpResponseParser.parseContentEncoding(allHeaders, responseEntity);
+                        String contentEncoding = HttpResponseParser.parseContentEncoding(allHeaders, responseEntity);
 
-                        contentStream = ioHelper.inputStreamDecorator(contentStream, contentEncoding);
+                        contentStream = IOhelper.inputStreamDecorator(contentStream, contentEncoding, responseEntity.isChunked());
+
+                        Log.i(TAG, "-< read() " + clientId + " contentLength " + contentLength);
 
                     } else {
                         Log.w(TAG, "read() " + clientId + " initial NO response entity PRESENT");
@@ -125,8 +110,7 @@ public class BBResponseInputStream extends InputStream {
                 return -1;
             }
 
-            InputStream inputStream = contentStream;
-            return inputStream.read();
+            return contentStream.read();
         } catch (IOException e) {
             Log.e(TAG, "read() " + clientId + " IOException: ", e);
         } catch (Exception e) {
@@ -138,7 +122,6 @@ public class BBResponseInputStream extends InputStream {
         return -1;
     }
 
-
     @Override
     public void close() throws IOException {
         Log.i(TAG, "close()");
@@ -148,8 +131,10 @@ public class BBResponseInputStream extends InputStream {
             try {
                 contentStream.close();
 
-                Log.i(TAG, "+close() io " + webViewRef);
+                Log.i(TAG, "+close(), id " + clientId);
 
+            } catch (SocketException e) {
+                Log.e(TAG, "close() contentStream call exception",e);
             } catch (IOException e) {
                 Log.e(TAG, "close() contentStream call exception",e);
             } finally {

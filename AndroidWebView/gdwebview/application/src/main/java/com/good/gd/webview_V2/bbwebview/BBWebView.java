@@ -24,9 +24,15 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.webkit.ValueCallback;
+import android.webkit.WebBackForwardList;
+import android.webkit.WebHistoryItem;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+import androidx.annotation.NonNull;
 
 import com.good.gd.webview_V2.R;
+import com.good.gd.webview_V2.bbwebview.tasks.http.GDHttpClientProvider;
 import com.good.gd.webview_V2.bbwebview.utils.DLPPolicy;
 import com.good.gd.webview_V2.bbwebview.utils.Utils;
 
@@ -34,9 +40,11 @@ import java.util.Map;
 
 public class BBWebView extends WebView {
 
-    private static final String TAG = "GDWebView-" +  BBWebView.class.getSimpleName();
+    private static final String TAG = "GDWebView-" + BBWebView.class.getSimpleName();
 
     private String lastSelectedText = "";
+
+    private BBWebViewClient webViewClient;
 
     /**
      * Construct a new WebView with a Context object.
@@ -81,6 +89,7 @@ public class BBWebView extends WebView {
     }
 
     public void init() {
+        Log.i(TAG, "init(), in");
 
         setOnDragListener(new OnDragListener() {
             @Override
@@ -91,6 +100,49 @@ public class BBWebView extends WebView {
             }
         });
 
+        webViewClient = new BBWebViewClient();
+        setWebViewClient(webViewClient);
+
+        GDHttpClientProvider.getInstance().initHttpClientsPool();
+
+        BBWebViewClient.init(this, webViewClient);
+
+        Log.i(TAG, "init(), out");
+    }
+
+    @Override
+    public void destroy() {
+        Log.i(TAG, "destroy(), in");
+
+        GDHttpClientProvider.getInstance().disposeHttpClientsPool();
+
+        webViewClient = null;
+
+        super.destroy();
+
+        Log.i(TAG, "destroy(), out");
+    }
+
+    @Override
+    public void setWebViewClient(@NonNull WebViewClient client) {
+
+        WebViewClient webViewClient = getWebViewClient();
+
+        if (webViewClient instanceof BBWebViewClient) {
+            Log.e(TAG, "setWebViewClient(), WebViewClient has already set");
+            return;
+        }
+
+        boolean isBBWebViewClientPassed = client instanceof BBWebViewClient;
+
+        if (!isBBWebViewClientPassed) {
+            Log.e(TAG, "setWebViewClient(), not allowed setting of non WebViewClient");
+            return;
+        }
+
+        Log.i(TAG, "setWebViewClient(), set WebViewClient - " + client);
+
+        super.setWebViewClient(client);
     }
 
     @Override
@@ -145,16 +197,47 @@ public class BBWebView extends WebView {
 
     @Override
     public void loadUrl(String url, Map<String, String> additionalHttpHeaders) {
-        super.loadUrl(url, additionalHttpHeaders);
+        Log.i(TAG, "loadUrl with additionalHttpHeaders - " + Utils.logUrl(url));
 
         ((BBWebViewClient) getWebViewClient()).getObserver().notifyLoadUrl(url);
+
+        super.loadUrl(url, additionalHttpHeaders);
     }
 
     @Override
     public void loadUrl(String url) {
-        super.loadUrl(url);
+        Log.i(TAG, "loadUrl - " + Utils.logUrl(url));
 
         ((BBWebViewClient) getWebViewClient()).getObserver().notifyLoadUrl(url);
+
+        super.loadUrl(url);
+    }
+
+    @Override
+    public void goBack() {
+        Log.i(TAG, "goBack(), in");
+
+        WebBackForwardList list = copyBackForwardList();
+
+        WebHistoryItem lastItem = list.getCurrentItem();
+        int index = list.getCurrentIndex();
+
+        Log.i(TAG, "goBack(), items in the list - " + list.getSize());
+
+        if (lastItem != null && index > 0) {
+            WebHistoryItem beforeTheLastItem = list.getItemAtIndex(index - 1);
+
+            Log.i(TAG, "goBack(), the last item {" + lastItem.getTitle() + " : " + lastItem.getUrl() + "}");
+            Log.i(TAG, "goBack(), before the last item {" + beforeTheLastItem.getTitle() + " : " + beforeTheLastItem.getUrl() + "}");
+
+            // Skip one item
+            if (lastItem.getUrl().equals(beforeTheLastItem.getUrl())) {
+                Log.i(TAG, "goBack(), the skip one item ");
+                super.goBack();
+            }
+        }
+
+        super.goBack();
     }
 
     private void updateTextSelection() {

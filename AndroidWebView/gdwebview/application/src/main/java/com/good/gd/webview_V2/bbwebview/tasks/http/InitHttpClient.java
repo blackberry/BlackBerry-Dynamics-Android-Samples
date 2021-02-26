@@ -48,8 +48,7 @@ public class InitHttpClient {
     };
 
     public static GDHttpClient createGDHttpClient() {
-
-        Log.i(TAG, "GDHttpClient >>");
+        Log.i(TAG, "createGDHttpClient");
 
         final GDHttpClient httpClient = new GDHttpClient();
 
@@ -65,7 +64,6 @@ public class InitHttpClient {
 
         CertificateHandler.getInstance().addCertificateListener(GLOBAL_CERTIFICATE_STORE_LISTENER);
 
-        Log.i(TAG, "GDHttpClient <<");
         return httpClient;
     }
 }

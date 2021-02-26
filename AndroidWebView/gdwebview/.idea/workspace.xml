@@ -12,15 +12,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="768a3b4c-6f34-4663-a453-2d8bed492a34" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/good/gd/webview_V2/bbwebview/BBResponseInputStream.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/good/gd/webview_V2/bbwebview/BBResponseInputStream.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/good/gd/webview_V2/bbwebview/tasks/http/GDHttpClientProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/good/gd/webview_V2/bbwebview/tasks/http/GDHttpClientProvider.java" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="712KPXV1097586" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[1164276555]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -57,9 +59,6 @@
       </state>
     </system>
   </component>
-  <component name="FavoritesManager">
-    <favorites_list name="com.example.jahawkins.webviewspike" />
-  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -74,6 +73,10 @@
   </component>
   <component name="ProjectId" id="1YkuxSlDjvSq0IfMwee242Dsk0y" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
     <property name="DEBUGGABLE_DEVICE" value="google-pixel_2_xl-712KPXV1097586" />
     <property name="DEBUGGABLE_PROCESS" value="com.good.gd.example.apachehttp" />
@@ -82,8 +85,10 @@
     <property name="DeviceAndSnapshotComboBoxAction.selectionTime" value="2020-03-27T13:18:30.453Z" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="SHOW_ALL_PROCESSES" value="false" />
+    <property name="android-custom-viewC:/Users/msohm/Downloads/gitlabWebview/dynamicswebview/gdwebview/application/src/main/java/com/good/gd/webview_V2/bbwebview/BBWebView.java_SELECTED" value="BBWebView" />
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/build.gradle" />
+    <property name="multi-representation-previewC:/Users/msohm/Downloads/gitlabWebview/dynamicswebview/gdwebview/application/src/main/java/com/good/gd/webview_V2/bbwebview/BBWebView.java_selected" value="Custom views" />
     <property name="not.eligible.for.single.variant.sync" value="true" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.17" />
@@ -105,19 +110,13 @@
       <recent name="$PROJECT_DIR$/application" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
-  </component>
-  <component name="RunManager" selected="Android App.gdwebview-application">
+  <component name="RunManager" selected="Android App.application">
+    <configuration default="true" type="Applet">
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <module name="" />
@@ -150,12 +149,13 @@
       </method>
     </configuration>
     <configuration name="application" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
-      <module name="application" />
+      <module name="gdwebview.application" />
       <option name="DEPLOY" value="true" />
       <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
       <option name="DEPLOY_AS_INSTANT" value="false" />
       <option name="ARTIFACT_NAME" value="" />
       <option name="PM_INSTALL_OPTIONS" value="" />
+      <option name="ALL_USERS" value="false" />
       <option name="DYNAMIC_FEATURES_DISABLED_LIST" value="" />
       <option name="ACTIVITY_EXTRA_FLAGS" value="" />
       <option name="MODE" value="default_activity" />
@@ -191,11 +191,16 @@
       </Native>
       <Profilers>
         <option name="ADVANCED_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_PROFILING_ENABLED" value="false" />
         <option name="STARTUP_CPU_PROFILING_ENABLED" value="false" />
         <option name="STARTUP_CPU_PROFILING_CONFIGURATION_NAME" value="Sample Java Methods" />
+        <option name="STARTUP_NATIVE_MEMORY_PROFILING_ENABLED" value="false" />
+        <option name="NATIVE_MEMORY_SAMPLE_RATE_BYTES" value="2048" />
       </Profilers>
       <option name="DEEP_LINK" value="" />
       <option name="ACTIVITY_CLASS" value="" />
+      <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
+      <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
       <method v="2">
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
       </method>
@@ -207,6 +212,7 @@
       <option name="DEPLOY_AS_INSTANT" value="false" />
       <option name="ARTIFACT_NAME" value="" />
       <option name="PM_INSTALL_OPTIONS" value="" />
+      <option name="ALL_USERS" value="false" />
       <option name="DYNAMIC_FEATURES_DISABLED_LIST" value="" />
       <option name="ACTIVITY_EXTRA_FLAGS" value="" />
       <option name="MODE" value="default_activity" />
@@ -242,19 +248,18 @@
       </Native>
       <Profilers>
         <option name="ADVANCED_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_PROFILING_ENABLED" value="false" />
         <option name="STARTUP_CPU_PROFILING_ENABLED" value="false" />
         <option name="STARTUP_CPU_PROFILING_CONFIGURATION_NAME" value="Sample Java Methods" />
+        <option name="STARTUP_NATIVE_MEMORY_PROFILING_ENABLED" value="false" />
+        <option name="NATIVE_MEMORY_SAMPLE_RATE_BYTES" value="2048" />
       </Profilers>
       <option name="DEEP_LINK" value="" />
       <option name="ACTIVITY_CLASS" value="" />
+      <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
+      <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
       <method v="2">
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="Applet">
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <method v="2">
-        <option name="Make" enabled="true" />
       </method>
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -309,20 +314,64 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="COLUMN_ORDER" />
-            </State>
+            <State />
           </value>
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <option name="LOCAL_CHANGES_DETAILS_PREVIEW_SHOWN" value="true" />
     <MESSAGE value="pubSubWIP" />
     <option name="LAST_COMMIT_MESSAGE" value="pubSubWIP" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="669" y="166" key="#gdwebview-application" timestamp="1609775136216">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state x="669" y="166" key="#gdwebview-application/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1609775136216" />
+    <state x="751" y="326" key="AndroidProcessChooserDialog" timestamp="1609865216231">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state x="751" y="326" key="AndroidProcessChooserDialog/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1609865216231" />
+    <state width="1874" height="430" key="GridCell.Tab.0.bottom" timestamp="1609873009218">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state width="1874" height="430" key="GridCell.Tab.0.bottom/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1609873009218" />
+    <state width="1874" height="430" key="GridCell.Tab.0.center" timestamp="1609873009218">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state width="1874" height="430" key="GridCell.Tab.0.center/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1609873009218" />
+    <state width="1874" height="430" key="GridCell.Tab.0.left" timestamp="1609873009218">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state width="1874" height="430" key="GridCell.Tab.0.left/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1609873009218" />
+    <state width="1874" height="430" key="GridCell.Tab.0.right" timestamp="1609873009218">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state width="1874" height="430" key="GridCell.Tab.0.right/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1609873009218" />
+    <state width="1874" height="430" key="GridCell.Tab.1.bottom" timestamp="1609872977179">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state width="1874" height="430" key="GridCell.Tab.1.bottom/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1609872977179" />
+    <state width="1874" height="430" key="GridCell.Tab.1.center" timestamp="1609872977179">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state width="1874" height="430" key="GridCell.Tab.1.center/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1609872977179" />
+    <state width="1874" height="430" key="GridCell.Tab.1.left" timestamp="1609872977179">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state width="1874" height="430" key="GridCell.Tab.1.left/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1609872977179" />
+    <state width="1874" height="430" key="GridCell.Tab.1.right" timestamp="1609872977179">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state width="1874" height="430" key="GridCell.Tab.1.right/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1609872977179" />
+    <state x="667" y="313" width="599" height="534" key="find.popup" timestamp="1609859035012">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state x="667" y="313" width="599" height="534" key="find.popup/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1609859035012" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -331,6 +380,16 @@
           <url>file://$PROJECT_DIR$/application/src/main/java/com/good/gd/webview_V2/bbwebview/Utils.java</url>
           <line>76</line>
           <option name="timeStamp" value="23" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+          <url>file://$PROJECT_DIR$/application/src/main/java/com/good/gd/webview_V2/bbwebview/tasks/http/GDHttpClientProvider.java</url>
+          <line>405</line>
+          <option name="timeStamp" value="25" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+          <url>file://$PROJECT_DIR$/application/src/main/java/com/good/gd/webview_V2/bbwebview/tasks/http/GDHttpClientProvider.java</url>
+          <line>406</line>
+          <option name="timeStamp" value="26" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

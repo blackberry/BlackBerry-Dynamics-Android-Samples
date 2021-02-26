@@ -17,13 +17,15 @@
 package com.good.gd.webview_V2.bbwebview.tasks.http;
 
 import android.util.Log;
+import android.util.Pair;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 
+import com.good.gd.apache.http.HttpResponse;
+import com.good.gd.apache.http.protocol.HttpContext;
 import com.good.gd.net.GDHttpClient;
-import com.good.gd.webview_V2.bbwebview.WebClientObserver;
 
 import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
 import org.apache.commons.pool2.KeyedPooledObjectFactory;
@@ -48,7 +50,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 // Class to manage httpclient objects
 // There is a dedicated thread per each GDHttpClient
-public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, WebClientObserver.OnLoadUrl {
+public class GDHttpClientProvider {
 
     // Interface to execute operations on GDHttpClient on it's own thread
     public interface ClientCallback<R> {
@@ -59,7 +61,7 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
         R doInClientThread(I arg);
     }
 
-    // pojo class containg related objects
+    // pojo class containing related objects
     private static class Client {
         private ConnectionPool.HostPortKey hostPort;
         private String id;// random UID
@@ -70,7 +72,7 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
         private WebResourceResponse response;// related WebResourceResponse, this is used for redirection cases
     }
 
-    private static class Instance {
+    public static class Instance {
         private final static GDHttpClientProvider GD_HTTP_CLIENT_PROVIDER = new GDHttpClientProvider();
     }
 
@@ -86,6 +88,7 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
     // key: UUID | value: Client object
     private final Map<String, Client> clientsMap = new ConcurrentHashMap<>();
     private final ConnectionPool connectionPool = new ConnectionPool();
+    private final Map<ConnectionPool.ResponseId, Future<Pair<HttpResponse, HttpContext>>> cachedResponses = new ConcurrentHashMap<>();
 
     private final AtomicBoolean intCalled = new AtomicBoolean(false);
 
@@ -139,38 +142,8 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
         return null;
     }
 
-    @Override
-    public void onPageFinished(WebView view, String url) {
-        Log.i(TAG_SHARED_Q,"onPageFinished, IN new url = " + url);
-
-        // Clear idle clients from the pool
-        connectionPool.pool.clear();
-
-        Log.i(TAG_SHARED_Q,"onPageFinished, OUT");
-    }
-
-    @Override
-    public void onLoadUrl(String url) {
-        Log.i(TAG_SHARED_Q,"onLoadUrl, IN new url = " + url);
-
-        // Release active clients in the pool
-        for (Map.Entry<String, Client> entry : clientsMap.entrySet()) {
-            Client client = entry.getValue();
-            if (isClientValid(client)) {
-                Log.i(TAG_SHARED_Q,"onLoadUrl, release host: " + client.hostPort);
-                releasePooledClient(client.id);
-            }
-        }
-
-        // Clear idle clients in the pool
-        connectionPool.pool.clear();
-
-        Log.i(TAG_SHARED_Q,"onLoadUrl, OUT");
-    }
-
     public void releasePooledClient(String clientId) {
-        Log.i(TAG_SHARED_Q,"releasePooledClient, IN release = " + clientId + " idle = " + connectionPool.pool.getNumIdle()
-                + " active = " + connectionPool.pool.getNumActive());
+        Log.i(TAG_SHARED_Q,"releasePooledClient, IN ");
         try {
             Client client = clientsMap.get(clientId);
 
@@ -178,10 +151,22 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
 
                 if (connectionPool.pool == null) {
                     Log.i(TAG_SHARED_Q,"release, pool is null, shutdown http client = " + client.httpClient.hashCode());
+
                     client.httpClient.getConnectionManager().shutdown();
                     client.httpClient = null;
                     return;
                 }
+
+                // Check if the response associated with clientId not in the cache
+                for (Map.Entry<ConnectionPool.ResponseId, Future<Pair<HttpResponse, HttpContext>>>  resp : cachedResponses.entrySet()) {
+                    if (resp.getKey().clientId.equals(clientId)) {
+                        Log.i(TAG, "releasePooledClient, skip release of client with id " + clientId);
+                        return;
+                    }
+                }
+
+                Log.i(TAG_SHARED_Q,"releasePooledClient, release = " + clientId + " idle = " + connectionPool.pool.getNumIdle()
+                        + " active = " + connectionPool.pool.getNumActive());
 
                 connectionPool.pool.returnObject(client.hostPort, clientId);
 
@@ -194,8 +179,7 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
             e.printStackTrace();
         }
 
-        Log.i(TAG_SHARED_Q,"releasePooledClient, OUT release = " + clientId + " idle = " + connectionPool.pool.getNumIdle()
-                + " active = " + connectionPool.pool.getNumActive());
+        Log.i(TAG_SHARED_Q,"releasePooledClient, OUT release = " + clientId);
     }
 
     private boolean isClientValid(Client client) {
@@ -278,32 +262,61 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
     }
 
     // Caches WebResourceResponse for a redirected page
-    public synchronized void cacheResponseData(String connectionId, final WebResourceResponse wrResp) {
-        Log.i(TAG, "cacheResponseData " + connectionId + " " + wrResp);
+    public synchronized void cacheResponseData(String locationUrl, String clientId, final Future<Pair<HttpResponse, HttpContext>> response) {
+        Log.i(TAG, "cacheResponseData, locationUrl - " + locationUrl + ", clientId - " + clientId);
 
-        final Client client = clientsMap.get(connectionId);
-        if(client != null) {
-            client.response = wrResp;
-            Log.i(TAG, "cacheResponseData " + wrResp);
-        } else {
-            throw new RuntimeException("no client for id: [" + connectionId + "]");
+        for (Map.Entry<ConnectionPool.ResponseId, Future<Pair<HttpResponse, HttpContext>>>  resp : cachedResponses.entrySet()) {
+            if (resp.getKey().locationUrl.equals(locationUrl)) {
+                Log.e(TAG, "cacheResponseData, response is already in the cache");
+                return;
+            }
         }
+
+        cachedResponses.put(new ConnectionPool.ResponseId(locationUrl, clientId), response);
+
+        Log.i(TAG, "cacheResponseData, response is cached");
     }
 
     // Provides the WebResourceResponse for redirected url
-    public synchronized WebResourceResponse fetchCachedWebResponse(String clientId){
-        Log.i(TAG, "fetchCachedWebResponse " + clientId);
-        final Client client = clientsMap.get(clientId);
-        if(client != null) {
-            WebResourceResponse response = client.response;
+    public synchronized Future<Pair<HttpResponse, HttpContext>> fetchCachedWebResponse(String locationUrl){
+        Log.i(TAG, "fetchCachedWebResponse " + locationUrl);
 
-            Log.i(TAG, "fetchCachedWebResponse " + response);
-            client.response = null;
+        ConnectionPool.ResponseId key = null;
+        Future<Pair<HttpResponse, HttpContext>> value = null;
 
-            return response;
+        for (Map.Entry<ConnectionPool.ResponseId, Future<Pair<HttpResponse, HttpContext>>>  resp : cachedResponses.entrySet()) {
+            if (resp.getKey().locationUrl.equals(locationUrl)) {
+
+                key = resp.getKey();
+                value = resp.getValue();
+
+                Log.i(TAG, "cacheResponseData, response is found in the cache - " + key.clientId + " " + key.locationUrl);
+                break;
+            }
         }
 
-        return null;
+        if (key != null) {
+            // Clear cache
+            cachedResponses.remove(key);
+        } else {
+            Log.e(TAG, "cacheResponseData, response is NOT found in the cache");
+        }
+
+        return value;
+    }
+
+    public synchronized boolean hasCachedResponse(String locationUrl) {
+        Log.i(TAG, "hasCachedResponse " + locationUrl);
+
+        for (Map.Entry<ConnectionPool.ResponseId, Future<Pair<HttpResponse, HttpContext>>>  resp : cachedResponses.entrySet()) {
+            if (resp.getKey().locationUrl.equals(locationUrl)) {
+                Log.i(TAG, "hasCachedResponse " + locationUrl + ", result true");
+                return true;
+            }
+        }
+
+        Log.i(TAG, "hasCachedResponse " + locationUrl + ", result false");
+        return false;
     }
 
     private static class ConnectionPool {
@@ -328,7 +341,7 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
         private final Set<GDHttpClient> httpClientIdlePool = ConcurrentHashMap.newKeySet();
         private final Set<GDHttpClient> httpClientActivePool = ConcurrentHashMap.newKeySet();
 
-        private final ExecutorService executor = Executors.newSingleThreadExecutor();
+        private ExecutorService executor;
 
         public void init() {
 
@@ -337,6 +350,10 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
             if (pool != null) {
                 Log.e(TAG_SHARED_Q,"init, pool is initialized, return");
                 return;
+            }
+
+            if (executor == null) {
+                executor = Executors.newSingleThreadExecutor();
             }
 
             httpClientsFactory = new BaseKeyedPooledObjectFactory<HostPortKey, String>() {
@@ -422,25 +439,17 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
             pool.clear();
             pool = null;
 
-            WebView webView = GDHttpClientProvider.getInstance().webViewRef.get();
+            Log.i(TAG_SHARED_Q,"releasePool, active pool size = " + httpClientActivePool.size());
+
             ShutDownHttpClientTask task = new ShutDownHttpClientTask(httpClientActivePool);
-
-            if (webView != null) {
-                Log.i(TAG_SHARED_Q,"releasePool, execute on WebView thread");
-                webView.post(task);
-            } else {
-                Log.i(TAG_SHARED_Q,"releasePool, execute on single thread executor");
-
-                executor.submit(task);
-                executor.shutdown();
-            }
+            executor.submit(task);
 
             httpClientIdlePool.clear();
             httpClientActivePool.clear();
-            GDHttpClientProvider.getInstance().clientsMap.clear();
 
             // Shutdown executor
             executor.shutdown();
+            executor = null;
 
             Log.i(TAG_SHARED_Q,"releasePool, OUT ");
         }
@@ -449,7 +458,7 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
          * Retrieves first available http client from pool
          * @return
          */
-        private GDHttpClient getPooledHttpClient() {
+        private GDHttpClient getIdleHttpClient() {
             Iterator<GDHttpClient> iterator = httpClientIdlePool.iterator();
             if (iterator.hasNext()) {
                 return iterator.next();
@@ -460,7 +469,7 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
         private void setHttpClient(Client client) {
             Log.i(TAG_SHARED_Q,"< setHttpClient id: " + client.id);
             synchronized (setHttpClientLock) {
-                GDHttpClient httpClient = getPooledHttpClient();
+                GDHttpClient httpClient = getIdleHttpClient();
                 if (httpClient != null) {
                     Log.i(TAG_SHARED_Q, "setHttpClient, retrieved from the pool, http client = " + httpClient.hashCode());
 
@@ -500,6 +509,16 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
                         + ( (client != null) ? " client = " + client.hashCode() : " clients = " + clients.size()));
 
                 if (client != null) {
+
+                    boolean isClientInActivePool = GDHttpClientProvider.getInstance()
+                            .connectionPool.httpClientActivePool.contains(client);
+
+                    // Client is already released
+                    if (!isClientInActivePool) {
+                        Log.e(TAG_SHARED_Q, "shutDownHttpClientTask, client - " + client.hashCode() + " is not in active pool, return");
+                        return;
+                    }
+
                     client.getConnectionManager().shutdown();
 
                     // Can safe remove from the pool
@@ -508,7 +527,11 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
 
                     client = null;
 
+                    Log.e(TAG_SHARED_Q, "shutDownHttpClientTask, client is shut downed - " + client.hashCode());
+
                 } else {
+                    Log.i(TAG_SHARED_Q, "shutDownHttpClientTask, client size = " + clients.size());
+
                     for (GDHttpClient httpClient : clients) {
                         if (httpClient != null) {
                             Log.i(TAG_SHARED_Q, "shutDownHttpClientTask, shutdown client = " + httpClient.hashCode());
@@ -552,6 +575,17 @@ public class GDHttpClientProvider implements WebClientObserver.OnPageFinished, W
             public String toString() {
                 return "{" + host + " : " + port + "}";
             }
+        }
+
+        private static class ResponseId {
+            private String locationUrl;
+            private String clientId;
+
+            public ResponseId(String locationUrl, String clientId) {
+                this.locationUrl = locationUrl;
+                this.clientId = clientId;
+            }
+
         }
 
     }

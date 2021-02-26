@@ -27,6 +27,12 @@ class BBChromeClient extends WebChromeClient {
 
     private static final String TAG = "GDWebView-" + BBChromeClient.class.getSimpleName();
 
+    private WebClientObserver clientObserver;
+
+    public BBChromeClient(WebClientObserver clientObserver) {
+        this.clientObserver = clientObserver;
+    }
+
     @Override
     public boolean onConsoleMessage(android.webkit.ConsoleMessage consoleMessage) {
 
@@ -46,4 +52,11 @@ class BBChromeClient extends WebChromeClient {
         return true;
     }
 
+    @Override
+    public void onProgressChanged(WebView view, int newProgress) {
+
+        Log.i(TAG, "onProgressChanged: url " + view.getUrl() + " progress " + newProgress);
+
+        clientObserver.notifyProgressChanged(newProgress);
+    }
 }

@@ -4,21 +4,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:layout_margin="10dp"
+    android:id="@+id/home_activity"
     tools:context="com.good.gd.webview_V2.HomeActivity">
 
     <EditText
         android:id="@+id/url"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
         android:layout_marginTop="50dp"
         android:hint="Please enter URL"/>
 
-    <Button
-        android:id="@+id/button_home"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:text="Go to WebView" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/go_to_webview_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Go to WebView" />
+
+        <Button
+            android:id="@+id/button_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Clear input field" />
+
+    </LinearLayout>
 
 </LinearLayout>
