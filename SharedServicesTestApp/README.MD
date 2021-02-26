@@ -29,7 +29,7 @@ To contribute code to this repository you must be signed up as an official contr
 
 **This sample was tested with the following environment:**
 - BlackBerry Dynamics SDK 9.0.0.72
-- Android Studio 4.1.1
+- Android Studio 4.1.2
 - Android 10.0.0
 
 

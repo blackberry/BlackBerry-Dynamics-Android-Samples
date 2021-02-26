@@ -20,8 +20,8 @@ If you'd like to learn more about BlackBerry UEM, be sure to head on over to our
 * To contribute code to this repository you must be [signed up as an official contributor](http://blackberry.github.com/howToContribute.html).
 
 **This sample was tested with the following environment:**
-- BlackBerry Dynamics SDK 6.0.1.83
-- Android Studio 3.4.2
+- BlackBerry Dynamics SDK 9.0.0.72
+- Android Studio 4.1.2
 - Android 8.1.0
 
 **How to Open the Project**

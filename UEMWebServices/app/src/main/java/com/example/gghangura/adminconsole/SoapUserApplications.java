@@ -1,4 +1,4 @@
-/* Copyright (c) 2017 BlackBerry Ltd.
+/* Copyright (c) 2021 BlackBerry Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * limitations under the License.
  *
  */
+
 package com.example.gghangura.adminconsole;
 
 import androidx.appcompat.app.AppCompatActivity;

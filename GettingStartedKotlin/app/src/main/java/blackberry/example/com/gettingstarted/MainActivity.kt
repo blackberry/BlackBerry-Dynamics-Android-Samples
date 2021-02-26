@@ -1,4 +1,4 @@
-/* Copyright (c) 2019 BlackBerry Ltd.
+/* Copyright (c) 2021 BlackBerry Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,19 @@
 
 package blackberry.example.com.gettingstarted
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
-import com.google.android.material.tabs.TabLayout
+import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.tabs.TabLayout
 
 class MainActivity : AppCompatActivity() {
 
@@ -54,6 +59,17 @@ class MainActivity : AppCompatActivity() {
 
         val tabLayout = findViewById(R.id.tabs) as TabLayout
         tabLayout.setupWithViewPager(mViewPager)
+
+        val restrictionsFilter = IntentFilter(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED)
+
+        val restrictionsReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                Log.d("MainActivity", "Policy update")
+                PolicyFragment.newInstance().updatePolicy()
+            }
+        }
+
+        registerReceiver(restrictionsReceiver, restrictionsFilter)
     }
 
     /**
@@ -71,13 +87,14 @@ class MainActivity : AppCompatActivity() {
                 1 -> SqlFragment.newInstance()
                 2 -> HttpFragment.newInstance()
                 3 -> SocketFragment.newInstance()
+                4 -> PolicyFragment.newInstance()
                 else -> null
             }
         }
 
         override fun getCount(): Int {
-            // Show 4 total pages.
-            return 4
+            // Show 5 total pages.
+            return 5
         }
 
         override fun getPageTitle(position: Int): CharSequence? {
@@ -86,6 +103,7 @@ class MainActivity : AppCompatActivity() {
                 1 -> "Storage - SQL"
                 2 -> "Network - HTTP"
                 3 -> "Network - Socket"
+                4 -> "App - Policy"
                 else -> null
             }
         }

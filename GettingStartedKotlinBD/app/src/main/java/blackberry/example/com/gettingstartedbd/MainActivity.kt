@@ -1,6 +1,24 @@
+/* Copyright (c) 2021 BlackBerry Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package blackberry.example.com.gettingstartedbd
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import com.google.android.material.tabs.TabLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -8,10 +26,9 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.good.gd.GDAndroid
-import com.good.gd.GDStateListener
+import com.good.gd.*
 
-class MainActivity : AppCompatActivity(), GDStateListener {
+class MainActivity : AppCompatActivity(), GDStateListener  {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +72,10 @@ class MainActivity : AppCompatActivity(), GDStateListener {
 
     override fun onUpdateEntitlements() {}
 
-    override fun onUpdatePolicy(p0: MutableMap<String, Any>?) {}
+    override fun onUpdatePolicy(p0: MutableMap<String, Any>?) {
+        Toast.makeText(this, "Policy update", Toast.LENGTH_SHORT).show()
+        PolicyFragment.newInstance().updatePolicy()
+    }
 
     /**
      * A [FragmentPagerAdapter] that returns a fragment corresponding to
@@ -72,13 +92,14 @@ class MainActivity : AppCompatActivity(), GDStateListener {
                 1 -> SqlFragment.newInstance()
                 2 -> HttpFragment.newInstance()
                 3 -> SocketFragment.newInstance()
+                4 -> PolicyFragment.newInstance()
                 else -> null
             }
         }
 
         override fun getCount(): Int {
-            // Show 4 total pages.
-            return 4
+            // Show 5 total pages.
+            return 5
         }
 
         override fun getPageTitle(position: Int): CharSequence? {
@@ -87,6 +108,7 @@ class MainActivity : AppCompatActivity(), GDStateListener {
                 1 -> "Storage - SQL"
                 2 -> "Network - HTTP"
                 3 -> "Network - Socket"
+                4 -> "GD - Policy"
                 else -> null
             }
         }

@@ -17,4 +17,6 @@
 
 <resources>
     <string name="app_name">Getting Started Kotlin</string>
+    <string name="restriction_title">Restriction Title</string>
+    <string name="restriction_description">Restriction description</string>
 </resources>

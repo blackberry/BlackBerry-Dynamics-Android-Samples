@@ -16,8 +16,8 @@ Contributing
 To contribute code to this repository you must be signed up as an official contributor.
 
 **This sample was tested with the following environment:**
-- BlackBerry Dynamics SDK 6.0.1.83
-- Android Studio 3.4.2
+- BlackBerry Dynamics SDK 9.0.0.72
+- Android Studio 4.1.2
 - Android 8.1.0
 
 

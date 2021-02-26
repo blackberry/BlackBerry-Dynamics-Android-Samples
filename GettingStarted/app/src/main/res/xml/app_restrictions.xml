@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<restrictions xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+    Refer to the javadoc of RestrictionsManager for detail of this file.
+    https://developer.android.com/reference/android/content/RestrictionsManager.html
+    -->
+
+    <restriction
+            android:defaultValue="false"
+            android:description="@string/restriction_description"
+            android:key="Pers"
+            android:restrictionType="bool"
+            android:title="@string/restriction_title" />
+    <restriction
+            android:defaultValue="true"
+            android:description="@string/restriction_description"
+            android:key="Press"
+            android:restrictionType="bool"
+            android:title="@string/restriction_title" />
+    <restriction
+            android:defaultValue="true"
+            android:description="@string/restriction_description"
+            android:key="Proj"
+            android:restrictionType="bool"
+            android:title="@string/restriction_title" />
+    <restriction
+            android:defaultValue="false"
+            android:description="@string/restriction_description"
+            android:key="Sales"
+            android:restrictionType="bool"
+            android:title="@string/restriction_title" />
+
+</restrictions>

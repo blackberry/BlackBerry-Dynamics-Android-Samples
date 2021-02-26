@@ -1,4 +1,4 @@
-/* Copyright (c) 2018 BlackBerry Ltd.
+/* Copyright (c) 2021 BlackBerry Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,15 @@
 
 package blackberry.example.com.gettingstarted;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.RestrictionsManager;
 import android.os.Bundle;
+import android.service.restrictions.RestrictionsReceiver;
+import android.util.Log;
+
 import com.google.android.material.tabs.TabLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -64,6 +72,17 @@ public class MainActivity extends AppCompatActivity
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
+        IntentFilter restrictionsFilter = new IntentFilter(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED);
+
+        BroadcastReceiver restrictionsReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d("MainActivity", "Policy update");
+                PolicyFragment.newInstance().updatePolicy();
+            }
+        };
+
+        registerReceiver(restrictionsReceiver, restrictionsFilter);
     }
 
     /**
@@ -94,6 +113,8 @@ public class MainActivity extends AppCompatActivity
                     return HttpFragment.newInstance();
                 case 3:
                     return SocketFragment.newInstance();
+                case 4:
+                    return PolicyFragment.newInstance();
             }
 
             return null;
@@ -103,8 +124,8 @@ public class MainActivity extends AppCompatActivity
         @Override
         public int getCount()
         {
-            // Show 4 total pages.
-            return 4;
+            // Show 5 total pages.
+            return 5;
         }
 
         @Override
@@ -120,6 +141,8 @@ public class MainActivity extends AppCompatActivity
                     return "Network - HTTP";
                 case 3:
                     return "Network - Socket";
+                case 4:
+                    return "App - Policy";
             }
             return null;
         }
