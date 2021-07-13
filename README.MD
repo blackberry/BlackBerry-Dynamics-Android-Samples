@@ -40,6 +40,7 @@ The table below describes the main features each sample demonstrates and notes i
 | [SharedServicesTestApp](./SharedServicesTestApp)             | Demonstrates how various BlackBerry Dynamics Shared Services (also known as AppKinetics). | No                      |
 | [TheConfigurator](https://github.com/blackberry/BlackBerry-Dynamics-Android-Samples/tree/master/TheConfigurator) | Demonstrates how to use a custom App Policy uploaded into the BlackBerry UEM Admin Console, which can be used to remotely configure an application. | No                      |
 | [UEMWebServices](https://github.com/blackberry/BlackBerry-Dynamics-Android-Samples/tree/master/UEMWebServices) | Demonstrates various REST APIs including authentication to UEM, automating administrative tasks, and integrations with BlackBerry UEM. | No                      |
+| [WebView_BDSDK](https://github.com/blackberry/BlackBerry-Dynamics-Android-Samples/tree/master/WebView_BDSDK) | This sample demonstrates the use of com.blackberry.bbwebview.BBWebView, which extends [android.webkit.WebView](https://developer.android.com/reference/android/webkit/WebView) and provides BlackBerry Dynamics network connectivity. The com.blackberry.bbwebview.BBWebView class is based off of the BlackBerry open source [AndroidWebView](https://github.com/blackberry/BlackBerry-Dynamics-Android-Samples/tree/master/AndroidWebView) sample, which can be used if customization of the WebView is required. | No                      |
 
 
 
