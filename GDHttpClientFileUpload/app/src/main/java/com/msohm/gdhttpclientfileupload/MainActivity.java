@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements GDStateListener {
     //The URL of the form the file is uploaded too.
     //This sample makes use of Post Test Server V2.  Go to http://ptsv2.com/, create your own
     //instance and adjust the URL below accordingly.
-    private static final String UPLOAD_URL = "http://ptsv2.com/t/6sqd6-1607631196/post";
+    private static final String UPLOAD_URL = "http://ptsv2.com/t/<YOUR_ID>/post";
 
     //The boundary for our multipart form.  This can be any unique ASCII value.
     public static final String BOUNDARY = "----123456789987654321";

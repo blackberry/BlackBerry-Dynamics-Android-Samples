@@ -18,7 +18,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="blackberry.example.com.gettingstartedbd">
+          package="blackberry.example.com.gettingstartedkotlinbd">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -29,7 +29,8 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="false"
             android:theme="@style/AppTheme">
-        <activity android:name="blackberry.example.com.gettingstartedbd.MainActivity">
+        <activity android:name=".MainActivity"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

@@ -7,7 +7,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.2'
+        classpath 'com.android.tools.build:gradle:7.0.3'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -19,13 +19,7 @@ allprojects {
         google()
         jcenter()
 
-        def localProperties = new File(rootDir, "local.properties")
-        Properties properties = new Properties()
-        localProperties.withInputStream { instr ->
-            properties.load(instr)
-        }
-        def sdkDir = properties.getProperty('sdk.dir')
-        maven { url sdkDir+'/extras/blackberry/dynamics_sdk/m2repository' }
+        maven { url "https://software.download.blackberry.com/repository/maven/" }
     }
 }
 

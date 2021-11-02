@@ -17,6 +17,7 @@
 package com.msohm.blackberry.samples.presencedemo;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
@@ -31,6 +32,7 @@ import com.good.gd.GDStateListener;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Vector;
 
 public class MainActivity extends AppCompatActivity implements GDStateListener
@@ -39,6 +41,9 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
     //The service IDs.
     private static final String PRESENCE_SERVICE = "com.good.gdservice.enterprise.presence";
 
+    //Keys used for SharedPreferences.
+    public static final String SECURE_STORE_SHARED_PREFS = "bems.pres.sp";
+    public static final String DEVICE_ID_UUID_KEY = "device.id.uuid.key";
 
     //ArrayLists to hold the server details.
     ArrayList<BemsServer> presenceServers = new ArrayList<>();
@@ -196,7 +201,17 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
     }
 
     @Override
-    public void onAuthorized() {  }
+    public void onAuthorized() {
+        //Create a UUID and store in GD Shared Preferences.
+
+        SharedPreferences sp = GDAndroid.getInstance().getGDSharedPreferences(SECURE_STORE_SHARED_PREFS,
+                android.content.Context.MODE_PRIVATE);
+
+        if (!sp.contains(DEVICE_ID_UUID_KEY))
+        {
+            sp.edit().putString(SECURE_STORE_SHARED_PREFS, UUID.randomUUID().toString());
+        }
+    }
 
     @Override
     public void onLocked() {  }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/clear_cookies"
+        android:title="@string/clear_cookies"/>
+    <item android:id="@+id/stop_loading"
+        android:title="@string/stop_loading" />
+    <item android:id="@+id/clear_url_input"
+        android:title="@string/clear_url_input" />
+</menu>

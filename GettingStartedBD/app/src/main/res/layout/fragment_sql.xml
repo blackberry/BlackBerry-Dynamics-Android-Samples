@@ -58,7 +58,7 @@
 
     </LinearLayout>
 
-    <TextView
+    <com.good.gd.widget.GDTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"

@@ -25,12 +25,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.good.gd.apache.http.HttpResponse;
 import com.good.gd.apache.http.client.methods.HttpGet;
 import com.good.gd.net.GDHttpClient;
+import com.good.gd.widget.GDEditText;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,7 +83,7 @@ public class HttpFragment extends Fragment
         //Enable scrolling in the resultView.
         resultView.setMovementMethod(new ScrollingMovementMethod());
 
-        final EditText theUrl = (EditText) view.findViewById(R.id.theUrl);
+        final GDEditText theUrl = (GDEditText) view.findViewById(R.id.theUrl);
 
         final Button loadButton = (Button) view.findViewById(R.id.loadButton);
         loadButton.setOnClickListener(new View.OnClickListener() {

@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="false"
         android:theme="@style/Theme.WebView_BDSDK">
-        <activity android:name="com.bbexample.webview_bdsdk.MainActivity">
+        <activity android:name="com.bbexample.webview_bdsdk.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

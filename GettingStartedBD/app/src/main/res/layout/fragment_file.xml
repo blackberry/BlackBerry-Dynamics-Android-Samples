@@ -61,7 +61,7 @@
 
     </LinearLayout>
 
-    <TextView
+    <com.good.gd.widget.GDTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -71,7 +71,7 @@
         android:paddingTop="20dp"
         android:paddingBottom="20dp"/>
 
-    <EditText
+    <com.good.gd.widget.GDEditText
         android:layout_width="fill_parent"
         android:layout_height="246dp"
         android:id="@+id/fileContents"

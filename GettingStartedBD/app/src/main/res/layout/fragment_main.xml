@@ -27,7 +27,7 @@
                 android:paddingTop="@dimen/activity_vertical_margin"
                 tools:context="blackberry.example.com.gettingstartedbd.MainActivity$PlaceholderFragment">
 
-    <TextView
+    <com.good.gd.widget.GDTextView
         android:id="@+id/section_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>

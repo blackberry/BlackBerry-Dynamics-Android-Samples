@@ -20,6 +20,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -282,9 +283,10 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
         //Required - Set the GD auth token to authenticate with the presence server.
         headers.add(new BasicHeader("X-Good-GD-AuthToken", gdAuthToken));
 
-        //Use the device's IMEI as its unique identifier.
-        TelephonyManager telManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        headers.add(new BasicHeader("X-Good-DeviceId", telManager.getDeviceId()));
+        //Get the generated UUID.
+        SharedPreferences sp = GDAndroid.getInstance().getGDSharedPreferences(MainActivity.SECURE_STORE_SHARED_PREFS,
+                android.content.Context.MODE_PRIVATE);
+        headers.add(new BasicHeader("X-Good-DeviceId", sp.getString(MainActivity.DEVICE_ID_UUID_KEY, "")));
 
         //Set the accept headers
         headers.add(new BasicHeader("Accept", "application/json"));

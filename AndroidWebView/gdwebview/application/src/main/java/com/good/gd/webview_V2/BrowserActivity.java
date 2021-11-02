@@ -18,13 +18,15 @@ package com.good.gd.webview_V2;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.util.SparseIntArray;
-import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
 import android.webkit.URLUtil;
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -34,13 +36,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.blackberry.bbwebview.BBWebViewClient;
+import com.blackberry.bbwebview.WebClientObserver;
 import com.good.gd.GDAndroid;
 import com.good.gd.GDStateListener;
-import com.good.gd.webview_V2.bbwebview.BBWebViewClient;
-import com.good.gd.webview_V2.bbwebview.WebClientObserver;
-import com.good.gd.webview_V2.bbwebview.devtools.OnCookiesFilterEdit;
-import com.good.gd.webview_V2.bbwebview.devtools.OnJsEditListener;
-import com.good.gd.webview_V2.bbwebview.devtools.onPaneEditListener;
+import com.good.gd.apache.http.client.CookieStore;
+import com.good.gd.net.GDHttpClient;
 
 import java.util.Map;
 
@@ -55,7 +56,6 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
 
     private WebView webView;
     private TextView urlField;
-    private String passedUrl;
     private ProgressBar progressBar;
 
     @Override
@@ -70,10 +70,26 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
         Intent intent = getIntent();
         if (intent != null && intent.getExtras() != null) {
             String url = intent.getExtras().getString(EXTRA_URL);
+            // Load url which is retrieved from the intent
             if (url != null) {
-                passedUrl = url;
+                webView.loadUrl(url);
+                urlField.setText(url);
+
+                // Reset intent
+                getIntent().replaceExtras(new Bundle());
+                getIntent().setAction("");
+                getIntent().setData(null);
+                getIntent().setFlags(0);
+            }
+            else {
+                // Looks like onCreate is called after idle unlocking App.
+                // So, if we have saved instance, then restore web-view from it.
+                if (savedInstanceState != null)
+                    webView.restoreState(savedInstanceState);
             }
         }
+
+        Log.i(TAG,"onCreate");
     }
 
     @Override
@@ -133,6 +149,40 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
         Log.i(TAG,"onRestoreInstanceState");
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.clear_cookies:
+                GDHttpClient httpClient = new GDHttpClient();
+                CookieStore cookieStore = httpClient.getCookieStore();
+                cookieStore.clear();
+                CookieManager.getInstance().removeAllCookies(new ValueCallback<Boolean>() {
+                    @Override
+                    public void onReceiveValue(Boolean value) {
+                        Toast.makeText(BrowserActivity.this, "Cookies are cleared", Toast.LENGTH_LONG).show();
+                    }
+                });
+                return true;
+            case R.id.stop_loading:
+                webView.stopLoading();
+                Toast.makeText(BrowserActivity.this, "Loading is stopped", Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.clear_url_input:
+                urlField.setText("");
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void disposeViews() {
         // Detach WebView from the parent layout
         // This ensure proper destruction of WebView
@@ -168,9 +218,6 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
             }
         });
 
-        setupPane(R.id.console, new OnJsEditListener());
-        setupPane(R.id.cookies_list, new OnCookiesFilterEdit());
-
         ImageButton goBack = findViewById(R.id.back_btn);
         goBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -200,23 +247,6 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
         });
     }
 
-    private void setupPane(int paneId, onPaneEditListener editActionListener) {
-        View pane = findViewById(paneId);
-        final TextView consoleOut = pane.findViewById(R.id.eval_results);
-        final TextView consoleEdit = pane.findViewById(R.id.eval_input);
-
-        consoleOut.setMovementMethod(new ScrollingMovementMethod());
-
-        editActionListener.activity = BrowserActivity.this;
-        editActionListener.inputView = consoleEdit;
-        editActionListener.outputView = consoleOut;
-        editActionListener.targetWebView = webView;
-
-        consoleEdit.setImeActionLabel("eval", KeyEvent.KEYCODE_ENTER);
-
-        consoleEdit.setOnEditorActionListener(editActionListener);
-    }
-
     public void onGo(View view) {
         String urlString = urlField.getText().toString();
 
@@ -235,27 +265,6 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
         }
     }
 
-    private final static SparseIntArray VISIBILITY_TOGGLE = new SparseIntArray(){{
-        append(View.INVISIBLE,View.VISIBLE);
-        append(View.VISIBLE,View.INVISIBLE);
-        append(View.GONE,View.VISIBLE);
-    }};
-
-    private void toggleViewPaneInstance(int... viewIds) {
-        for (int viewId : viewIds) {
-            View view = findViewById(viewId);
-            view.setVisibility(VISIBILITY_TOGGLE.get(view.getVisibility()));
-        }
-    }
-
-    public void onHidePane(View view) {
-        if(view.getId() == R.id.hide_cookies){
-            toggleViewPaneInstance(R.id.cookies_list, view.getId());
-        } else if(view.getId() == R.id.hide_js){
-            toggleViewPaneInstance(R.id.console, view.getId());
-        }
-    }
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -265,17 +274,6 @@ public class BrowserActivity extends AppCompatActivity implements GDStateListene
     @Override
     public void onAuthorized() {
         Log.i(TAG,"onAuthorized");
-
-        // Load url which is retrieved from the intent
-        if (passedUrl != null) {
-            Log.i(TAG, "loadUrl(" + passedUrl + ")");
-            webView.loadUrl(passedUrl);
-            urlField.setText(passedUrl);
-            
-            // Reset passed url
-            passedUrl = null;
-        }
-
     }
 
     @Override

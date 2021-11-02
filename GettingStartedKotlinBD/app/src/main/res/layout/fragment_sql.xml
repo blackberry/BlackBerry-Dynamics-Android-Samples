@@ -21,7 +21,7 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="fill_parent"
               android:layout_height="match_parent"
-              tools:context="blackberry.example.com.gettingstartedbd.FileFragment"
+              tools:context="blackberry.example.com.gettingstartedkotlinbd.FileFragment"
               android:orientation="vertical"
               android:gravity="fill_horizontal"
     >
@@ -58,7 +58,7 @@
 
     </LinearLayout>
 
-    <TextView
+    <com.good.gd.widget.GDTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"

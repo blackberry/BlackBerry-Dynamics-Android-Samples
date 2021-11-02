@@ -6,95 +6,61 @@
     android:layout_height="match_parent"
     tools:context="com.good.gd.webview_V2.BrowserActivity">
 
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <RelativeLayout
         android:id="@+id/header_top_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true">
 
+        <Button
+            android:id="@+id/go_btn"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:text="Go >"
+            android:onClick="onGo" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_alignParentStart="true"
             android:layout_toStartOf="@+id/go_btn"
-            android:layout_alignParentStart="true">
+            android:paddingStart="5dp"
+            android:orientation="vertical">
 
-        <com.good.gd.widget.GDEditText
-            android:id="@+id/url_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:importantForAutofill="yes"
-            android:text="https://google.com/"
-            android:hint="Navigate to ..."
-            android:inputType="textUri|textWebEditText"/>
+            <com.good.gd.widget.GDEditText
+                android:id="@+id/url_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Navigate to ..."
+                android:importantForAutofill="yes"
+                android:inputType="textUri|textWebEditText" />
 
-         <ProgressBar
-             android:id="@+id/progress_bar"
-             android:layout_width="match_parent"
-             android:layout_height="4dp"
-             android:layout_marginEnd="4dp"
-             android:layout_marginStart="6dp"
-             android:progressTint="@color/bbd_blue"
-             style="@style/GDProgressBar.Horizontal"/>
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                style="@style/GDProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:progressTint="@color/bbd_blue" />
 
         </LinearLayout>
 
-      <Button
-          android:id="@+id/go_btn"
-          android:layout_width="60dp"
-          android:layout_height="wrap_content"
-          android:layout_alignParentEnd="true"
-          android:onClick="onGo"
-          android:text="Go >"
-          />
-
     </RelativeLayout>
 
-    <com.good.gd.webview_V2.bbwebview.BBWebView
+    <com.blackberry.bbwebview.BBWebView
         android:id="@+id/gd_web_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/header_top_bar"
         android:layout_above="@+id/footer_menu_bar"
-        />
+        android:layout_below="@+id/header_top_bar" />
 
     <include
         android:id="@+id/footer_menu_bar"
-        layout="@layout/browser_controls_bar"
-        />
-
-    <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-
-    <include
-        android:id="@+id/console"
-        layout="@layout/overlay_io"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_alignParentBottom="true"/>
-
-    <include layout="@layout/hide_pane_button"
-        android:id="@+id/hide_js"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_alignTop="@id/console"
-        android:layout_alignParentEnd="true" />
-
-    <include
-        android:id="@+id/cookies_list"
-        layout="@layout/overlay_io"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_alignParentBottom="true"/>
-
-    <include layout="@layout/hide_pane_button"
-        android:id="@+id/hide_cookies"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_alignTop="@id/cookies_list"
-        android:layout_alignParentEnd="true" />
+        layout="@layout/browser_controls_bar" />
 
 </RelativeLayout>

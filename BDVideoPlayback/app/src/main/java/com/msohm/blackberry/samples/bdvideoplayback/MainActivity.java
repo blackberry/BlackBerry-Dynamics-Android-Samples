@@ -1,4 +1,4 @@
-/* Copyright (c) 2017  BlackBerry Limited.
+/* Copyright (c) 2021  BlackBerry Limited.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,12 +15,10 @@
 
 package com.msohm.blackberry.samples.bdvideoplayback;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.media.MediaPlayer;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -41,12 +39,11 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity implements GDStateListener,
         SurfaceHolder.Callback {
 
-    private final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 45;
-    private final String FILENAME = "myVideo.mp4"; //Hard coded filename. Adjust extension as required.
+    private final String FILENAME = "myVideo.mp4"; //Hard coded filename. Adjust as required.
     private Button copyButton;
     private Button playButton;
     MediaPlayer mp;
-    boolean isPaused;
+    boolean isStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,26 +55,11 @@ public class MainActivity extends AppCompatActivity implements GDStateListener,
 
         copyButton = (Button)findViewById(R.id.copyButton);
 
-        //The copy button is used to copy an existing video file you have into the secure
-        //BlackBerry Dynamics file system.  This only needs to be run once.
+        //The copy button is used to copy an example video file included in this project to the
+        //BlackBerry Dynamics file secure system.  This only needs to be run once.
         copyButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
-                //Ensure we have permission to read the file being copied.
-                int permissionCheck = ContextCompat.checkSelfPermission(v.getContext(),
-                        Manifest.permission.READ_EXTERNAL_STORAGE);
-
-                if (permissionCheck != PackageManager.PERMISSION_GRANTED)
-                {
-                    //Permission isn't set.  Request it.
-                    ActivityCompat.requestPermissions(MainActivity.this,
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-                }
-                else
-                {
-                    copyFile();
-                }
+                copyFile();
             }
         });
 
@@ -86,24 +68,23 @@ public class MainActivity extends AppCompatActivity implements GDStateListener,
         //Initializes the MediaPlayer.
         playButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            try {
-                if (!isPaused) {
-                    BDMediaDataSource source = new BDMediaDataSource(FILENAME);
-                    mp.setDataSource(source);
-                    mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                        @Override
-                        public void onPrepared(MediaPlayer mp) {
-                            mp.start();
-                        }
-                    });
-                    mp.prepareAsync();
-                } else {
-                    mp.start();
+                try {
+                    if (!isStarted) {
+                        BDMediaDataSource source = new BDMediaDataSource(FILENAME);
+                        mp.setDataSource(source);
+                        mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                            @Override
+                            public void onPrepared(MediaPlayer mp) {
+                                mp.start();
+                                isStarted = true;
+                            }
+                        });
+                        mp.prepareAsync();
+                    } else {
+                        mp.start();
+                    }
                 }
-                isPaused = false;
-            }
-            catch (IOException ioex) {}
-
+                catch (IOException ioex) {}
             }
         });
 
@@ -111,81 +92,64 @@ public class MainActivity extends AppCompatActivity implements GDStateListener,
         SurfaceHolder holder = surfaceView.getHolder();
         holder.addCallback(this);
         mp = new MediaPlayer();
-        isPaused = false;
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults)
-    {
-        if (requestCode == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
-        {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            {
-                //File permission request was granted, yay!
-                //Copy the file.
-                copyFile();
-            }
-            else
-            {
-                AlertDialog.Builder alert = new AlertDialog.Builder(this);
-                alert.setTitle("File Not Copied");
-                alert.setMessage("Permission Denied");
-                alert.setNeutralButton("Close", null);
-                alert.show();
-            }
-        }
-    }
-
-    //Copies an existing video on your device into the BlackBerry Dynamics secure file system.
-    //For simplicity this method is not thread safe for copying large video files.
-    //If you need to copy large files use an AsyncTask.
+    //Copies a sample video from the project into the BlackBerry Dynamics secure file system.
     private void copyFile()
     {
-        try
-        {
-            //Copy a video file and store it in the BD file system
-            //TODO  Update the path below to point to a video on your device.
-            FileInputStream in =
-                    new FileInputStream("/storage/emulated/0/Download/YourVideoFile.mp4");
-            FileOutputStream out =
-                    GDFileSystem.openFileOutput(FILENAME, Context.MODE_PRIVATE);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    //Copy the sample video file and store it in the BlackBerry Dynamics file system.
+                    AssetManager am = getApplicationContext().getAssets();
+                    AssetFileDescriptor afDesc = null;
 
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0)
-            {
-                out.write(buf, 0, len);
+                    afDesc = am.openFd("SampleVideo.mp4");
+                    FileInputStream in = afDesc.createInputStream();
+                    FileOutputStream out =
+                            GDFileSystem.openFileOutput(FILENAME, Context.MODE_PRIVATE);
+
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
+                    in.close();
+                    out.close();
+
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            //Video file copied successfully.
+                            AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+                            alert.setTitle("File Copied");
+                            alert.setMessage("Success!");
+                            alert.setNeutralButton("Close", null);
+                            alert.show();
+                        }
+                    });
+                }
+                catch(final Exception e) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            //Failed to copy the video file
+                            AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+                            alert.setTitle("File Copy Failed");
+                            alert.setMessage(e.toString());
+                            alert.setNeutralButton("Close", null);
+                            alert.show();
+                        }
+                    });
+                    e.printStackTrace();
+                }
             }
-            in.close();
-            out.close();
-
-            //Video file copied successfully.
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.setTitle("File Copied");
-            alert.setMessage("Success!");
-            alert.setNeutralButton("Close", null);
-            alert.show();
-
-        }
-        catch(Exception e)
-        {
-            //Failed to copy the video file
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.setTitle("File Copy Failed");
-            alert.setMessage(e.toString());
-            alert.setNeutralButton("Close", null);
-            alert.show();
-            e.printStackTrace();
-        }
+        }).start();
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder)
     {
-        try
-        {
+        try {
             mp.setDisplay(holder);
         }
         catch (IllegalStateException is){}
@@ -194,9 +158,8 @@ public class MainActivity extends AppCompatActivity implements GDStateListener,
     @Override
     protected void onPause() {
         super.onPause();
-        if(mp.isPlaying() && !isPaused) {
+        if(mp.isPlaying()) {
             mp.pause();
-            isPaused = true;
         }
     }
 

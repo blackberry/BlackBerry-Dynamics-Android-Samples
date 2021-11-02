@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 31
     defaultConfig {
         applicationId "com.msohm.blackberry.samples.bdvideoplayback"
-        minSdkVersion 24
-        targetSdkVersion 29
+        minSdkVersion 28
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -25,5 +25,5 @@ dependencies {
     })
     implementation 'androidx.appcompat:appcompat:1.0.0'
     testImplementation 'junit:junit:4.12'
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:10.0+'
 }

@@ -116,7 +116,7 @@
 	<setting name="apkPackageName">
 		<hidden>
 			<key>blackberry.appMetadata.android.apkPackageName</key>
-			<value>blackberry.example.com.gettingstartedbd</value>
+			<value>blackberry.example.com.gettingstartedkotlinbd</value>
 		</hidden>
 	</setting>
 	

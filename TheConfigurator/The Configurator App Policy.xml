@@ -52,7 +52,8 @@
 	<select>
 		<key>exteriorColor</key>
 		<label>Color:</label>
-		<options ref="colorValues" />
+		<value>5</value>
+		<options ref="colorValues" />		
 	</select>
 </setting>
 <dl name="colorValues" dtype="number">

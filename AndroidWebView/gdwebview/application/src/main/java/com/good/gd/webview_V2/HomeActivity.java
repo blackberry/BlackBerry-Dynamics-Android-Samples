@@ -29,6 +29,7 @@ public class HomeActivity extends AppCompatActivity implements GDStateListener {
         final HomeActivity homeActivity = this;
 
         EditText editTextUrl = findViewById(R.id.url);
+        editTextUrl.setText(getString(R.string.url_to_load));
 
         Button goToWebView = findViewById(R.id.go_to_webview_button);
         goToWebView.setOnClickListener(new View.OnClickListener() {

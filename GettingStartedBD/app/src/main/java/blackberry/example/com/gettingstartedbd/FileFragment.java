@@ -23,12 +23,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.good.gd.file.FileInputStream;
 import com.good.gd.file.FileOutputStream;
 import com.good.gd.file.GDFileSystem;
+import com.good.gd.widget.GDEditText;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -40,7 +40,7 @@ public class FileFragment extends Fragment
 
     private final String FILENAME = "myFile.txt";
 
-    private EditText fileContents;
+    private GDEditText fileContents;
 
     public FileFragment()
     {
@@ -71,7 +71,7 @@ public class FileFragment extends Fragment
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_file, container, false);
 
-        fileContents = (EditText)view.findViewById(R.id.fileContents);
+        fileContents = (GDEditText)view.findViewById(R.id.fileContents);
 
         final Button clearButton = (Button) view.findViewById(R.id.clearButton);
         clearButton.setOnClickListener(new View.OnClickListener() {

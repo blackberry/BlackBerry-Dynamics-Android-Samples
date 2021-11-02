@@ -1,4 +1,6 @@
 # BlackBerry Dynamics WebView client sample
+**Note:** This sample has been transformed into the [BBWebView](https://developer.blackberry.com/devzone/files/blackberry-dynamics/android/classcom_1_1blackberry_1_1bbwebview_1_1_b_b_web_view.html) class available in the BlackBerry Dynamics SDK. It is recommended to use BBWebView over this sample.
+
 This application is a simple web content browser supporting access to private/corporate network resources through BlackBerry Dynamics SDK.
 
 App's functionality includes:                                                      
@@ -30,13 +32,12 @@ The following features are **not** implemented in this sample.
 ## Requirements
 This sample was tested using the following:
 
- * Android Studio 4.1.1
- * Android Gradle plugin 4.1.0
- * BlackBerry Dynamics SDK 9.0
+ * Android Studio 2020.3.1
+ * BlackBerry Dynamics SDK 10.0
 
 
 ## Runtime
- * Android 8.1.0 or later
+ * Android 9.0 or later
  * Android system WebView update 80+
 
 
@@ -81,3 +82,5 @@ Apache 2.0 License
 ## Disclaimer
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Before you use this sample application which integrates the BlackBerry Dynamics SDK (the “SDK”) you must read the BlackBerry Dynamics SDK Development License Agreement (“the Agreement”). By building this sample which integrates the SDK, you agree to the Agreement terms and conditions. If you do not accept them, do not download,  build or run this sample application.

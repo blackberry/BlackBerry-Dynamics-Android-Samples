@@ -26,7 +26,7 @@
               android:padding="5dp">
 
 
-    <TextView
+    <com.good.gd.widget.GDTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -37,7 +37,7 @@
         android:paddingBottom="5dp"/>
 
 
-    <EditText
+    <com.good.gd.widget.GDEditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/theUrl"
@@ -49,17 +49,17 @@
         android:text="Go!"
         android:id="@+id/loadButton"/>
 
-    <TextView
+    <com.good.gd.widget.GDTextView
+        android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Note that you may need to whitelist this server for this application in Good Control."
-        android:id="@+id/textView3"
         android:paddingTop="5dp"
         android:paddingBottom="10dp"
-        android:scrollbars = "vertical"/>
+        android:scrollbars="vertical"
+        android:text="Note that you may need to whitelist this server for this application you BlackBerry Dynamics Connectivity Profile on BlackBerry UEM."
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
-    <TextView
+    <com.good.gd.widget.GDTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
