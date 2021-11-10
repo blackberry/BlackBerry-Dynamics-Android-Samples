@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BEMSContactServiceSample</string>
+    <string name="go">Go!</string>
+    <string name="get_dir_service_providers">Get Service Providers</string>
+    <string name="output">Output</string>
+
+</resources>
