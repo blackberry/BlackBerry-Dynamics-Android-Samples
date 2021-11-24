@@ -16,9 +16,9 @@
 
 package com.bbexample.webview_bdsdk;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import static android.widget.Toast.LENGTH_SHORT;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -30,15 +30,17 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.blackberry.bbwebview.BBHttpAuthHandler;
+import com.blackberry.bbwebview.BBWebChromeClient;
 import com.blackberry.bbwebview.BBWebView;
 import com.blackberry.bbwebview.BBWebViewClient;
-import com.blackberry.bbwebview.WebClientObserver;
 import com.good.gd.GDAndroid;
 import com.good.gd.GDStateListener;
 
 import java.util.Map;
-
-import static android.widget.Toast.LENGTH_SHORT;
 
 /*
     This sample demonstrates the use of com.blackberry.bbwebview.BBWebView, which extends
@@ -69,19 +71,24 @@ public class MainActivity extends AppCompatActivity implements GDStateListener {
 
         progressBar = findViewById(R.id.progress_bar);
 
-        BBWebViewClient webViewClient = (BBWebViewClient) webView.getWebViewClient();
-
-        webViewClient.getObserver().addProgressListener(new WebClientObserver.ProgressListener() {
+        webView.setWebViewClient(new BBWebViewClient() {
             @Override
-            public void progressChanged(int newProgress) {
-                progressBar.setProgress(newProgress);
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                urlField.setText(url);
+            }
+
+            @Override
+            public void onReceivedBBHttpAuthRequest(WebView view, BBHttpAuthHandler handler, String host, String realm) {
+                Log.i(TAG,"onReceivedHttpAuthRequestCallback()");
+                AuthDialog authDialog = new AuthDialog(host, realm, handler);
+                authDialog.show(getSupportFragmentManager(), "AuthDialog");
             }
         });
 
-        webViewClient.getObserver().addOnPageStartedListener(new WebClientObserver.OnPageStarted() {
+        webView.setWebChromeClient(new BBWebChromeClient() {
             @Override
-            public void onPageStarted(WebView webView, String url) {
-                urlField.setText(url);
+            public void onProgressChanged(WebView view, int newProgress) {
+                progressBar.setProgress(newProgress);
             }
         });
 
