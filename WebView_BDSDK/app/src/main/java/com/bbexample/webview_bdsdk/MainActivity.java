@@ -59,8 +59,8 @@ public class MainActivity extends AppCompatActivity implements GDStateListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         GDAndroid.getInstance().activityInit(this);
+        setContentView(R.layout.activity_main);
         initViews();
     }
 
