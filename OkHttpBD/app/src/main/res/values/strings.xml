@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">OkHttpBD</string>
+    <string name="appserver_creds_user_instructions">Please add credentials for authenticating with the App Server</string>
+    <string name="enter_url_hint">Enter URL</string>
+    <string name="button_go">Go</string>
+    <string name="method_get">GET</string>
+    <string name="method_head">HEAD</string>
+    <string name="method_post">POST</string>
+    <string name="method_put">PUT</string>
+    <string name="disable_peerverify">DisablePeerVerify</string>
+    <string name="disablehostverify">DisableHostVerify</string>
+    <string name="http_resonse">Resonse :</string>
+    <string name="add_headers_key_value_pairs">Add Headers Key - Value Pairs</string>
+    <string name="key_string">key</string>
+    <string name="value_string">value</string>
+    <string name="http_protocol">http://</string>
+    <string name="enter_request_body">Enter Request Body</string>
+    <string name="okhttp_requestbody">I am OkHttp RequestBody</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="kerberos">Kerberos</string>
+    <string name="ntlm">NTLM</string>
+    <string name="basic">Basic</string>
+    <string name="mediatype_default_message">Default MediaType is JSON. It will be overridden with these</string>
+    <string name="content_type">Content-Type</string>
+    <string name="value">value</string>
+    <string name="please_wait">Please wait... :</string>
+</resources>
