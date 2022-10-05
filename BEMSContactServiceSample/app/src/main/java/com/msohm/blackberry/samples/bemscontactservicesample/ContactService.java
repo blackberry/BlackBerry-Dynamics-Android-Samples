@@ -198,14 +198,14 @@ public class ContactService extends AppCompatActivity implements GDStateListener
 
         //Using hard coded values to create a new contact.
         String firstName = "Fred";
-        String lastName = "O'Smith";
+        String lastName = "Smith";
         String email = "fred@fredsemail.com";
 
         try
         {
             contactJson.put(AppConstants.TAG_FIRST_NAME, firstName);
             contactJson.put(AppConstants.TAG_LAST_NAME, lastName);
-            contactJson.put(AppConstants.TAG_EMAIL_ADDRESS, email);
+            contactJson.put(AppConstants.TAG_EMAIL_ADDRESS1, email);
 
             json = new StringEntity(contactJson.toString());
 

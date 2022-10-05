@@ -36,6 +36,7 @@ public class AppConstants
     //Contact Creation JSON Node names
     public static final String TAG_FIRST_NAME = "FirstName";
     public static final String TAG_LAST_NAME = "LastName";
+    public static final String TAG_EMAIL_ADDRESS1= "EmailAddress1";
 
 
 }
