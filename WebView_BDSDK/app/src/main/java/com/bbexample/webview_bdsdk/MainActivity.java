@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.URLUtil;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -35,6 +36,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.blackberry.bbwebview.BBHttpAuthHandler;
 import com.blackberry.bbwebview.BBWebChromeClient;
+import com.blackberry.bbwebview.BBWebResourceError;
 import com.blackberry.bbwebview.BBWebView;
 import com.blackberry.bbwebview.BBWebViewClient;
 import com.good.gd.GDAndroid;
@@ -82,6 +84,11 @@ public class MainActivity extends AppCompatActivity implements GDStateListener {
                 Log.i(TAG,"onReceivedHttpAuthRequestCallback()");
                 AuthDialog authDialog = new AuthDialog(host, realm, handler);
                 authDialog.show(getSupportFragmentManager(), "AuthDialog");
+            }
+
+            @Override
+            public void onReceivedBBError(WebView webView, WebResourceRequest request, BBWebResourceError error) {
+                Log.i(TAG, "error for request: '" + request.getUrl() + "' code: " + error.getErrorCode() + " desc: " + error.getDescription());
             }
         });
 

@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.good.gd.example.apachehttp"
-        minSdkVersion 28
-        targetSdkVersion 31
+        minSdkVersion 29
+        targetSdkVersion 32
         versionCode 1
         versionName "1.0"
         missingDimensionStrategy 'product', 'dynamics'
@@ -42,9 +42,9 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     // BlackBerry Dynamics SDK dependency
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:10.1+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:11.0+'
     // BBWebView dependency
-    implementation 'com.blackberry.blackberrydynamics:android_webview:10.1+'
+    implementation 'com.blackberry.blackberrydynamics:android_webview:11.0+'
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

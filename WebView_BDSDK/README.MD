@@ -19,9 +19,9 @@ Contributing
 To contribute code to this repository you must be signed up as an official contributor.
 
 **This sample was tested with the following environment:**
-- BlackBerry Dynamics SDK 10.1
-- Android Studio 2020.3.1
-- Android 11
+- BlackBerry Dynamics SDK 11.0
+- Android Studio 2021.2.1
+- Android 12
 
 
 **How To Open the Project**
