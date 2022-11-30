@@ -1,8 +1,0 @@
-<resources>
-    <string name="app_name">WebViewSample</string>
-    <string name="title_activity_home">HomeActivity</string>
-    <string name="clear_cookies">Clear cookies</string>
-    <string name="stop_loading">Stop loading</string>
-    <string name="clear_url_input">Clear url input</string>
-    <string name="url_to_load">https://blackberry.com/</string>
-</resources>
