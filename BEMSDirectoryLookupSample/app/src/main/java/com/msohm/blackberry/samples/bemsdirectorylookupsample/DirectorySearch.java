@@ -16,9 +16,10 @@
 
 package com.msohm.blackberry.samples.bemsdirectorylookupsample;
 
-import android.os.AsyncTask;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -45,6 +46,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class DirectorySearch extends AppCompatActivity implements GDStateListener,
         GDAuthTokenCallback
@@ -62,11 +65,10 @@ public class DirectorySearch extends AppCompatActivity implements GDStateListene
     private ArrayList<HashMap<String, String>> contactList;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Initialize Good Dynamics.
+        //Initialize BlackBerry Dynamics.
         GDAndroid.getInstance().activityInit(this);
 
         contactList = new ArrayList<>();
@@ -76,31 +78,29 @@ public class DirectorySearch extends AppCompatActivity implements GDStateListene
 
         setContentView(R.layout.activity_directory_search);
 
-        resultsListView = (ListView)findViewById(R.id.resultsListView);
+        resultsListView = findViewById(R.id.resultsListView);
 
-        loadingIndicator = (ProgressBar) findViewById(R.id.loadingIndicator);
+        loadingIndicator = findViewById(R.id.loadingIndicator);
 
-        searchButton = (Button) findViewById(R.id.searchButton);
+        searchButton = findViewById(R.id.searchButton);
 
-        searchText = (EditText) findViewById(R.id.searchText);
+        searchText = findViewById(R.id.searchText);
 
-        includePersonalCheckBox = (CheckBox) findViewById(R.id.includePersonalCheckBox);
+        includePersonalCheckBox = findViewById(R.id.includePersonalCheckBox);
 
-        Spinner serverListSpinner = (Spinner)findViewById(R.id.serverListSpinner);
+        Spinner serverListSpinner = findViewById(R.id.serverListSpinner);
         ArrayAdapter<BemsServer> serverListAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, docsServers);
         serverListSpinner.setAdapter(serverListAdapter);
     }
 
     //Requests a GD Auth Token used for authentication with BEMS.
-    public void onGetAuthToken(View view)
-    {
+    public void onGetAuthToken(View view) {
         //Enable the loading indicator.
         loadingIndicator.setVisibility(ProgressBar.VISIBLE);
 
         //Ensure GD Authorization is complete.  Cannot request a GD Auth Token until it is.
-        if (isAuthorized)
-        {
+        if (isAuthorized) {
             Spinner serverListSpinner = (Spinner)findViewById(R.id.serverListSpinner);
             int serverIndex = serverListSpinner.getSelectedItemPosition();
             String server = docsServers.get(serverIndex).getServer();
@@ -108,15 +108,13 @@ public class DirectorySearch extends AppCompatActivity implements GDStateListene
             logOutput("Requesting GD Auth Token for: " + server);
             GDUtility util = new GDUtility();
             util.getGDAuthToken("", server, this);
-        } else
-        {
+        } else {
             logOutput("Not yet authorized to request GD Auth Token. Try again later.");
         }
     }
 
     //Called when the Search button is pressed.
-    public void onSearch(View view)
-    {
+    public void onSearch(View view) {
         //Enable the loading indicator.
         loadingIndicator.setVisibility(ProgressBar.VISIBLE);
 
@@ -140,22 +138,14 @@ public class DirectorySearch extends AppCompatActivity implements GDStateListene
         JSONObject searchJson = new JSONObject();
         StringEntity json = null;
 
-        try
-        {
+        try {
             searchJson.put(AppConstants.TAG_ACCOUNT, usersEmail);
             searchJson.put(AppConstants.TAG_SEARCH_KEY, searchText.getText());
             searchJson.put(AppConstants.TAG_MAX_NUMBER_RESULTS, 10);
 
-            if (includePersonalCheckBox.isChecked())
-            {
-                searchJson.put(AppConstants.TAG_SEARCH_PERSONAL_CONTACTS, true);
-            }
-            else
-            {
-                searchJson.put(AppConstants.TAG_SEARCH_PERSONAL_CONTACTS, false);
-            }
+            searchJson.put(AppConstants.TAG_SEARCH_PERSONAL_CONTACTS, includePersonalCheckBox.isChecked());
 
-            ArrayList<String> shape = new ArrayList<String>();
+            ArrayList<String> shape = new ArrayList<>();
 
             shape.add("FullName");
             shape.add("EmailAddress");
@@ -164,57 +154,54 @@ public class DirectorySearch extends AppCompatActivity implements GDStateListene
 
             json = new StringEntity(searchJson.toString());
 
-            logOutput("Sending JSON: " + searchJson.toString());
+            logOutput("Sending JSON: " + searchJson);
         }
-        catch (Exception jsonex)
-        {
+        catch (Exception jsonex) {
             logOutput("Exception generating JSON: " + jsonex);
         }
 
         //Build the HttpRequestParams.
         HttpRequestParams params = new HttpRequestParams(urlWithServer, headers, json, HttpRequestParams.POST);
-
-        DownloadTask task = new DownloadTask();
-        task.execute(params);
+        downloadExecutor(params);
     }
 
     /**
-     * Implementation of AsyncTask, to fetch the data in the background away from
+     * Implementation of ExecutorService and Handler, to fetch the data in the background away from
      * the UI thread.
      */
-    private class DownloadTask extends AsyncTask<HttpRequestParams, Void, String>
-    {
+    private void downloadExecutor(HttpRequestParams params){
+        ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
+        Handler downloadHandler = new Handler(Looper.getMainLooper());
 
-        @Override
-        protected String doInBackground(HttpRequestParams... params)
-        {
-            try {
-                GDHttpConnector http = new GDHttpConnector();
-                return http.doRequest(params[0]);
+        downloadExecutor.execute(new Runnable() {
+            int requestType;
+            String result = "";
+            @Override
+            public void run() {
+                try {
+                    GDHttpConnector http = new GDHttpConnector();
+                    result =  http.doRequest(params);
 
-            } catch (IOException e) {
-                return e.toString();
+                } catch (IOException e) {
+                    result =  e.toString();
+                }
+
+                downloadHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        logOutput("JSON Result: " + result);
+                        parseSearchResults(result);
+                    }
+                });
             }
-        }
-
-        /**
-         * Display the result returned from the network call.
-         */
-        @Override
-        protected void onPostExecute(String result) {
-            logOutput("JSON Result: " + result);
-
-            parseSearchResults(result);
-        }
+        });
     }
 
     //Parses the JSON returned from BEMS that contains the list of contacts
     //returned from the directory lookup.
-    private void parseSearchResults(String result)
-    {
+    private void parseSearchResults(String result) {
 
-        if (result != null)
-        {
+        if (result != null) {
             //Clear out all existing contacts.
             contactList.clear();
 
@@ -225,8 +212,7 @@ public class DirectorySearch extends AppCompatActivity implements GDStateListene
                 int numContacts = contacts.length();
 
                 //Iterate through each contact.
-                for (int count = 0; count < numContacts; count++)
-                {
+                for (int count = 0; count < numContacts; count++) {
                     //Extract the individual contact.
                     JSONObject contact = contacts.getJSONObject(count);
 
@@ -243,9 +229,8 @@ public class DirectorySearch extends AppCompatActivity implements GDStateListene
                     contactList.add(c);
                 }
             }
-            catch (Exception ex)
-            {
-                logOutput("Exception parsing result: " + ex.toString());
+            catch (Exception ex) {
+                logOutput("Exception parsing result: " + ex);
             }
 
         }
@@ -264,8 +249,7 @@ public class DirectorySearch extends AppCompatActivity implements GDStateListene
     }
 
     @Override
-    public void onAuthorized()
-    {
+    public void onAuthorized() {
         isAuthorized = true;
 
         //Get the application configuration, which will contain the user's email address.
@@ -296,8 +280,7 @@ public class DirectorySearch extends AppCompatActivity implements GDStateListene
     public void onUpdateEntitlements() { }
 
     @Override
-    public void onGDAuthTokenSuccess(String token)
-    {
+    public void onGDAuthTokenSuccess(String token) {
         gdAuthToken = token;
         logOutput("Received GD auth token.");
 
@@ -309,8 +292,7 @@ public class DirectorySearch extends AppCompatActivity implements GDStateListene
     }
 
     @Override
-    public void onGDAuthTokenFailure(int errorCode, String error)
-    {
+    public void onGDAuthTokenFailure(int errorCode, String error) {
         logOutput("Failed to receive GD auth token.  ErrorCode: " + errorCode + " Error: " + error);
 
         //Disable the loading indicator.

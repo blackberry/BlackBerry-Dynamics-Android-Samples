@@ -39,7 +39,7 @@ public class GDHttpConnector
     public String doRequest(HttpRequestParams params) throws IOException
     {
         InputStream stream = null;
-        String str = "";
+        String str;
 
         try {
 
@@ -79,9 +79,7 @@ public class GDHttpConnector
         }
 
         HttpResponse response = httpclient.execute(request);
-        InputStream stream = response.getEntity().getContent();
-
-        return stream;
+        return response.getEntity().getContent();
     }
 
     /**
@@ -110,9 +108,7 @@ public class GDHttpConnector
         }
 
         HttpResponse response = httpclient.execute(request);
-        InputStream stream = response.getEntity().getContent();
-
-        return stream;
+        return response.getEntity().getContent();
     }
 
     /** Reads an InputStream and converts it to a String.
@@ -121,7 +117,7 @@ public class GDHttpConnector
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
-        int length = 0;
+        int length;
 
         while ((length = stream.read(buffer)) != -1)
         {

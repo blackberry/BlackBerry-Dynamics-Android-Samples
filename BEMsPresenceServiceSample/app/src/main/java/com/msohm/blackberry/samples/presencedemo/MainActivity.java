@@ -35,8 +35,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Vector;
 
-public class MainActivity extends AppCompatActivity implements GDStateListener
-{
+public class MainActivity extends AppCompatActivity implements GDStateListener {
 
     //The service IDs.
     private static final String PRESENCE_SERVICE = "com.good.gdservice.enterprise.presence";
@@ -49,19 +48,17 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
     ArrayList<BemsServer> presenceServers = new ArrayList<>();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Initialize Good Dynamics.
+        //Initialize BlackBerry Dynamics.
         GDAndroid.getInstance().activityInit(this);
 
         setContentView(R.layout.activity_main);
     }
 
     //Looks for a service provider that supports the docs service.
-    public void getServiceProviders(View view)
-    {
+    public void getServiceProviders(View view) {
         Vector<GDServiceProvider> providers = GDAndroid.getInstance().getServiceProvidersFor(
                 PRESENCE_SERVICE,
                 "1.0.0.0", GDServiceType.GD_SERVICE_TYPE_SERVER);
@@ -70,21 +67,18 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
 
         TextView output = (TextView)findViewById(R.id.outputTextView);
         output.setText(serviceDetails);
-
     }
 
 
     //Extract the service and server details.
-    private String parseServiceDetails(Vector<GDServiceProvider> providers)
-    {
+    private String parseServiceDetails(Vector<GDServiceProvider> providers) {
         //Creates the string to display on screen.
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         //Holds the server details as we verify the services the server supports.
         ArrayList<BemsServer> serverCache = new ArrayList<>();
 
-        for (int count = 0; count < providers.size(); count++)
-        {
+        for (int count = 0; count < providers.size(); count++) {
             GDServiceProvider provider = providers.get(count);
             sb.append("Service: ");
             sb.append(count);
@@ -107,8 +101,7 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
             Vector<GDAppServer> servers = provider.getServerCluster();
             serverCache.clear();
 
-            for (int serverCount = 0; serverCount < servers.size(); serverCount++)
-            {
+            for (int serverCount = 0; serverCount < servers.size(); serverCount++) {
                 GDAppServer server = servers.get(serverCount);
 
                 BemsServer gserver = new BemsServer(server.server + ":" + server.port, server.priority);
@@ -130,12 +123,10 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
 
             Vector<GDServiceDetail> serviceDetails = provider.getServices();
 
-            for (int serviceCount = 0; serviceCount < serviceDetails.size(); serviceCount++)
-            {
+            for (int serviceCount = 0; serviceCount < serviceDetails.size(); serviceCount++) {
                 GDServiceDetail serviceDetail = serviceDetails.get(serviceCount);
 
-                if (serviceDetail.getIdentifier().contains(PRESENCE_SERVICE))
-                {
+                if (serviceDetail.getIdentifier().contains(PRESENCE_SERVICE)) {
                     presenceServers = serverCache;
                 }
 
@@ -147,20 +138,17 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
                 sb.append('\n');
                 sb.append("Service Type: ");
 
-                if (serviceDetail.getServiceType() == GDServiceType.GD_SERVICE_TYPE_APPLICATION)
-                {
+                if (serviceDetail.getServiceType() == GDServiceType.GD_SERVICE_TYPE_APPLICATION) {
                     sb.append("Application");
                 }
-                else if (serviceDetail.getServiceType() == GDServiceType.GD_SERVICE_TYPE_SERVER)
-                {
+                else if (serviceDetail.getServiceType() == GDServiceType.GD_SERVICE_TYPE_SERVER) {
                     sb.append("Server");
                 }
                 sb.append('\n');
             }
         }
 
-        if (sb.length() == 0)
-        {
+        if (sb.length() == 0) {
             sb.append("BEMS Services not found.");
         }
 
@@ -168,32 +156,26 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
     }
 
 
-    public void onBrowsePresenceRich(View view)
-    {
+    public void onBrowsePresenceRich(View view) {
         //Ensure there is a known server to connect to.
-        if (presenceServers.size() == 0)
-        {
+        if (presenceServers.size() == 0) {
             TextView output = (TextView)findViewById(R.id.outputTextView);
             output.setText("Error! BEMS Server Unknown.  Execute get service providers first.  Press GO! button above.");
         }
-        else
-        {
+        else {
             Intent docsIntent = new Intent(this, PresenceActivityRich.class);
             docsIntent.putExtra("com.msohm.blackberry.samples.bemsdemo.PresenceServers", presenceServers);
             startActivity(docsIntent);
         }
     }
 
-    public void onBrowsePresenceRaw(View view)
-    {
+    public void onBrowsePresenceRaw(View view) {
         //Ensure there is a known server to connect to.
-        if (presenceServers.size() == 0)
-        {
+        if (presenceServers.size() == 0) {
             TextView output = (TextView)findViewById(R.id.outputTextView);
             output.setText("Error! BEMS Server Unknown.  Execute get service providers first.  Press GO! button above.");
         }
-        else
-        {
+        else {
             Intent presenceIntent = new Intent(this, PresenceActivityRaw.class);
             presenceIntent.putExtra("com.msohm.blackberry.samples.bemsdemo.PresenceServers", presenceServers);
             startActivity(presenceIntent);
@@ -207,9 +189,8 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
         SharedPreferences sp = GDAndroid.getInstance().getGDSharedPreferences(SECURE_STORE_SHARED_PREFS,
                 android.content.Context.MODE_PRIVATE);
 
-        if (!sp.contains(DEVICE_ID_UUID_KEY))
-        {
-            sp.edit().putString(SECURE_STORE_SHARED_PREFS, UUID.randomUUID().toString());
+        if (!sp.contains(DEVICE_ID_UUID_KEY)) {
+            sp.edit().putString(DEVICE_ID_UUID_KEY, UUID.randomUUID().toString()).apply();
         }
     }
 

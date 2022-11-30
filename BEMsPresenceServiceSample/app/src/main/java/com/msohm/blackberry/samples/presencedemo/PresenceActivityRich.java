@@ -21,11 +21,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.appcompat.app.AppCompatActivity;
-import android.telephony.TelephonyManager;
+
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -42,7 +42,6 @@ import com.good.gd.apache.http.message.BasicHeader;
 import com.good.gd.net.GDConnectivityManager;
 import com.good.gd.net.GDNetworkInfo;
 import com.good.gd.push.PushChannel;
-import com.good.gd.push.PushChannelListener;
 import com.good.gd.utility.GDAuthTokenCallback;
 import com.good.gd.utility.GDUtility;
 
@@ -54,10 +53,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PresenceActivityRich extends AppCompatActivity implements GDStateListener,
-        GDAuthTokenCallback, PushChannelListener
-{
+        GDAuthTokenCallback {
 
     private ArrayList<BemsServer> presenceServers = new ArrayList<>();
     private String gdAuthToken;
@@ -70,17 +70,15 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
     private PushChannel pushChannel;
     private Runnable updateRunnable;
     private Handler updateHandler;
-    private BroadcastReceiver receiver;
     private ArrayList<HashMap<String, String>> contactList;
     private boolean isPushUpdate;
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Initialize Good Dynamics.
+        //Initialize BlackBerry Dynamics.
         GDAndroid.getInstance().activityInit(this);
 
         contactList = new ArrayList<>();
@@ -89,8 +87,7 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
 
         //Define the Runnable that will be used to poll for updates every AppConstants.TIMER_DELAY
         //milliseconds in the future.
-        updateRunnable = new Runnable()
-        {
+        updateRunnable = new Runnable() {
             public void run()
             {
                 getContactUpdates(false);
@@ -113,23 +110,18 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
     }
 
     @Override
-    protected void onDestroy ()
-    {
+    protected void onDestroy () {
         //Close the push channel when the activity is destroyed.
-        if (receiver != null)
-        {
-            GDAndroid.getInstance().unregisterReceiver(receiver);
+        if (pushChannel != null) {
+            pushChannel.disconnect();
         }
-
         super.onDestroy();
     }
 
     //Called when the get auth token button is pressed.
-    public void onGetAuthToken(View view)
-    {
+    public void onGetAuthToken(View view) {
         //Ensure GD Authorization is complete.  Cannot request a GD Auth Token until it is.
-        if (isAuthorized)
-        {
+        if (isAuthorized) {
             Spinner serverListSpinner = (Spinner)findViewById(R.id.serverListSpinner);
             int serverIndex = serverListSpinner.getSelectedItemPosition();
             String server = presenceServers.get(serverIndex).getServer();
@@ -137,32 +129,28 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
             logOutput("Requesting GD Auth Token for: " + server);
             GDUtility util = new GDUtility();
             util.getGDAuthToken("", server, this);
-        } else
-        {
+        } else {
             logOutput("Not yet authorized to request GD Auth Token. Try again later.");
         }
     }
 
     //Called when the subscribe button is pressed.
-    public void onSubscribe(View view)
-    {
+    public void onSubscribe(View view) {
         //Get the headers and URL to make the BEMS request.
         ArrayList<BasicHeader> headers = prepareHeaders();
         String url = buildURL();
 
         StringEntity postBody = null;
 
-        try
-        {
+        try {
             postBody = new StringEntity(
                     "{\n" +
                             "    \"contacts\" : [" + AppConstants.CONTACT_ADDRESSES + "],\n" +
                             "    \"notify\" : \"" + AppConstants.NOTIFY_KEY + "\"\n" +
                             "}");
         }
-        catch (UnsupportedEncodingException uex)
-        {
-            logOutput("Error building post body: " + uex.toString());
+        catch (UnsupportedEncodingException uex) {
+            logOutput("Error building post body: " + uex);
         }
 
         //Build the HttpRequestParams.
@@ -172,15 +160,11 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
 
         //Set to false so that all contacts are parsed.
         isPushUpdate = false;
-
-        DownloadTask task = new DownloadTask();
-        task.execute(params);
-
+        downloadExecutor(params);
     }
 
     //Called when the unsubscribe button is pressed.
-    public void onUnSubscribe(View view)
-    {
+    public void onUnSubscribe(View view) {
         //Get the headers and URL to make the BEMS request.
         ArrayList<BasicHeader> headers = prepareHeaders();
         String url = buildURL();
@@ -189,17 +173,15 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
 
         //Unsubscribe to stop the flow of notifications can accomplished by subscribing
         // with an empty list of contacts.
-        try
-        {
+        try {
             postBody = new StringEntity(
                     "{\n" +
                             "    \"contacts\" : [],\n" +
                             "    \"notify\" : \"" + AppConstants.NOTIFY_KEY + "\"\n" +
                             "}");
         }
-        catch (UnsupportedEncodingException uex)
-        {
-            logOutput("Error building post body: " + uex.toString());
+        catch (UnsupportedEncodingException uex) {
+            logOutput("Error building post body: " + uex);
         }
 
         //Build the HttpRequestParams.
@@ -210,26 +192,22 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
         //Remove all scheduled polls requests.
         sequence = null;
         updateHandler.removeCallbacks(updateRunnable);
-
-        DownloadTask task = new DownloadTask();
-        task.execute(params);
+        downloadExecutor(params);
     }
 
-    private void getContactUpdates(boolean isPushTriggered)
-    {
+    private void getContactUpdates(boolean isPushTriggered) {
         //Get the headers and URL to make the BEMS request.
         ArrayList<BasicHeader> headers = prepareHeaders();
 
         //Start with the base URL and append the target and sequence values.
-        StringBuffer url = new StringBuffer();
+        StringBuilder url = new StringBuilder();
         url.append(buildURL());
         url.append('/');
         url.append(AppConstants.NOTIFY_KEY);
 
         //If this was triggered by a push notification append the sequence from the push message
         //to the URL.  This informs BEMS to only send the contact that changed.
-        if (isPushTriggered && sequence != null && sequence.length() > 0)
-        {
+        if (isPushTriggered && sequence != null && sequence.length() > 0) {
             url.append("?sequence=");
             url.append(sequence);
         }
@@ -243,22 +221,24 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
         //Set to true so that existing contacts are kept and those that arrive are updated.
         isPushUpdate = true;
 
-        PresenceActivityRich.DownloadTask task = new PresenceActivityRich.DownloadTask();
-        task.execute(params);
+        downloadExecutor(params);
     }
 
     //Cancels future timer schedules and schedules a new one AppConstants.TIMER_DELAY millseconds
     //in the future.
-    private void reSchedulePollUpdate()
-    {
+    private void reSchedulePollUpdate() {
         updateHandler.removeCallbacks(updateRunnable);
         updateHandler.postDelayed(updateRunnable, AppConstants.TIMER_DELAY);
-        logOutput("Poll update scheduled in (milliseconds): " + AppConstants.TIMER_DELAY);
+
+        runOnUiThread (new Thread(new Runnable() {
+            public void run() {
+                logOutput("Poll update scheduled in (milliseconds): " + AppConstants.TIMER_DELAY);
+            }
+        }));
     }
 
     //Builds the URL used to make the BEMS request.
-    private String buildURL()
-    {
+    private String buildURL() {
         //Build the URL to submit the subscription:
         Spinner serverListSpinner = (Spinner) findViewById(R.id.serverListSpinner);
         int serverIndex = serverListSpinner.getSelectedItemPosition();
@@ -266,15 +246,13 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
     }
 
     //Creates the headers for the request sent to the BEMS server.
-    private ArrayList<BasicHeader> prepareHeaders()
-    {
+    private ArrayList<BasicHeader> prepareHeaders() {
         ArrayList<BasicHeader> headers =  new ArrayList<>();
 
         //Optional - Set the presence server version we want to use.
         headers.add(new BasicHeader("X-Good-Presence-Version", "1.0.0"));
 
-        if (pushToken != null)
-        {
+        if (pushToken != null) {
             //Optional - Set the GNP token to support push updates for subscriptions if push
             //is ready.
             headers.add(new BasicHeader("X-Good-GNP-Token", pushToken));
@@ -296,30 +274,22 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
     }
 
     //Extract the sequence number from the JSON response.
-    private String parseSequence(String json)
-    {
-        if (json != null)
-        {
+    private void parseSequence(String json) {
+        if (json != null) {
             try {
                 //Get a JSONObject of the result.
                 JSONObject jsonObj = new JSONObject(json);
                 sequence = jsonObj.getString(AppConstants.TAG_SEQUENCE);
             }
-            catch (Exception ex)
-            {
-                logOutput("Exception parsing result: " + ex.toString());
+            catch (Exception ex) {
+                logOutput("Exception parsing result: " + ex);
             }
         }
-
-        return null;
     }
 
-    private void parseContacts(String result)
-    {
-        if (result != null)
-        {
-            if (!isPushUpdate)
-            {
+    private void parseContacts(String result) {
+        if (result != null) {
+            if (!isPushUpdate) {
                 //Not an update, so payload will contain the entire set
                 // of contacts.  Clear out all existing contacts.
                 contactList.clear();
@@ -333,8 +303,7 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
                 int numContacts = contacts.length();
 
                 //Iterate through each contact.
-                for (int count = 0; count < numContacts; count++)
-                {
+                for (int count = 0; count < numContacts; count++) {
                     //Extract the individual contact.
                     JSONObject contact = contacts.getJSONObject(count);
 
@@ -342,11 +311,10 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
                     String id = contact.getString(AppConstants.TAG_ID);
                     int availabilityCode = contact.getInt(AppConstants.TAG_AVAILABILITY);
 
-                    String availability = "";
+                    String availability;
                     int indicator;
 
-                    switch (availabilityCode)
-                    {
+                    switch (availabilityCode) {
                         case LyncConstants.AVAILABLE:
                             availability = LyncConstants.AVAILABLE_DESC;
                             indicator = R.drawable.available;
@@ -396,36 +364,31 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
 
                     //Check if this update arrived from an initial request or a subscription
                     //update that was pushed to the device.
-                    if (isPushUpdate)
-                    {
+                    if (isPushUpdate) {
                         //This is a subscription update, so payload will only contain the contacts
                         //that have been updated. Find and update the contact in the list.
                         int searchSize = contactList.size();
-                        for (int searchCount = 0; searchCount < searchSize; searchCount++)
-                        {
+                        for (int searchCount = 0; searchCount < searchSize; searchCount++) {
                             HashMap<String, String> s = (HashMap) contactList.get(searchCount);
                             String searchId = s.get(AppConstants.TAG_ID);
 
                             //Check if the updated contact matches one in the existing list and
                             //break out of the for loop.
-                            if (searchId.equalsIgnoreCase(id))
-                            {
+                            if (searchId.equalsIgnoreCase(id)) {
                                 contactList.set(searchCount, c);
                                 break;
                             }
                         }
                     }
-                    else
-                    {
+                    else {
                         //Not an update, so payload will contain the entire set
                         // of contacts. Add the contact to the list.
                         contactList.add(c);
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                logOutput("Exception parsing result: " + ex.toString());
+            catch (Exception ex) {
+                logOutput("Exception parsing result: " + ex);
             }
 
             ListAdapter adapter = new SimpleAdapter(
@@ -438,113 +401,85 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
         }
     }
 
-
     /**
-     * Implementation of AsyncTask, to fetch the data in the background away from
+     * Implementation of ExecutorService and Handler, to fetch the data in the background away from
      * the UI thread.
      */
-    private class DownloadTask extends AsyncTask<HttpRequestParams, Void, String>
-    {
+    private void downloadExecutor(HttpRequestParams params){
+        ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
+        Handler downloadHandler = new Handler(Looper.getMainLooper());
 
-        @Override
-        protected String doInBackground(HttpRequestParams... params)
-        {
-            try {
-                GDHttpConnector http = new GDHttpConnector();
-                return http.doRequest(params[0]);
+        downloadExecutor.execute(new Runnable() {
+            String result = "";
+            @Override
+            public void run() {
+                try {
+                    GDHttpConnector http = new GDHttpConnector();
+                    result =  http.doRequest(params);
 
-            } catch (IOException e) {
-                return e.toString();
-            }
-        }
-
-        /**
-         * Display the result returned from the network call.
-         */
-        @Override
-        protected void onPostExecute(String result)
-        {
-            reSchedulePollUpdate();
-            logOutput(result);
-            parseSequence(result);
-            parseContacts(result);
-        }
-    }
-
-    /**
-     * Register receiver to listen to GDConnectivityManager.GD_CONNECTIVITY_ACTION intent
-     *
-     * This method is to demonstrate how to set up receiver to listen to the broadcast
-     * intent when the push connection status is changed
-     */
-    private void registerReceiver()
-    {
-        if (receiver == null)
-        {
-            receiver = new BroadcastReceiver()
-            {
-                @Override
-                public void onReceive(Context context, Intent intent)
-                {
-                    logOutput("Received GD_CONNECTIVITY_ACTION intent.");
-                    setupPushChannel();
+                } catch (IOException e) {
+                    result =  e.toString();
                 }
-            };
+                reSchedulePollUpdate();
+                logOutput(result);
 
-            GDAndroid.getInstance().registerReceiver(receiver,
-                    new IntentFilter(GDConnectivityManager.GD_CONNECTIVITY_ACTION));
-        }
+                downloadHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        parseSequence(result);
+                        parseContacts(result);
+                    }
+                });
+            }
+        });
     }
 
-    //Creates the Push Channel if it's available and hasn't already been created.
-    private void setupPushChannel()
-    {
+      //Creates the Push Channel if it's available and hasn't already been created.
+    private void setupPushChannel() {
         logOutput("Setup Push Channel.");
 
         GDNetworkInfo networkInfo = GDConnectivityManager.getActiveNetworkInfo();
         logOutput("isPushChannelAvailable = " + networkInfo.isPushChannelAvailable());
 
-        if (pushChannel == null && networkInfo.isPushChannelAvailable())
-        {
-            pushChannel = new PushChannel();
-            pushChannel.setListener(this);
+        if (pushChannel == null && networkInfo.isPushChannelAvailable()) {
+            pushChannel = new PushChannel("com.msohm.blackberry.samples.presencedemo.rich");
+            IntentFilter intentFilter = pushChannel.prepareIntentFilter();
+
+            GDAndroid.getInstance().registerReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    switch (PushChannel.getEventType(intent)) {
+                        case Open:
+                            pushToken = PushChannel.getToken(intent);
+                            break;
+                        case Close:
+                            logOutput("Push Channel Connection Closed.");
+                            pushToken = null;
+                            break;
+                        case Error:
+                            int error = PushChannel.getErrorCode(intent, 0);
+                            logOutput("Push Channel Error: " + error);
+                            break;
+                        case Message:
+                            String message = PushChannel.getMessage(intent);
+                            logOutput("Update received via push:");
+                            logOutput(message);
+
+                            //Trigger a contact update poll.
+                            getContactUpdates(true);
+                            break;
+                        case PingFail:
+                            int pingError = PushChannel.getPingFailCode(intent, 0);
+                            logOutput("Ping error: " + pingError);
+                            break;
+                    }
+                }
+            }, intentFilter);
             pushChannel.connect();
 
             logOutput("Push Channel Created.");
         }
     }
-
-    @Override
-    public void onChannelOpen(String token)
-    {
-        pushToken = token;
-    }
-
-    @Override
-    public void onChannelMessage(String message)
-    {
-        logOutput("Update received via push:");
-        logOutput(message);
-
-        //Trigger a contact update poll.
-        getContactUpdates(true);
-    }
-
-    @Override
-    public void onChannelClose(String token)
-    {
-        logOutput("Push Channel Connection Closed.");
-        pushToken = null;
-    }
-
-    @Override
-    public void onChannelError(int i)
-    {
-        logOutput("Push Channel Error.");
-    }
-
-    @Override
-    public void onChannelPingFail(int i) {  }
 
     @Override
     public void onGDAuthTokenSuccess(String token)
@@ -556,8 +491,7 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
     }
 
     @Override
-    public void onGDAuthTokenFailure(int errorCode, String error)
-    {
+    public void onGDAuthTokenFailure(int errorCode, String error) {
         logOutput("Failed to receive GD auth token.  ErrorCode: " + errorCode + " Error: " + error);
     }
 
@@ -569,10 +503,8 @@ public class PresenceActivityRich extends AppCompatActivity implements GDStateLi
 
 
     @Override
-    public void onAuthorized()
-    {
+    public void onAuthorized() {
         isAuthorized = true;
-        registerReceiver();
         setupPushChannel();
     }
 

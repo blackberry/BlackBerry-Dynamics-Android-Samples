@@ -16,10 +16,12 @@
 package com.msohm.blackberry.samples.bemsdocsservicesample;
 
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -45,6 +47,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class DocList extends AppCompatActivity implements GDStateListener,
@@ -64,7 +68,7 @@ public class DocList extends AppCompatActivity implements GDStateListener,
     {
         super.onCreate(savedInstanceState);
 
-        //Initialize Good Dynamics.
+        //Initialize BlackBerry Dynamics.
         GDAndroid.getInstance().activityInit(this);
 
         docList = new ArrayList<>();
@@ -155,6 +159,9 @@ public class DocList extends AppCompatActivity implements GDStateListener,
 
         //Required - Set the GD auth token to authenticate with the docs server.
         headers.add(new BasicHeader("X-Good-GD-AuthToken", gdAuthToken));
+        //If not using KCD, uncomment the line below and replace base64GoesHere with your
+        //username:password encoded into Base64 format.
+        //headers.add(new BasicHeader("Authorization", "Basic base64GoesHere"));
 
         //Get the selected server:
         Spinner serverListSpinner = (Spinner)findViewById(R.id.serverListSpinner);
@@ -166,9 +173,7 @@ public class DocList extends AppCompatActivity implements GDStateListener,
 
         //Build the HttpRequestParams.
         HttpRequestParams params = new HttpRequestParams(urlWithServer, headers, null, HttpRequestParams.GET);
-
-        DownloadTask task = new DownloadTask();
-        task.execute(params);
+        downloadExecutor(params);
     }
 
     //Requests a GD Auth Token used for authentication with BEMS.
@@ -194,32 +199,35 @@ public class DocList extends AppCompatActivity implements GDStateListener,
     }
 
     /**
-     * Implementation of AsyncTask, to fetch the data in the background away from
+     * Implementation of ExecutorService and Handler, to fetch the data in the background away from
      * the UI thread.
      */
-    private class DownloadTask extends AsyncTask<HttpRequestParams, Void, String>
-    {
+    private void downloadExecutor(HttpRequestParams params){
+        ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
+        Handler downloadHandler = new Handler(Looper.getMainLooper());
 
-        @Override
-        protected String doInBackground(HttpRequestParams... params)
-        {
-            try {
-                GDHttpConnector http = new GDHttpConnector();
-                return http.doRequest(params[0]);
+        downloadExecutor.execute(new Runnable() {
+            int requestType;
+            String result = "";
+            @Override
+            public void run() {
+                try {
+                    GDHttpConnector http = new GDHttpConnector();
+                    result =  http.doRequest(params);
 
-            } catch (IOException e) {
-                return e.toString();
+                } catch (IOException e) {
+                    result =  e.toString();
+                }
+
+                downloadHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        logOutput("JSON Result: " + result);
+                        parseList(result);
+                    }
+                });
             }
-        }
-
-        /**
-         * Display the result returned from the network call.
-         */
-        @Override
-        protected void onPostExecute(String result) {
-            logOutput("JSON Result: " + result);
-            parseList(result);
-        }
+        });
     }
 
     //Parses the JSON returned from BEMS.
@@ -332,7 +340,7 @@ public class DocList extends AppCompatActivity implements GDStateListener,
             }
             catch (Exception ex)
             {
-                logOutput("Exception parsing result: " + ex.toString());
+                logOutput("Exception parsing result: " + ex);
 
                 //We have file metadata to parse.
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);

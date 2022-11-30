@@ -22,8 +22,7 @@ import com.good.gd.apache.http.message.BasicHeader;
 import java.util.ArrayList;
 
 
-public class HttpRequestParams
-{
+public class HttpRequestParams {
     public static final int POST = 2;
     public static final int GET = 4;
 
@@ -35,8 +34,7 @@ public class HttpRequestParams
 
 
     public HttpRequestParams(String url, ArrayList<BasicHeader> headers,
-         StringEntity postBody, int requestType)
-    {
+         StringEntity postBody, int requestType) {
         this.url = url;
         this.headers = headers;
         this.postBody = postBody;

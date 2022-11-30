@@ -23,24 +23,18 @@ import com.good.gd.apache.http.entity.StringEntity;
 import com.good.gd.apache.http.message.BasicHeader;
 import com.good.gd.net.GDHttpClient;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 
-
-public class GDHttpConnector
-{
+public class GDHttpConnector {
 
     public GDHttpConnector(){}
 
 
-    public String doRequest(HttpRequestParams params) throws IOException
-    {
+    public String doRequest(HttpRequestParams params) throws IOException {
         InputStream stream = null;
-        String str = "";
+        String str;
 
         try {
 
@@ -65,8 +59,7 @@ public class GDHttpConnector
      * an input stream.
      */
     private InputStream makeGetRequest(HttpRequestParams params)
-            throws IOException
-    {
+            throws IOException {
 
         GDHttpClient httpclient = new GDHttpClient();
         final HttpGet request = new HttpGet(params.getUrl());
@@ -74,23 +67,19 @@ public class GDHttpConnector
         BasicHeader[] headers = new BasicHeader[params.getHeaders().size()];
         headers = params.getHeaders().toArray(headers);
 
-        if (headers != null && headers.length > 0)
-        {
+        if (headers != null && headers.length > 0) {
             request.setHeaders(headers);
         }
 
         HttpResponse response = httpclient.execute(request);
-        InputStream stream = response.getEntity().getContent();
-
-        return stream;
+        return response.getEntity().getContent();
     }
 
     /**
      * Given a string representation of a URL, sets up a connection and gets
      * an input stream.
      */
-    private InputStream makePostRequest(HttpRequestParams params) throws IOException
-    {
+    private InputStream makePostRequest(HttpRequestParams params) throws IOException {
 
         GDHttpClient httpclient = new GDHttpClient();
         final HttpPost request = new HttpPost(params.getUrl());
@@ -98,37 +87,30 @@ public class GDHttpConnector
         BasicHeader[] headers = new BasicHeader[params.getHeaders().size()];
         headers = params.getHeaders().toArray(headers);
 
-        if (headers != null && headers.length > 0)
-        {
+        if (headers != null && headers.length > 0) {
             request.setHeaders(headers);
         }
 
         StringEntity entity = params.getPostBody();
 
-        if (entity != null)
-        {
+        if (entity != null) {
             request.setEntity(entity);
         }
 
         HttpResponse response = httpclient.execute(request);
-        InputStream stream = response.getEntity().getContent();
-
-        return stream;
+        return response.getEntity().getContent();
     }
 
     /** Reads an InputStream and converts it to a String.
      */
-    private String readIt(InputStream stream) throws IOException
-    {
+    private String readIt(InputStream stream) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
-        int length = 0;
+        int length;
 
-        while ((length = stream.read(buffer)) != -1)
-        {
+        while ((length = stream.read(buffer)) != -1) {
             baos.write(buffer, 0, length);
         }
         return baos.toString();
     }
-
 }

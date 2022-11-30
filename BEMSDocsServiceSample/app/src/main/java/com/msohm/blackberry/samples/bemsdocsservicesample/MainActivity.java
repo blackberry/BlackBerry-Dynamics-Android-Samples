@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
     {
         super.onCreate(savedInstanceState);
 
-        //Initialize Good Dynamics.
+        //Initialize BlackBerry Dynamics.
         GDAndroid.getInstance().activityInit(this);
 
         setContentView(R.layout.activity_main);

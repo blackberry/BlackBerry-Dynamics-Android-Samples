@@ -40,7 +40,7 @@ public class GDHttpConnector
     public String doRequest(HttpRequestParams params) throws IOException
     {
         InputStream stream = null;
-        String str = "";
+        String str;
 
         try {
 

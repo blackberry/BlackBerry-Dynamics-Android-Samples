@@ -18,8 +18,9 @@ package com.msohm.blackberry.samples.bemscontactservicesample;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -47,10 +48,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ContactService extends AppCompatActivity implements GDStateListener,
-        GDAuthTokenCallback
-{
+        GDAuthTokenCallback {
+
+    private static final int REQUEST_SEARCH = 100;
+    private static final int REQUEST_CREATE = 200;
 
     private ArrayList<BemsServer> bemsServers = new ArrayList<>();
     private String gdAuthToken;
@@ -64,11 +69,10 @@ public class ContactService extends AppCompatActivity implements GDStateListener
     private TextView numResultsTextView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Initialize Good Dynamics.
+        //Initialize BlackBerry Dynamics.
         GDAndroid.getInstance().activityInit(this);
 
         contactList = new ArrayList<>();
@@ -95,14 +99,12 @@ public class ContactService extends AppCompatActivity implements GDStateListener
     }
 
     //Requests a GD Auth Token used for authentication with BEMS.
-    public void onGetAuthToken(View view)
-    {
+    public void onGetAuthToken(View view) {
         //Enable the loading indicator.
         loadingIndicator.setVisibility(ProgressBar.VISIBLE);
 
         //Ensure GD Authorization is complete.  Cannot request a GD Auth Token until it is.
-        if (isAuthorized)
-        {
+        if (isAuthorized) {
             Spinner serverListSpinner = findViewById(R.id.serverListSpinner);
             int serverIndex = serverListSpinner.getSelectedItemPosition();
             String server = bemsServers.get(serverIndex).getServer();
@@ -110,15 +112,13 @@ public class ContactService extends AppCompatActivity implements GDStateListener
             logOutput("Requesting GD Auth Token for: " + server);
             GDUtility util = new GDUtility();
             util.getGDAuthToken("", server, this);
-        } else
-        {
+        } else {
             logOutput("Not yet authorized to request GD Auth Token. Try again later.");
         }
     }
 
     //Called when the Get Contacts button is pressed.
-    public void onGetContacts(View view)
-    {
+    public void onGetContacts(View view) {
         //Enable the loading indicator.
         loadingIndicator.setVisibility(ProgressBar.VISIBLE);
 
@@ -142,13 +142,12 @@ public class ContactService extends AppCompatActivity implements GDStateListener
         JSONObject searchJson = new JSONObject();
         StringEntity json = null;
 
-        try
-        {
+        try {
             searchJson.put(AppConstants.TAG_ACCOUNT, usersEmail);
             searchJson.put(AppConstants.TAG_MAX_NUMBER_RESULTS, 50);
             searchJson.put(AppConstants.TAG_OFFSET, 0);
 
-            ArrayList<String> shape = new ArrayList<String>();
+            ArrayList<String> shape = new ArrayList<>();
             shape.add(AppConstants.TAG_FULL_NAME);
             shape.add(AppConstants.TAG_EMAIL_ADDRESS);
 
@@ -156,23 +155,19 @@ public class ContactService extends AppCompatActivity implements GDStateListener
 
             json = new StringEntity(searchJson.toString());
 
-            logOutput("Sending JSON: " + searchJson.toString());
+            logOutput("Sending JSON: " + searchJson);
         }
-        catch (Exception jsonex)
-        {
+        catch (Exception jsonex) {
             logOutput("Exception generating JSON: " + jsonex);
         }
 
         //Build the HttpRequestParams.
         HttpRequestParams params = new HttpRequestParams(urlWithServer, headers, json, HttpRequestParams.POST);
-
-        DownloadTask task = new DownloadTask();
-        task.execute(params);
+        downloadExecutor(params);
     }
 
     //Called when the Create Contact button is pressed.
-    public void onCreateContact(View view)
-    {
+    public void onCreateContact(View view) {
         //Enable the loading indicator.
         loadingIndicator.setVisibility(ProgressBar.VISIBLE);
 
@@ -201,79 +196,73 @@ public class ContactService extends AppCompatActivity implements GDStateListener
         String lastName = "Smith";
         String email = "fred@fredsemail.com";
 
-        try
-        {
+        try {
             contactJson.put(AppConstants.TAG_FIRST_NAME, firstName);
             contactJson.put(AppConstants.TAG_LAST_NAME, lastName);
             contactJson.put(AppConstants.TAG_EMAIL_ADDRESS1, email);
 
             json = new StringEntity(contactJson.toString());
 
-            logOutput("Sending JSON: " + contactJson.toString());
+            logOutput("Sending JSON: " + contactJson);
         }
-        catch (Exception jsonex)
-        {
+        catch (Exception jsonex) {
             logOutput("Exception generating JSON: " + jsonex);
         }
 
         //Build the HttpRequestParams.
         HttpRequestParams params = new HttpRequestParams(urlWithServer, headers, json, HttpRequestParams.POST);
-
-        DownloadTask task = new DownloadTask();
-        task.execute(params);
+        downloadExecutor(params);
     }
 
     /**
-     * Implementation of AsyncTask, to fetch the data in the background away from
+     * Implementation of ExecutorService and Handler, to fetch the data in the background away from
      * the UI thread.
      */
-    private class DownloadTask extends AsyncTask<HttpRequestParams, Void, String>
-    {
+    private void downloadExecutor(HttpRequestParams params){
+        ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
+        Handler downloadHandler = new Handler(Looper.getMainLooper());
 
-        private static final int REQUEST_SEARCH = 100;
-        private static final int REQUEST_CREATE = 200;
-        private int requestType = 0;
+        downloadExecutor.execute(new Runnable() {
+            int requestType = 0;
+            String result = "";
+            @Override
+            public void run() {
 
-        @Override
-        protected String doInBackground(HttpRequestParams... params)
-        {
-            if (params[0].getUrl().contains("create")) {
-                requestType = REQUEST_CREATE;
+                if (params.getUrl().contains("create")) {
+                    requestType = REQUEST_CREATE;
+                }
+                else {
+                    requestType = REQUEST_SEARCH;
+                }
+
+                try {
+                    GDHttpConnector http = new GDHttpConnector();
+                    result =  http.doRequest(params);
+
+                } catch (IOException e) {
+                    result =  e.toString();
+                }
+
+                downloadHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        logOutput("JSON Result: " + result);
+
+                        if (REQUEST_CREATE == requestType) {
+                            parseCreateResults(result);
+                        } else if (REQUEST_SEARCH == requestType){
+                            parseSearchResults(result);
+                        } else {
+                            logOutput("Unknown request type.");
+                        }
+                    }
+                });
             }
-            else {
-                requestType = REQUEST_SEARCH;
-            }
-
-            try {
-                GDHttpConnector http = new GDHttpConnector();
-                return http.doRequest(params[0]);
-
-            } catch (IOException e) {
-                return e.toString();
-            }
-        }
-
-        /**
-         * Display the result returned from the network call.
-         */
-        @Override
-        protected void onPostExecute(String result) {
-            logOutput("JSON Result: " + result);
-
-            if (REQUEST_CREATE == requestType) {
-                parseCreateResults(result);
-            } else if (REQUEST_SEARCH == requestType){
-                parseSearchResults(result);
-            } else {
-                logOutput("Unknown request type.");
-            }
-
-        }
+        });
     }
 
     //Parses the JSON returned from BEMS that acknowledges whether the contact creation was successful.
-    private void parseCreateResults(String result)
-    {
+    private void parseCreateResults(String result) {
         String alertTitle;
         String alertMessage;
 
@@ -301,11 +290,9 @@ public class ContactService extends AppCompatActivity implements GDStateListener
 
     //Parses the JSON returned from BEMS that contains the list of contacts
     //returned from the contacts service.
-    private void parseSearchResults(String result)
-    {
+    private void parseSearchResults(String result) {
 
-        if (result != null)
-        {
+        if (result != null) {
             //Clear out all existing contacts.
             contactList.clear();
 
@@ -323,27 +310,22 @@ public class ContactService extends AppCompatActivity implements GDStateListener
                 numResultsTextView.setText("Showing: " + numContacts + " of " + totalCount + " Contacts");
 
                 //Iterate through each contact.
-                for (int count = 0; count < numContacts; count++)
-                {
+                for (int count = 0; count < numContacts; count++) {
                     //Extract the individual contact.
                     JSONObject contact = contacts.getJSONObject(count);
 
                     //Extract the contact name and email address.
                     String displayName;
                     String email;
-                    if (contact.has(AppConstants.TAG_DISPLAY_NAME))
-                    {
+                    if (contact.has(AppConstants.TAG_DISPLAY_NAME)) {
                         displayName = contact.getString(AppConstants.TAG_DISPLAY_NAME);
-                    } else
-                    {
+                    } else {
                         displayName = "Contact has no display name";
                     }
 
-                    if (contact.has(AppConstants.TAG_EMAIL_ADDRESS))
-                    {
+                    if (contact.has(AppConstants.TAG_EMAIL_ADDRESS)) {
                         email = contact.getString(AppConstants.TAG_EMAIL_ADDRESS);
-                    } else
-                    {
+                    } else {
                         email = "Contact has no email";
                     }
 
@@ -356,9 +338,8 @@ public class ContactService extends AppCompatActivity implements GDStateListener
                     contactList.add(c);
                 }
             }
-            catch (Exception ex)
-            {
-                logOutput("Exception parsing result: " + ex.toString());
+            catch (Exception ex) {
+                logOutput("Exception parsing result: " + ex);
             }
 
             //Update parsed JSON data into ListView
@@ -376,8 +357,7 @@ public class ContactService extends AppCompatActivity implements GDStateListener
     }
 
     @Override
-    public void onAuthorized()
-    {
+    public void onAuthorized() {
         isAuthorized = true;
 
         //Get the application configuration, which will contain the user's email address.
@@ -408,8 +388,7 @@ public class ContactService extends AppCompatActivity implements GDStateListener
     public void onUpdateEntitlements() { }
 
     @Override
-    public void onGDAuthTokenSuccess(String token)
-    {
+    public void onGDAuthTokenSuccess(String token) {
         gdAuthToken = token;
         logOutput("Received GD auth token.");
 
@@ -422,8 +401,7 @@ public class ContactService extends AppCompatActivity implements GDStateListener
     }
 
     @Override
-    public void onGDAuthTokenFailure(int errorCode, String error)
-    {
+    public void onGDAuthTokenFailure(int errorCode, String error) {
         logOutput("Failed to receive GD auth token.  ErrorCode: " + errorCode + " Error: " + error);
 
         //Disable the loading indicator.
