@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="bg_color_light">@color/bbd_blue</color>
+    <color name="fg_color_light">@color/bbd_white</color>
+
+    <color name="bg_color_dark">@color/bbd_dark_blue</color>
+    <color name="fg_color_dark">@color/bbd_light_grey</color>
+
+    <color name="red">#ff0000</color>
+    <color name="green">#00ff00</color>
+    <color name="auth_color">@color/green</color>
+    <color name="not_auth_color">@color/red</color>
+
+</resources>

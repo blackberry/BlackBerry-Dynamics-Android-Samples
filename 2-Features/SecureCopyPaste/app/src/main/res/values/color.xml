@@ -1,0 +1,7 @@
+<resources>
+
+    <color name="caption_color_good">#228888</color>
+    <color name="caption_color_bad">#cc2222</color>
+    <color name="hint_color">#aaaaaa</color>
+
+</resources>

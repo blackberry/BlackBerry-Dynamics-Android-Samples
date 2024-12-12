@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.good.labs.searchviewtest.MainActivity">
+
+    <item
+        android:id="@+id/action_search"
+        android:actionLayout="@layout/gd_actionbar_searchview"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="@android:string/search_go"
+        app:actionViewClass="com.good.gd.widget.GDSearchView"
+        app:showAsAction="always"/>
+
+</menu>

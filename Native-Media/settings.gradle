@@ -1,2 +1,0 @@
-include 'GDLibrary'
-project(':GDLibrary').projectDir = new File('GD_SDK/libs/handheld/gd')

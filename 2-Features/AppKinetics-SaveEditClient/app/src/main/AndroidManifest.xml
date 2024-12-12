@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+            android:label="@string/app_name"
+            android:name=".SaveEditClientApplication"
+            android:theme="@style/Theme.GDSampleAppTheme"
+            android:icon="@mipmap/gcs_launcher"
+            android:allowBackup="true"
+            android:fullBackupContent="@xml/gd_backup_scheme">
+
+        <activity
+                android:name=".SaveEditClient"
+                android:label="@string/app_name"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <meta-data android:name="GDApplicationVersion" android:value ="1.0.0.0"/>
+    </application>
+</manifest>

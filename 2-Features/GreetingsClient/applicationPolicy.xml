@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<apd:AppPolicyDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:apd="urn:AppPolicySchema1.good.com" 
+    xsi:schemaLocation="urn:AppPolicySchema1.good.com AppPolicySchema.xsd" >
+    <pview>
+        <pview>
+            <sendto client="None" />
+            <desc>SafetyNet Attestation Supported</desc>
+            <pe ref="apkCertificateDigestSha256"/>
+            <pe ref="apkPackageName" />
+            <pe ref="Description" />
+        </pview>
+    </pview>
+    <setting name="apkCertificateDigestSha256">
+        <hidden>
+            <key>blackberry.appMetadata.android.apkCertificateDigestSha256</key>
+            <value>DD:83:CA:47:09:FA:C5:33:75:FE:F4:A1:B5:FB:F4:A8:E8:C2:7A:DF:AF:24:0D:7B:E3:BA:BD:FB:A9:2B:F9:D6</value>
+    </hidden>
+    </setting>
+    <setting name="apkPackageName">
+        <hidden>
+            <key>blackberry.appMetadata.android.apkPackageName</key>
+            <value>com.good.gd.example.services.greetings.client</value>
+        </hidden>
+    </setting>
+    <setting name="Description" >
+        <text>
+            <key>snet</key>
+            <label>Safety Net</label>
+            <value>Safety Net</value>
+        </text>
+    </setting>
+    <setting name="policyVersion" >
+        <hidden>
+            <key>version</key>
+            <value>1.0</value>
+        </hidden>
+    </setting>
+    <setting name="com.blackberry.allowSelfAuthentication" >
+        <desc>If there is no Auth Delegate then this setting has no
+            effect. If ticked or checked, the Auth Delegate will no
+            longer be used to unlock this app. Instead, this app will
+            inherit the Auth Delegate's password and it will use an
+            appropriate authentication method to unlock itself.
+
+            If you want to keep the old behaviour, where the app may
+            launch the Auth Delegate, then do not tick or check this
+            setting.
+        </desc>
+        <checkbox>
+            <key>com.blackberry.allowSelfAuthentication</key>
+            <label>Allow self authentication</label>
+            <value>false</value>
+        </checkbox>
+    </setting>
+    <pview>
+        <pe ref="policyVersion" />
+        <pe ref="com.blackberry.allowSelfAuthentication" />
+    </pview>
+</apd:AppPolicyDefinition>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:showAsAction="always"
+        android:id="@+id/action_bring_client_to_front"
+        android:title="@string/str_bring_to_front"
+        android:icon="@mipmap/ic_menu_bright_to_front"
+        tools:ignore="AppCompatResource" />
+
+    <item
+        android:showAsAction="always"
+        android:id="@+id/action_request_notifications"
+        android:title="@string/str_request_permissions"
+        android:icon="@drawable/ic_bell"
+        tools:ignore="AppCompatResource" />
+
+</menu>

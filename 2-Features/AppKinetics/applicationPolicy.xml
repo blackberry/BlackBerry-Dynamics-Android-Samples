@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<apd:AppPolicyDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:apd="urn:AppPolicySchema1.good.com" 
+    xsi:schemaLocation="urn:AppPolicySchema1.good.com AppPolicySchema.xsd" >
+    <pview>
+        <pview>
+            <sendto client="None" />
+            <desc>SafetyNet Attestation Supported</desc>
+            <pe ref="apkCertificateDigestSha256"/>
+            <pe ref="apkPackageName" />
+            <pe ref="Description" />
+        </pview>
+    </pview>
+    <setting name="apkCertificateDigestSha256">
+        <hidden>
+            <key>blackberry.appMetadata.android.apkCertificateDigestSha256</key>
+            <value>DD:83:CA:47:09:FA:C5:33:75:FE:F4:A1:B5:FB:F4:A8:E8:C2:7A:DF:AF:24:0D:7B:E3:BA:BD:FB:A9:2B:F9:D6</value>
+    </hidden>
+    </setting>
+    <setting name="apkPackageName">
+        <hidden>
+            <key>blackberry.appMetadata.android.apkPackageName</key>
+            <value>com.good.gd.example.appkinetics</value>
+        </hidden>
+    </setting>
+    <setting name="Description" >
+        <text>
+            <key>snet</key>
+            <label>Safety Net</label>
+            <value>Safety Net</value>
+        </text>
+    </setting>
+</apd:AppPolicyDefinition>

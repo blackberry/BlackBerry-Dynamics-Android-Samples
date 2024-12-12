@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:id="@+id/action_view_menu"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:paddingTop="10dp"
+    android:weightSum="125"
+    android:minWidth="300dp">
+
+    <LinearLayout
+        android:id="@+id/action_add"
+        android:layout_width="0dp"
+        android:layout_weight="25"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
+        android:orientation="vertical"
+        android:weightSum="1" >
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.5"
+            android:contentDescription="@string/ADD_CONTACT"
+            android:src="@drawable/ic_add" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:gravity="center"
+            android:text="@string/ADD_CONTACT"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <View style="@style/Theme.GDSampleAppTheme.ActionBar.Separator" />
+
+    <LinearLayout
+        android:id="@+id/action_add_500"
+        android:layout_width="0dp"
+        android:layout_weight="25"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
+        android:orientation="vertical"
+        android:weightSum="1" >
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.5"
+            android:contentDescription="@string/ADD_500_CONTACTS"
+            android:src="@drawable/ic_add500" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:gravity="center"
+            android:text="@string/ADD_500_CONTACTS"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <View style="@style/Theme.GDSampleAppTheme.ActionBar.Separator" />
+
+    <LinearLayout
+        android:id="@+id/action_delete_all"
+        android:layout_width="0dp"
+        android:layout_weight="25"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
+        android:orientation="vertical"
+        android:weightSum="1" >
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.5"
+            android:contentDescription="@string/DELETE_ALL_CONTACTS"
+            android:src="@drawable/ic_delete_all" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="0.5"
+            android:gravity="center"
+            android:text="@string/DELETE_ALL_CONTACTS"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <View style="@style/Theme.GDSampleAppTheme.ActionBar.Separator" />
+
+    <LinearLayout
+        android:id="@+id/action_heavy_query"
+        android:layout_width="0dp"
+        android:layout_weight="25"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
+        android:orientation="vertical"
+        android:weightSum="1">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.5"
+            android:contentDescription="@string/EXECUTE_HEAVY_QUERY"
+            android:src="@drawable/ic_query" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="0.5"
+            android:gravity="center"
+            android:text="@string/HEAVY_QUERY"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+    <View style="@style/Theme.GDSampleAppTheme.ActionBar.Separator" />
+
+    <LinearLayout
+        android:id="@+id/action_settings"
+        android:layout_width="0dp"
+        android:layout_weight="25"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
+        android:orientation="vertical"
+        android:weightSum="1">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.5"
+            android:contentDescription="@string/SETTINGS"
+            android:src="@android:drawable/ic_menu_manage" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="0.5"
+            android:gravity="center"
+            android:text="@string/SETTINGS"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+</LinearLayout>

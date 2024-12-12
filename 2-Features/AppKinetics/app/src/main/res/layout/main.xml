@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:id="@+id/bbd_appkinetics_UI">
+
+	<include layout="@layout/sample_app_top_bar"/>
+
+	<ListView
+	    android:id="@+id/listview"
+		android:layout_below="@+id/app_bar"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" />
+
+	<LinearLayout
+		android:id="@+id/bottom_bar"
+		android:orientation="horizontal"
+		android:background="@color/bbd_blue"
+		android:layout_centerHorizontal="true"
+		android:layout_alignParentBottom="true"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+	<include layout="@layout/main_action_bar_container"/>
+
+	</LinearLayout>
+
+</RelativeLayout>

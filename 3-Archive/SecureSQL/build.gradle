@@ -1,0 +1,106 @@
+apply plugin: 'com.android.application'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.1'
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        google()
+        maven { url 'https://software.download.blackberry.com/repository/maven' }
+    }
+}
+
+android {
+
+    namespace "com.good.gd.example.securesql"
+    testNamespace "com.good.gd.example.securesql.test"
+
+    compileSdk 34
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+            jniLibs.srcDirs = ['libs']
+        }
+
+        androidTest {
+            manifest.srcFile 'tests/AndroidManifest.xml'
+            java.srcDirs = ['tests']
+            assets.srcDirs = ['tests/assets']
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    signingConfigs {
+        signingConfig {
+            keyAlias 'alias'
+            keyPassword 'keypassword'
+            storeFile file(projectDir.absolutePath + '/keystore')
+            storePassword 'password'
+        }
+    }
+
+    defaultConfig {
+        minSdk 30
+        applicationId "com.good.gd.example.securesql"
+        targetSdk 34
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            testProguardFile 'proguard-test-rules.pro'
+            signingConfig signingConfigs.signingConfig
+        }
+    }
+}
+
+dependencies {
+    if (enableBinaryConfiguration.toBoolean()) {
+        def sdkGroupId = 'com.blackberry.blackberrydynamics' + (useDebugSdk.toBoolean() ? '.debug' : '')
+        implementation "$sdkGroupId:android_handheld_platform:$gdSdkVersion"
+        implementation "$sdkGroupId:android_handheld_backup_support:$gdSdkVersion"
+        androidTestImplementation "$sdkGroupId:atsl:$gdSdkVersion"
+    } else {
+        implementation project(':GDLibrary')
+        implementation project(':GDLibrary_BackupSupport')
+        androidTestImplementation project(':DynamicsATSL')
+    }
+
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.annotation:annotation:1.2.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.google.android.material:material:1.9.0'
+
+    //Test Implementation Dependencies are used only when building app for android Automated Tests
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
+    androidTestImplementation 'androidx.annotation:annotation:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+    androidTestImplementation 'androidx.legacy:legacy-support-v4:1.0.0'
+}
+
+

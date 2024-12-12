@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+   <item
+        android:id="@+id/option_me"
+        android:showAsAction="ifRoom"
+        android:title="@string/prefer_me_in_foreground"
+        tools:ignore="AppCompatResource" />
+    <item
+        android:id="@+id/option_peer"
+        android:showAsAction="ifRoom"
+        android:title="@string/prefer_peer_in_foreground"
+        tools:ignore="AppCompatResource" />
+    <item
+        android:id="@+id/option_no"
+        android:showAsAction="ifRoom"
+        android:title="@string/no_foreground_option"
+        tools:ignore="AppCompatResource" />
+
+</menu>

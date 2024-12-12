@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+  
+          http://www.apache.org/licenses/LICENSE-2.0
+  
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- This file contains resource definitions for displayed strings, allowing
+     them to be changed based on the locale and options. -->
+
+<resources>
+    <!-- Simple strings. -->
+    <string name="app_name">Bypass Unlock</string>
+    <string name="select_one_of_the_actions">Select one of the actions </string>
+
+    <string name="accept_string">Accept </string>
+    <string name="reject_string">Reject </string>
+    <string name="endcall_string">End Call </string>
+    <string name="incoming_screen_string">Incoming Call Screen </string>
+    <string name="incall_screen_string">In-Call Screen </string>
+    <string name="apppolicy_string">Application Policy: </string>
+    <string name="contacts_string">Contacts </string>
+    <string name="locked">Locked </string>
+    <string name="unlocked">Unlocked </string>
+    <string name="block_for_10_seconds">Block for 10 seconds</string>
+    <string name="block_until_broadcast">Block until broadcast</string>
+</resources>
+

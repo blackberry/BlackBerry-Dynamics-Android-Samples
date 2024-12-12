@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="Theme.GDSampleAppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowDisablePreview">true</item>
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/bbd_blue</item>
+        <item name="colorPrimaryDark">@color/bbd_blue</item>
+        <item name="colorAccent">@color/bbd_blue</item>
+        <!-- Status bar color -->
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.GDSampleAppTheme.ActionBar" parent="android:Widget.Holo.Light.ActionBar">
+        <item name="android:background">@color/bbd_blue</item>
+        <item name="android:backgroundStacked">@color/bbd_blue</item>
+        <item name="android:backgroundSplit">@color/bbd_blue</item>
+        <item name="android:titleTextStyle">@style/Theme.GDSampleAppTheme.ActionBar.Title</item>
+    </style>
+
+    <style name="Theme.GDSampleAppTheme.ActionBar.Title" parent="android:TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="Theme.GDSampleAppTheme.BbdLightGrey" parent="android:Theme.Holo.Light">
+        <item name="android:background">@color/bbd_light_grey</item>
+    </style>
+
+    <style name="Theme.GDSampleAppTheme.BbdDarkGrey" parent="android:Theme.Holo.Light">
+        <item name="android:background">@color/bbd_dark_grey</item>
+    </style>
+
+    <style name="Theme.GDSampleAppTheme.ActionBar.Separator">
+        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+</resources>

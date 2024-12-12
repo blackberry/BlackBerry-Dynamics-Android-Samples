@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SecureCopyPaste</string>
+
+    <string name="activity_title_widgets_gd">Basic Widgets</string>
+    <string name="activity_title_widgets_appcompat">AppCompat Widgets</string>
+    <string name="activity_title_widgets_appcompat_inflater">AppCompat Widgets + Inflater</string>
+    <string name="activity_title_richtext">Rich Text</string>
+    <string name="activity_title_prefs">Preferences</string>
+
+    <string name="gd_text_view">GDTextView</string>
+    <string name="gd_no_select_text_view">GDTextView, not selectable, longer for ellipsis</string>
+    <string name="gd_edit_text_hint">GDEditText</string>
+    <string name="gd_auto_complete_text_hint">GDAutoCompleteTextView</string>
+    <string name="gd_multi_auto_complete_text_hint">GDMultiAutoCompleteTextView</string>
+    <string name="gd_search_view_hint">GDSearchView</string>
+    <string name="gd_web_view_text"><html><body>GDWebView</body></html></string>
+
+    <string name="non_gd_text_view">Non-GD TextView</string>
+    <string name="non_gd_no_select_text_view">Non-GD TextView, not selectable, longer for ellipsis</string>
+    <string name="non_gd_edit_text_hint">Non-GD EditText</string>
+    <string name="non_gd_auto_complete_text_hint">Non-GD AutoCompleteTextView</string>
+    <string name="non_gd_multi_auto_complete_text_hint">Non-GD Multi AutoCompleteTextView</string>
+    <string name="non_gd_search_view_hint">Non-GD SearchView</string>
+    <string name="non_gd_web_view_text"><html><body>Non-GD WebView</body></html></string>
+
+    <string name="inline_preferences">In-line preferences</string>
+    <string name="dialog_based_preferences">Dialog-based preferences</string>
+
+    <string name="launch_preferences">Launch preferences</string>
+    <string name="launch_fingerprint">Launch fingerprint</string>
+
+    <string name="title_checkbox_preference">Checkbox preference</string>
+    <string name="summary_checkbox_preference">This is a checkbox</string>
+
+    <string name="title_edittext_preference">Edit text preference</string>
+    <string name="summary_edittext_preference">An example that uses an GD Secure edit text dialog</string>
+    <string name="dialog_title_edittext_preference">Secure GD EditText</string>
+
+    <string name="title_list_preference">List preference</string>
+    <string name="summary_list_preference">An example that uses a list dialog</string>
+    <string name="dialog_title_list_preference">Choose one</string>
+
+    <string name="search_hint">dummy searchview</string>
+    <string name="field_length_hint">Note: maximum length is %1$d characters</string>
+
+    <string name="dlp_policy_title">DLP Policy Settings</string>
+    <string name="inbound_dpl_title">InBound DLP</string>
+    <string name="outbound_dpl_title">OutBound DLP</string>
+    <string name="dictation_title">Prevent Dictation</string>
+
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+
+    <string name="email">Email</string>
+    <string name="secure_clipboard">Secure Clipboard</string>
+    <string name="system_clipboard">System Clipboard</string>
+    <string name="clear_all_fields">Clear all fields</string>
+    <string name="generate_random_text">Generate random text</string>
+
+</resources>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/app_bottom_bar"
+    android:orientation="vertical"
+    android:layout_gravity="center_horizontal"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <include layout="@layout/switch_btns_container" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/action_activate_application"
+            android:src="@drawable/ic_settings_device_to_be_activated"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:onClick="onClick"
+            android:visibility="gone"
+            android:title="@string/activate_application"/>
+
+        <ImageView
+            android:id="@+id/action_activate_application_disallowed"
+            android:src="@drawable/ic_settings_device_admin_enterprise_disabled"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:onClick="onClick"
+            android:visibility="gone"
+            android:title="@string/activate_application_disallowed_by_enterprise"/>
+
+        <ImageView
+            android:id="@+id/action_application_connected"
+            android:src="@drawable/ic_settings_device_connected"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:onClick="onClick"
+            android:visibility="gone"
+            android:title="@string/application_connected"/>
+
+        <ImageView
+            android:id="@+id/action_create_folder"
+            android:src="@mipmap/ic_folder"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:onClick="onClick"
+            android:title="@string/CREATE_FOLDER"/>
+
+        <ImageView
+            android:id="@+id/action_container"
+            android:src="@mipmap/ic_container"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:onClick="onClick"
+            android:title="@string/CONTAINER"/>
+
+        <ImageView
+            android:id="@+id/action_lock"
+            android:src="@mipmap/ic_lock"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:onClick="onClick"
+            android:title="@string/LOCK"/>
+
+        <ImageView
+            android:id="@+id/action_manage_connected_apps"
+            android:src="@drawable/ic_settings_device_to_be_activated"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:onClick="onClick"
+            android:visibility="gone"
+            android:title="@string/MANAGE_CONNECTED_APPS"/>
+
+        <ImageView
+            android:id="@+id/action_back"
+            android:src="@drawable/back_arrow"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:onClick="onClick"
+            android:title="@string/MANAGE_CONNECTED_APPS"/>
+
+    </LinearLayout>
+
+</LinearLayout>

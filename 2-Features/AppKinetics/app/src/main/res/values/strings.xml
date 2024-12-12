@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="message">Send/Receive files:</string>
+	<string name="app_name">AppKinetics</string>
+	<string name="xfer_submenu">AppKinetics Services…</string>
+	<string name="file_submenu">Select File…</string>
+	<string name="no_file">Select file to send…</string>
+	<string name="empty_svcs">No services found</string>
+	<string name="work_service">working with service:</string>
+	<string name="service_not_found">working with service:</string>
+	<string name="empty_assets">No files found</string>
+	<string name="select_file">please select a file first</string>
+	<string name="remote_file">Received Remote AppKinetics File:</string>
+	<string name="ok">OK</string>
+	<string name="cancel">Cancel</string>
+	<string name="send_to">Send To</string>
+	<string name="delete">Delete Selected Files</string>
+	<string name="reset">Reset File List</string>
+	<string name="overwrite_dialog_substr1">File \"</string>
+	<string name="overwrite_dialog_substr2">\" already exists. Should it be overwritten?</string>
+	<string name="select_one_of_the_actions">Select one of the actions </string>
+	<string name="error">Error</string>
+	<string name="no_providers">No service providers found on the device!</string>
+	<string name="error_wrong_attachments_no">Invalid number of attachments.\nTransfer File Service supports only one file at a time.</string>
+</resources>

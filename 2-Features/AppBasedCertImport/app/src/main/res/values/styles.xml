@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="Theme.GDSampleAppTheme" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:windowDisablePreview">true</item>
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/bbd_blue</item>
+        <item name="colorPrimaryDark">@color/bbd_blue</item>
+        <item name="colorAccent">@color/bbd_blue</item>
+        <!-- Status bar color -->
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+</resources>

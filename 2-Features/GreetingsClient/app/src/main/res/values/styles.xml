@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="Theme.GDSampleAppTheme" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:windowDisablePreview">true</item>
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/bbd_blue</item>
+        <item name="colorPrimaryDark">@color/bbd_blue</item>
+        <item name="colorAccent">@color/bbd_blue</item>
+        <!-- Status bar color -->
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.GDSampleAppTheme.TextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/bbd_white</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:maxWidth">80dp</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <style name="Theme.GDSampleAppTheme.Separator">
+        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:layout_weight">0</item>
+        <item name="android:background">@color/bbd_white</item>
+    </style>
+
+    <style name="Theme.GDSampleAppTheme.Separator.Horizontal">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_weight">0</item>
+        <item name="android:background">@color/bbd_white</item>
+    </style>
+
+</resources>

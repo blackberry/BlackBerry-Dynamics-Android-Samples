@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scroller"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fillViewport="true"
+    >
+
+    <include layout="@layout/sample_app_top_bar"/>
+
+    <LinearLayout
+        android:id="@+id/content_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <!-- first name -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="@string/FIRST_NAME"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#aaaaaa" />
+
+        <EditText
+            android:id="@+id/firstName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:maxLines="1"
+            android:text=""
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <!-- second name -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="@string/SECOND_NAME"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#aaaaaa" />
+
+        <EditText
+            android:id="@+id/secondName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:maxLines="1"
+            android:text=""
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <!-- phone -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="@string/PHONE_NUMBER"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#aaaaaa" />
+
+        <EditText
+            android:id="@+id/phoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLines="1"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <!-- notes -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="@string/NOTES"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#aaaaaa" />
+
+        <EditText
+            android:id="@+id/notes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:autoText="true"
+            android:capitalize="sentences"
+            android:gravity="start|top"
+            android:minLines="3"
+            android:scrollbars="vertical"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="?android:attr/textColorSecondary" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/main_app_color">
+
+    <include layout="@layout/edit_controls" />
+
+    </LinearLayout>
+
+</LinearLayout>

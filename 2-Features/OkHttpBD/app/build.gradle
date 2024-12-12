@@ -1,0 +1,44 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.blackberry.dynamics.sample.okhttp'
+
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.blackberry.dynamics.sample.okhttp'
+        minSdk 30
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:12.1.+'
+    androidTestImplementation 'com.blackberry.blackberrydynamics:atsl:12.1.+'
+
+    implementation "com.squareup.okhttp3:okhttp:4.9.1"
+    implementation "com.squareup.okio:okio:2.9.0"
+    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
+    implementation 'net.jcip:jcip-annotations:1.0'
+
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+}
+

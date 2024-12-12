@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<apd:AppPolicyDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:apd="urn:AppPolicySchema1.good.com"
+	xsi:schemaLocation="urn:AppPolicySchema1.good.com AppPolicySchema.xsd" >
+
+	<!--
+	Bypass Unlock application policy definition used for the Bypass Unlock sample app.
+
+	(c) 2016 BlackBerry Limited. All rights reserved.
+	-->
+	<pview>
+		<pview type="tabbed" key="applicationTabOne">
+			<title>Application Tab One</title>
+			<pe ref="settingOne" />
+		</pview>
+
+		<pview type="tabbed" key="about">
+			<title>About</title>
+			<heading>Bypass Unlock Application</heading>
+			<desc>Bypass Unlock Sample application for Good Dynamics.</desc>
+		</pview>
+
+		<pview type="tabbed" key="gdDynamicsFeatures">
+			<title>Good Dynamics Features</title>
+			<pe ref="GD_SDK_Security_AllowBypassUnlock" />
+			<desc> - Incoming Call Screen</desc>
+			<desc> - In-Call Screen </desc>
+		</pview>
+
+		<pe ref="policyVersion" />
+	</pview>
+
+	<setting name="policyVersion" >
+		<hidden>
+			<key>version</key>
+			<value>2.0</value>
+		</hidden>
+	</setting>
+
+	<setting name="settingOne">
+		<multiselect>
+			<key>settingOne</key>
+			<label>Application Setting One</label>
+			<value ref="defaultSettingsTabs" />
+			<options ref="allSettingsTabs"/>
+		</multiselect>
+	</setting>
+	<dl name="allSettingsTabs">
+		<dv><desc>Option #1</desc><value>Option1</value></dv>
+		<dv><desc>Option #2</desc><value>Option2</value></dv>
+		<dv><desc>Option #3</desc><value>Option3</value></dv>
+		<dv><desc>Option #4</desc><value>Option4</value></dv>
+	</dl>
+	<do name="defaultSettingsTabs">
+		<value>Option1</value>
+		<value>Option2</value>
+	</do>
+
+	<setting name="GD_SDK_Security_AllowBypassUnlock" >
+		<checkbox>
+			<key>GD_SDK_Security_AllowBypassUnlock</key>
+			<label>Allow parts of the user interface to be displayed when idle lock is in place</label>
+			<value>false</value>
+		</checkbox>
+	</setting>
+
+
+
+</apd:AppPolicyDefinition>

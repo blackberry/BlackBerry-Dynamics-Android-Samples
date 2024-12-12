@@ -1,0 +1,93 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="11"
+    android:id="@+id/bbd_bypass_unlock_UI">
+
+    <include layout="@layout/sample_app_top_bar"/>
+
+    <ScrollView
+        android:id="@+id/content_layout"
+        android:layout_weight="5"
+        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_margin="20dp">
+
+        <com.good.gd.widget.GDTextView
+            android:id="@+id/text_introduction"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
+    </ScrollView>
+
+    <View
+        android:id="@+id/seperator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="20dp"
+        android:background="@color/bbd_blue" />
+
+    <ScrollView
+        android:id="@+id/description_layout"
+        android:layout_weight="5"
+        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.good.gd.widget.GDTextView
+                android:layout_height="wrap_content"
+                android:text="@string/apppolicy_string"
+                android:textSize="25sp"
+                android:layout_width="wrap_content"/>
+
+            <com.good.gd.widget.GDTextView
+                android:id="@+id/text_policy"
+                android:layout_marginTop="10dp"
+                android:textColor="#666666"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"/>
+
+        </LinearLayout>
+    </ScrollView>
+    <LinearLayout
+        android:id="@+id/bbd_gd_interaction_local_compliance_actions"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:minWidth="@dimen/min_width"
+        android:orientation="horizontal"
+        tools:ignore="NestedWeights"
+        android:background="@color/bbd_blue">
+
+        <com.good.gd.widget.GDTextView
+            android:id="@+id/action_block_for_10_seconds"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/block_for_10_seconds"
+            android:onClick="onClick"
+            android:textColor="@android:color/white" />
+
+        <View style="@style/Theme.GDSampleAppTheme.ActionBar.Separator" />
+
+        <com.good.gd.widget.GDTextView
+            android:id="@+id/action_block_until_broadcast"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/block_until_broadcast"
+            android:onClick="onClick"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+</LinearLayout>
