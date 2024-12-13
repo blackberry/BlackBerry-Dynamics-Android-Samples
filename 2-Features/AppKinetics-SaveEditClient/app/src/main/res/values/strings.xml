@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SaveEdit Client</string>
+    <string name="send_to_label">Send To</string>
+    <string name="send_label">Send</string>
+</resources>

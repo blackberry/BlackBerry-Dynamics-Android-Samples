@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Secure Sql</string>
+    <string name="SAVE">Save</string>
+    <string name="CANCEL">Cancel</string>
+    <string name="MENU_STRING_OPEN">Open</string>
+    <string name="MENU_STRING_DELETE">Delete</string>
+    <string name="MENU_STRING_EDIT">Edit</string>
+    <string name="EMPTY_LIST">No Contacts, select the menu option \"Add Contact\"</string>
+    <string name="FIRST_NAME">First Name:"</string>
+    <string name="SECOND_NAME">Second Name:</string>
+    <string name="PHONE_NUMBER">Phone Number:</string>
+    <string name="NOTES">Notes:</string>
+    <string name="ADD_CONTACT">Add Contact </string>
+    <string name="ADD_500_CONTACTS">Add 500 contacts </string>
+    <string name="DELETE_ALL_CONTACTS">Delete all contacts </string>
+    <string name="SELECT_ONE_OF_ACTIONS">Select one of the actions </string>
+    <string name="TOTAL_COUNT">Count </string>
+    <string name="EXECUTE_HEAVY_QUERY">Execute heavy query </string>
+    <string name="HEAVY_QUERY">Heavy query </string>
+    <string name="SETTINGS">Settings</string>
+
+    <string name="deleteSettings">Delete settings</string>
+    <string name="askPassword">Reauthenticate user before deleting records</string>
+    <string name="reauthTimeoutSec">Prompt timeout (sec)</string>
+    <string name="reauthGraceSec">Grace period (sec)</string>
+    <string name="enforceText">Enforce Authentication</string>
+    <string name="usePwdText">Require password authentication</string>
+</resources>

@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/main_layout">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <include layout="@layout/sample_app_top_bar"/>
+
+    <LinearLayout
+        android:id="@+id/content_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/gd_view_horizontal_margin"
+        android:layout_marginEnd="@dimen/gd_view_horizontal_margin"
+        android:orientation="vertical">
+
+        <TableLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:stretchColumns="*"
+            android:shrinkColumns="*"
+            >
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gd_view_vertical_margin"
+                    android:orientation="vertical">
+
+                    <com.good.gd.widget.GDTextView
+                        android:id="@+id/gdNoSelectTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gd_view_height"
+                        android:paddingLeft="@dimen/left_padding_for_edit_texts"
+                        android:paddingBottom="2dp"
+                        android:gravity="bottom"
+                        android:textSize="18sp"
+                        android:text="@string/gd_no_select_text_view"
+                        android:maxLines="2"
+                        android:scrollHorizontally="true"
+                        android:ellipsize="end"
+                        android:textIsSelectable="false"
+                        />
+
+                    <android.widget.TextView
+                        android:id="@+id/gdNoSelectTextViewCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gd_view_vertical_margin"
+                    android:layout_marginStart="@dimen/gd_view_horizontal_margin"
+                    android:orientation="vertical">
+
+                    <!-- enforce standard widget by using the full class name -->
+                    <android.widget.TextView
+                        android:id="@+id/nonGdNoSelectTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gd_view_height"
+                        android:paddingLeft="@dimen/left_padding_for_edit_texts"
+                        android:paddingBottom="2dp"
+                        android:gravity="bottom"
+                        android:textSize="18sp"
+                        android:text="@string/non_gd_no_select_text_view"
+                        android:maxLines="2"
+                        android:scrollHorizontally="true"
+                        android:ellipsize="end"
+                        android:textIsSelectable="false"
+                        />
+
+                    <TextView
+                        android:id="@+id/nonGdNoSelectTextViewCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.good.gd.widget.GDTextView
+                        android:id="@+id/gdTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gd_view_height"
+                        android:paddingLeft="@dimen/left_padding_for_edit_texts"
+                        android:paddingBottom="2dp"
+                        android:gravity="bottom"
+                        android:textSize="18sp"
+                        android:text="@string/gd_text_view"
+                        android:textIsSelectable="true"/>
+
+                    <android.widget.TextView
+                        android:id="@+id/gdTextViewCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/gd_view_horizontal_margin"
+                    android:orientation="vertical">
+
+                    <!-- enforce standard widget by using the full class name -->
+                    <android.widget.TextView
+                        android:id="@+id/nonGdTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gd_view_height"
+                        android:paddingLeft="@dimen/left_padding_for_edit_texts"
+                        android:paddingBottom="2dp"
+                        android:gravity="bottom"
+                        android:textSize="18sp"
+                        android:text="@string/non_gd_text_view"
+                        android:textIsSelectable="true"/>
+
+                    <TextView
+                        android:id="@+id/nonGdTextViewCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gd_view_vertical_margin"
+                    android:orientation="vertical">
+
+                    <com.good.gd.widget.GDEditText
+                        android:id="@+id/gdEditText"
+                        android:imeOptions="actionNext"
+                        android:nextFocusForward="@+id/gd_auto_complete_text_view"
+                        android:hint="@string/gd_edit_text_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gd_view_height"
+                        android:ellipsize="end"
+                        android:maxLength="@integer/field_limit"/>
+
+                    <android.widget.TextView
+                        android:id="@+id/gdEditTextCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gd_view_vertical_margin"
+                    android:layout_marginStart="@dimen/gd_view_horizontal_margin"
+                    android:layout_marginEnd="@dimen/gd_view_horizontal_margin"
+                    android:orientation="vertical">
+
+                    <!-- enforce standard widget by using the full class name -->
+                    <android.widget.EditText
+                        android:id="@+id/nonGdEditText"
+                        android:imeOptions="actionNext"
+                        android:nextFocusForward="@+id/auto_complete_text_view"
+                        android:hint="@string/non_gd_edit_text_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gd_view_height"
+                        android:ellipsize="end"
+                        android:maxLength="@integer/field_limit"/>
+
+                    <android.widget.TextView
+                        android:id="@+id/nonGdEditTextCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gd_view_vertical_margin"
+                    android:orientation="vertical">
+
+                    <com.good.gd.widget.GDAutoCompleteTextView
+                        android:id="@+id/gdAutoCompleteTextView"
+                        android:imeOptions="actionNext"
+                        android:nextFocusForward="@+id/gd_multi_auto_complete_text_view"
+                        android:hint="@string/gd_auto_complete_text_hint"
+                        android:singleLine="true"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gd_view_height"
+                        android:ellipsize="end"
+                        android:maxLength="@integer/field_limit"/>
+
+                    <android.widget.TextView
+                        android:id="@+id/gdAutoCompleteTextViewCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gd_view_vertical_margin"
+                    android:layout_marginStart="@dimen/gd_view_horizontal_margin"
+                    android:orientation="vertical">
+
+                    <!-- enforce standard widget by using the full class name -->
+                    <android.widget.AutoCompleteTextView
+                        android:id="@+id/nonGdAutoCompleteTextView"
+                        android:imeOptions="actionNext"
+                        android:nextFocusForward="@+id/multi_auto_complete_text_view"
+                        android:hint="@string/non_gd_auto_complete_text_hint"
+                        android:singleLine="true"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gd_view_height"
+                        android:ellipsize="end"
+                        android:maxLength="@integer/field_limit"/>
+
+                    <android.widget.TextView
+                        android:id="@+id/nonGdAutoCompleteTextViewCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gd_view_vertical_margin"
+                    android:orientation="vertical">
+
+                    <com.good.gd.widget.GDMultiAutoCompleteTextView
+                        android:id="@+id/gdMultiAutoCompleteTextView"
+                        android:imeOptions="actionNext"
+                        android:nextFocusForward="@+id/text_view_gd_clipboard"
+                        android:hint="@string/gd_multi_auto_complete_text_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gd_view_height"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:maxLength="@integer/field_limit"/>
+
+                    <android.widget.TextView
+                        android:id="@+id/gdMultiAutoCompleteTextViewCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gd_view_vertical_margin"
+                    android:layout_marginStart="@dimen/gd_view_horizontal_margin"
+                    android:orientation="vertical">
+
+                    <!-- enforce standard widget by using the full class name -->
+                    <android.widget.MultiAutoCompleteTextView
+                        android:id="@+id/nonGdMultiAutoCompleteTextView"
+                        android:imeOptions="actionNext"
+                        android:nextFocusForward="@+id/text_view_system_clipboard"
+                        android:hint="@string/non_gd_multi_auto_complete_text_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gd_view_height"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:maxLength="@integer/field_limit"/>
+
+                    <android.widget.TextView
+                        android:id="@+id/nonGdMultiAutoCompleteTextViewCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gd_view_vertical_margin"
+                    android:orientation="vertical">
+
+                    <com.good.gd.example.cutcopypaste.SecureClipboardView
+                        android:id="@+id/gdClipboardView"
+                        android:imeOptions="actionNext"
+                        android:nextFocusForward="@+id/edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gd_view_height"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:hint="@string/secure_clipboard"
+                        android:maxLength="@integer/field_limit"/>
+
+                    <android.widget.TextView
+                        android:id="@+id/gdClipboardViewCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gd_view_vertical_margin"
+                    android:layout_marginStart="@dimen/gd_view_horizontal_margin"
+                    android:orientation="vertical">
+
+                    <com.good.gd.example.cutcopypaste.SystemClipboardView
+                        android:id="@+id/nonGdClipboardView"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gd_view_height"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:hint="@string/system_clipboard"
+                        android:maxLength="@integer/field_limit"/>
+
+                    <android.widget.TextView
+                        android:id="@+id/nonGdClipboardViewCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gd_view_vertical_margin"
+                    android:orientation="vertical">
+
+                    <com.good.gd.widget.GDSearchView
+                        android:id="@+id/gdSearchView"
+                        android:queryHint="@string/gd_search_view_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gd_view_height"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:maxLength="@integer/field_limit"/>
+
+                    <android.widget.TextView
+                        android:id="@+id/gdSearchViewCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gd_view_vertical_margin"
+                    android:layout_marginStart="@dimen/gd_view_horizontal_margin"
+                    android:orientation="vertical">
+
+                    <SearchView
+                        android:id="@+id/nonGdSearchView"
+                        android:queryHint="@string/non_gd_search_view_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gd_view_height"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:maxLength="@integer/field_limit"/>
+
+                    <android.widget.TextView
+                        android:id="@+id/nonGdSearchViewCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:minHeight="100dp"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/gd_web_view_height"
+                    android:layout_marginTop="@dimen/gd_view_vertical_margin"
+                    android:orientation="vertical">
+
+                    <com.good.gd.widget.GDWebView
+                        android:id="@+id/gdWebView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        />
+
+                    <android.widget.TextView
+                        android:id="@+id/gdWebViewCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/gd_web_view_height"
+                    android:layout_marginTop="@dimen/gd_view_vertical_margin"
+                    android:layout_marginStart="@dimen/gd_view_horizontal_margin"
+                    android:orientation="vertical">
+
+                    <WebView
+                        android:id="@+id/nonGdWebView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        />
+
+                    <android.widget.TextView
+                        android:id="@+id/nonGdWebViewCaption"
+                        style="@style/Theme.GDSampleAppTheme.Caption" />
+
+                </LinearLayout>
+
+            </TableRow>
+
+        </TableLayout>
+
+        <TextView
+            android:id="@+id/fieldLengthInfoView"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginTop="@dimen/gd_view_vertical_margin"
+            android:textSize="18sp"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:layout_marginTop="12dp"
+            android:padding="12dp"
+            android:onClick="generateText"
+            android:background="@drawable/bordered"
+            android:text="@string/dlp_policy_title"
+            android:textIsSelectable="false"
+            />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bordered"
+            >
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bordered"
+                >
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="2dp"
+                    android:gravity="center"
+                    android:text="@string/outbound_dpl_title"
+                    android:textAppearance="@android:style/TextAppearance.Holo.Medium"
+                    />
+
+                <TextView
+                    android:id="@+id/outboundState"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="2dp"
+                    android:gravity="center"
+                    android:text="@string/enabled"
+                    android:textAppearance="@android:style/TextAppearance.Holo.Medium"
+                    />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bordered"
+                >
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="2dp"
+                    android:gravity="center"
+                    android:text="@string/inbound_dpl_title"
+                    android:textAppearance="@android:style/TextAppearance.Holo.Medium"
+                    />
+
+                <TextView
+                    android:id="@+id/inboundState"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="2dp"
+                    android:gravity="center"
+                    android:text="@string/enabled"
+                    android:textAppearance="@android:style/TextAppearance.Holo.Medium"
+                    />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bordered"
+                >
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="2dp"
+                    android:gravity="center"
+                    android:text="@string/dictation_title"
+                    android:textAppearance="@android:style/TextAppearance.Holo.Medium"
+                    />
+
+                <TextView
+                    android:id="@+id/dictationState"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="2dp"
+                    android:gravity="center"
+                    android:text="@string/enabled"
+                    android:textAppearance="@android:style/TextAppearance.Holo.Medium"
+                    />
+
+            </TableRow>
+
+        </TableLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/gd_view_vertical_margin"
+            android:layout_marginBottom="@dimen/gd_view_vertical_margin"
+            android:orientation="vertical"
+            >
+
+            <Button
+                android:id="@+id/clearFieldsButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/clear_all_fields"
+                android:onClick="clearAllFields"
+                />
+
+            <Button
+                android:id="@+id/clearPasteboardButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="clearPasteboard"
+                android:text="Clear pasteboard"
+                />
+
+            <Button
+                android:id="@+id/generateRandomTextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="generateText"
+                android:text="@string/generate_random_text"
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

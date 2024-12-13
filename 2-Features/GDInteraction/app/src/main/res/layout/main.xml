@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) Visto Corporation dba Good Technology, 2011. All Rights Reserved. -->
+<RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        layout="@layout/sample_app_top_bar"/>
+
+    <ScrollView
+        android:id="@+id/gdinteraction_scroller"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/app_bar"
+        android:layout_gravity="center_horizontal"
+        android:fadingEdge="none"
+        android:fillViewport="true"
+        android:padding="10dp"
+        android:background="@color/black"
+        android:scrollbarStyle="outsideOverlay">
+
+        <com.good.gd.widget.GDTextView
+            android:id="@+id/gdinteraction_status_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_light" />
+    </ScrollView>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="@color/bbd_blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+    <include
+        android:id="@+id/bottom_bar"
+        layout="@layout/main_action_bar_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+</RelativeLayout>

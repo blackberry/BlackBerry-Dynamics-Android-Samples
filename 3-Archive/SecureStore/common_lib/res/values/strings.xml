@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Secure Store</string>
+    
+    <string name="OK">Ok</string>
+    <string name="CANCEL">Cancel</string>
+    <string name="DIR_NAME">Directory Name:</string>
+    <string name="CREATE_FOLDER">Create folder</string>
+    <string name="TURN_BACK">Turn back</string>
+    <string name="LOCK">Lock</string>
+
+    <string name="CONTAINER">Container</string>
+    <string name="SDCARD">SDCard</string>    
+    <string name="MENU_STRING_OPEN">Open</string>
+    <string name="MENU_STRING_DELETE">Delete</string>
+    <string name="MENU_STRING_COPY_TO_CONTAINER">Copy to container</string>
+    <string name="EMPTY_LIST">No files</string>
+</resources>

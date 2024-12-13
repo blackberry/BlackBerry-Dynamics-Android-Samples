@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="main_app_color">@color/bbd_blue</color>
+    <color name="contrast_color">@color/white</color>
+</resources>

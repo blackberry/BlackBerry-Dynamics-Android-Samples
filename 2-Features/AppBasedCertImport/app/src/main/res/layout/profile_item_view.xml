@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/profile_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/icon_certificate_retrieval"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/tv_profile_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="80dp"
+        android:text="@string/profile_name"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:text="Profile name" />
+
+    <TextView
+        android:id="@+id/tv_profile_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tv_profile_header"
+        android:layout_below="@+id/tv_profile_header"
+        android:text="@string/profile_description"
+        tools:text="Profile description" />
+
+    <TextView
+        android:id="@+id/tv_profile_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tv_profile_settings"
+        android:layout_below="@+id/tv_profile_settings"
+        android:text="@string/profile_type" />
+
+    <TextView
+        android:id="@+id/tv_profile_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tv_profile_type"
+        android:layout_below="@+id/tv_profile_type"
+        android:text="@string/profile_status"
+        tools:text="Profile status" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tv_profile_status"
+        android:layout_below="@+id/tv_profile_status"
+        android:text="@string/is_required" />
+
+    <TextView
+        android:id="@+id/tv_profile_required_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="false"
+        android:layout_below="@+id/tv_profile_status"
+        android:layout_toEndOf="@+id/textView4"
+        android:paddingLeft="1dp"
+        android:text="TextView" />
+
+</RelativeLayout>

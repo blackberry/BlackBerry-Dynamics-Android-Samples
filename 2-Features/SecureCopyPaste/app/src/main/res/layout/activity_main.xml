@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <include layout="@layout/sample_app_top_bar"/>
+
+    <LinearLayout
+        android:id="@+id/content_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/gd_view_vertical_margin"
+        android:layout_marginStart="@dimen/gd_view_horizontal_margin"
+        android:layout_marginEnd="@dimen/gd_view_horizontal_margin"
+        android:orientation="vertical">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/activity_title_widgets_gd"
+            android:onClick="launchTextWidgetsGd"
+            />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/activity_title_widgets_appcompat"
+            android:onClick="launchTextWidgetsAppCompat"
+            />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/activity_title_widgets_appcompat_inflater"
+            android:onClick="launchTextWidgetsAppCompatWithInflater"
+            />
+
+        <View android:layout_height="10dp" android:layout_width="match_parent" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/activity_title_prefs"
+            android:onClick="launchPreferences"
+            />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="launchRichText"
+            android:text="@string/activity_title_richtext"
+            />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/launch_fingerprint"
+            android:onClick="launchFingerprint"
+            />
+
+    </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

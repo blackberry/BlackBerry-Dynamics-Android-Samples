@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SaveEdit Service</string>
+    <string name="done_label">Done</string>
+
+    <string name="description_dialog_title">SaveEditService</string>
+    <string name="description_dialog_message">This application is an example of
+        server which is used for editing text content, received from client
+        app and it should be started only from SaveEditClient application.
+        Please, visit https://begood.good.com/community/gdn for more info.</string>
+
+    <string name="dialog_not_implementing_description">Can\'t send file back to %s as it not
+        implementing the com.good.gdservice.save-edited-file service</string>
+</resources>

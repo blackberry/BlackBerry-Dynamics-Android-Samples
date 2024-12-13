@@ -1,0 +1,5 @@
+<!-- magic to tell the BottomNavigationView to allow items to be as wide as needed -->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <dimen name="design_bottom_navigation_item_max_width" tools:override="true">600dp</dimen>
+    <dimen name="design_bottom_navigation_active_item_max_width" tools:override="true">600dp</dimen>
+</resources>

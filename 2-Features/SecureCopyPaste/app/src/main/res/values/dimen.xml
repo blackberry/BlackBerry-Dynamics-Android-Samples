@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="gd_view_height">48dp</dimen>
+    <dimen name="gd_view_vertical_margin">12dp</dimen>
+    <dimen name="gd_view_horizontal_margin">12dp</dimen>
+    <dimen name="gd_search_view_width">400dip</dimen>
+    <dimen name="gd_web_view_height">72dp</dimen>
+    <dimen name="caption_size">12sp</dimen>
+    <dimen name="left_padding_for_edit_texts">4dp</dimen>
+
+</resources>

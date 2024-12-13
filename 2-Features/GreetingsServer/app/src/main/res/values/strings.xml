@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Greetings Server</string>
+    <string name="str_bring_to_front">Bring Greetings Client to Front</string>
+    <string name="str_request_permissions">Request permissions</string>
+    <string name="authorized">Authorized</string>
+    <string name="not_authorized">Not Authorized</string>
+
+</resources>

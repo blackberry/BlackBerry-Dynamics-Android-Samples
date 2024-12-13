@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="Theme.GDSampleAppTheme" parent="android:Theme.Holo.Light">
+        <item name="android:actionBarStyle">@style/Theme.GDSampleAppTheme.ActionBar</item>
+        <item name="android:windowDisablePreview">true</item>
+    </style>
+
+    <style name="Theme.GDSampleAppTheme.ActionBar" parent="android:Widget.Holo.Light.ActionBar">
+        <item name="android:background">@color/bbd_splash_screen_blue</item>
+        <item name="android:backgroundStacked">@color/bbd_splash_screen_blue</item>
+        <item name="android:backgroundSplit">@color/bbd_splash_screen_blue</item>
+        <item name="android:titleTextStyle">@style/Theme.GDSampleAppTheme.ActionBar.Title</item>
+    </style>
+
+    <style name="Theme.GDSampleAppTheme.ActionBar.Title" parent="android:TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="message">The KeyManager Sample App</string>
+    <string name="app_name">KeyManager</string>
+    <string name="app_title">Credential Manager</string>
+    <string name="show_credential_manager">Show Credential Manager</string>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="message">The Greetings Client Sample App</string>
+    <string name="app_name">Greetings Client</string>
+    <string name="str_open_fingerprint_ui">Open Fingerprint UI</string>
+    <string name="str_bring_to_front_short">Bring GS to Front</string>
+    <string name="str_send_greetings_short">Send Greeting to GS</string>
+    <string name="str_send_greeting_with_attachments_short">Send Greeting to GS with two attachments</string>
+    <string name="str_bob_short">Ask GS for Bob\'s Age</string>
+    <string name="str_xavier_short">Ask GS for Xavier\'s Age - Shouldn\'t find name</string>
+    <string name="str_ok_btn">OK</string>
+    <string name="str_request_notification_premission_option">Request permissions</string>
+    <string name="select_one_of_the_actions">Select one of the actions </string>
+    <string name="idle">Idle...</string>
+    <string name="authorized">Authorized</string>
+    <string name="not_authorized">Not Authorized</string>
+    <string name="prefer_me_in_foreground">Prefer Me In Foreground</string>
+    <string name="prefer_peer_in_foreground">Prefer Peer In Foreground</string>
+    <string name="no_foreground_option">No Foreground Option</string>
+</resources>

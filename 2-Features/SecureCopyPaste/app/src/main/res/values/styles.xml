@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="Theme.GDSampleAppTheme" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/bbd_blue</item>
+        <item name="colorPrimaryDark">@color/bbd_blue</item>
+        <item name="colorAccent">@color/bbd_blue</item>
+        <item name="android:textColorHint">@color/hint_color</item>
+        <item name="android:windowDisablePreview">true</item>
+        <!-- Status bar color -->
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.GDSampleAppTheme.ActionBar" parent="Theme.Material3.DayNight">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/bbd_blue</item>
+        <item name="colorPrimaryDark">@color/bbd_blue</item>
+        <item name="colorAccent">@color/bbd_blue</item>
+        <item name="android:textColorHint">@color/hint_color</item>
+        <item name="android:windowDisablePreview">true</item>
+        <!-- Status bar color -->
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.GDSampleAppTheme.WithInflater" parent="Theme.GDSampleAppTheme">
+        <item name="viewInflaterClass">com.good.gd.app.GDAppCompatViewInflater</item>
+    </style>
+
+    <style name="Theme.GDSampleAppTheme.Caption" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">@dimen/caption_size</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingLeft">@dimen/left_padding_for_edit_texts</item>
+    </style>
+
+</resources>

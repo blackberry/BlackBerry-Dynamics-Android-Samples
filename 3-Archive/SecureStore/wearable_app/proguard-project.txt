@@ -1,0 +1,95 @@
+# To enable ProGuard in your project, edit project.properties
+# to define the proguard.config property as described in that file.
+#
+# Add project specific ProGuard rules here.
+# By default, the flags in this file are appended to flags specified
+# in ${sdk.dir}/tools/proguard/proguard-android.txt
+# You can edit the include path and order by changing the ProGuard
+# include property in project.properties.
+#
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
+
+## Rules for GD and its included library components
+
+-keepnames,includedescriptorclasses public class com.good.gd.** { *; }
+-keepnames,includedescriptorclasses public class com.good.gt.** { *; }
+-keepnames,includedescriptorclasses public class com.blackberry.attestation.** { *; }
+
+# 3.5.3 gradle plugin uses R8 as the default obfuscation tool
+# and it is stripping off the public static fields from the below handler.
+# Proguard is not doing that.
+-keepclassmembers,includedescriptorclasses public class com.good.gd.** { *; }
+-keepclassmembers,includedescriptorclasses public class com.good.gt.** { *; }
+-keepclassmembers,includedescriptorclasses public class com.blackberry.attestation.** { *; }
+
+-keep class **.ndkproxy.** {  *; }
+
+# these appear in the AndroidManifest.xml, so need to retain their proper names
+-keep public class com.good.gd.GDIccReceivingActivity
+-keep public class com.good.gd.service.GDService
+-keep public class com.good.gd.service.GDIccService
+-keep public class com.good.gd.ui.GDInternalActivity
+-keep public class com.good.gd.ui.dialogs.GDDialogActivity
+-keep public class com.good.gd.ui.subcontainer_activationui.GTWearActivationUIActivity
+-keep public class com.good.gd.ui.runtimepermissions_ui.GDRuntimePermissionsControlActivity
+-keep public class com.good.gt.wearsupport.GTWearInterDeviceListenService
+-keep public class com.android.vending.licensing.ILicensingService
+
+-keepclassmembers public class com.good.gd.GDServiceDetail,
+                               com.good.gd.GDServiceProvider { *; }
+
+## GD SDK makes use of Android Platform APIs which are new in versions of Android above the base supported
+## API level 24. If running Proguard with a Target SDK below the latest Android API level Proguard may throw
+## warnings on the use of these APIs (because it couldn't find them in the underlying Android Platform JAR which is
+## being built against). BlackBerry have ensured the appropriate run time checks are made before attempting to use
+## any such API. Warnings of APIs not being found can therefore be ignored in GD SDK classes
+-dontwarn com.good.gd.**
+-dontwarn com.good.gt.**
+
+
+-dontwarn com.google.android.gms.**
+-dontwarn com.good.gt.wearsupport.**
+
+
+## Recommended Application Proguard settings
+-optimizationpasses 5
+-dontusemixedcaseclassnames
+-dontskipnonpubliclibraryclasses
+-dontpreverify
+-verbose
+-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keep public class * extends android.content.ContentProvider
+-keep public class * extends android.app.backup.BackupAgentHelper
+-keep public class * extends android.preference.Preference
+
+-keepclasseswithmembers,includedescriptorclasses class * {
+    native <methods>;
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+-keepclassmembers class * extends android.app.Activity {
+   public void *(android.view.View);
+}
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+

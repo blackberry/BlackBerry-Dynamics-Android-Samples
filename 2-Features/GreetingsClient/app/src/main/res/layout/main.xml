@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_layout"
+	android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+	<include layout="@layout/sample_app_top_bar"/>
+
+	<LinearLayout
+		android:id="@+id/content_layout"
+		android:layout_below="@+id/app_bar"
+        android:orientation="vertical"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+        <com.good.gd.widget.GDTextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/message" />
+
+        <com.good.gd.widget.GDTextView
+            android:id="@+id/status"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/bbd_blue"
+            android:text="@string/idle" />
+
+        <com.good.gd.widget.GDTextView
+            android:id="@+id/authStatus"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_dark"
+            android:text="@string/not_authorized" />
+	</LinearLayout>
+
+	<LinearLayout
+		android:weightSum="6"
+		android:orientation="vertical"
+		android:layout_alignParentBottom="true"
+		android:background="@color/bbd_blue"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+	<LinearLayout
+		android:id="@+id/bbd_greetings_client_UI"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/actionbar_height"
+		android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/bbd_greetings_client_UI_top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bbd_blue"
+            android:orientation="horizontal">
+
+            <com.good.gd.widget.GDTextView
+                android:id="@+id/action_request_permissions"
+                style="@style/Theme.GDSampleAppTheme.TextView"
+                android:onClick="onClick"
+                android:text="@string/str_request_notification_premission_option"
+                android:textSize="@dimen/action_bar_text_size" />
+        </LinearLayout>
+
+        <View style="@style/Theme.GDSampleAppTheme.Separator.Horizontal" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+    		<com.good.gd.widget.GDTextView
+    			android:id="@+id/action_bring_to_front"
+    			style="@style/Theme.GDSampleAppTheme.TextView"
+    			android:onClick="onClick"
+    			android:text="@string/str_bring_to_front_short"
+    			android:textSize="@dimen/action_bar_text_size" />
+
+    		<View style="@style/Theme.GDSampleAppTheme.Separator" />
+
+    		<com.good.gd.widget.GDTextView
+    			android:id="@+id/action_send_greetings"
+    			style="@style/Theme.GDSampleAppTheme.TextView"
+    			android:onClick="onClick"
+    			android:text="@string/str_send_greetings_short"
+    			android:textSize="@dimen/action_bar_text_size" />
+
+    		<View style="@style/Theme.GDSampleAppTheme.Separator" />
+
+    		<com.good.gd.widget.GDTextView
+    			android:id="@+id/action_send_greeting_with_attachments"
+    			style="@style/Theme.GDSampleAppTheme.TextView"
+    			android:onClick="onClick"
+    			android:text="@string/str_send_greeting_with_attachments_short"
+    			android:textSize="@dimen/action_bar_text_size" />
+
+    		<View style="@style/Theme.GDSampleAppTheme.Separator" />
+
+    		<com.good.gd.widget.GDTextView
+    			android:id="@+id/action_bob"
+    			style="@style/Theme.GDSampleAppTheme.TextView"
+    			android:onClick="onClick"
+    			android:text="@string/str_bob_short"
+    			android:textSize="@dimen/action_bar_text_size" />
+
+    		<View style="@style/Theme.GDSampleAppTheme.Separator" />
+
+    		<com.good.gd.widget.GDTextView
+    			android:id="@+id/action_xavier"
+    			style="@style/Theme.GDSampleAppTheme.TextView"
+    			android:onClick="onClick"
+    			android:text="@string/str_xavier_short"
+    			android:textSize="@dimen/action_bar_text_size" />
+
+    		<View style="@style/Theme.GDSampleAppTheme.Separator" />
+
+    		<com.good.gd.widget.GDTextView
+    			android:id="@+id/action_open_fingerprint_ui"
+    			style="@style/Theme.GDSampleAppTheme.TextView"
+    			android:onClick="onClick"
+    			android:text="@string/str_open_fingerprint_ui"
+    			android:textSize="@dimen/action_bar_text_size" />
+        </LinearLayout>
+	</LinearLayout>
+	</LinearLayout>
+
+</RelativeLayout>

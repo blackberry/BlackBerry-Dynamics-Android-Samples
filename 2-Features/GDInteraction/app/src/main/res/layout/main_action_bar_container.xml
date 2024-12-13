@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bbd_gd_interaction_UI_common"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minWidth="@dimen/min_width"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/bbd_gd_interaction_local_compliance_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minWidth="@dimen/min_width"
+        android:orientation="horizontal"
+        tools:ignore="NestedWeights">
+
+        <com.good.gd.widget.GDTextView
+            android:id="@+id/action_block_for_10_seconds"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/block_for_10_seconds"
+            android:onClick="onClick"
+            android:textColor="@android:color/white" />
+
+        <View style="@style/Theme.GDSampleAppTheme.Separator" />
+
+        <com.good.gd.widget.GDTextView
+            android:id="@+id/action_block_until_broadcast"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/block_until_broadcast"
+            android:onClick="onClick"
+            android:textColor="@android:color/white" />
+
+        <View style="@style/Theme.GDSampleAppTheme.Separator" />
+
+        <LinearLayout
+            android:id="@+id/action_clearfilecontent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onClick"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:contentDescription="@string/get_app_config_button_text"
+                android:src="@android:drawable/ic_menu_delete" />
+
+            <com.good.gd.widget.GDTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/clear_file_content"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/white">
+    </View>
+
+    <LinearLayout
+        android:id="@+id/bbd_gd_interaction_UI"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minWidth="@dimen/min_width"
+        android:orientation="horizontal"
+        tools:ignore="NestedWeights">
+
+        <LinearLayout
+            android:id="@+id/action_getfilecontent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="onClick"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:contentDescription="@string/get_app_config_button_text"
+                android:src="@android:drawable/ic_menu_view" />
+
+            <com.good.gd.widget.GDTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/get_file_content"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+        <View style="@style/Theme.GDSampleAppTheme.Separator" />
+
+        <LinearLayout
+            android:id="@+id/action_getappconfig"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onClick"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:contentDescription="@string/get_app_config_button_text"
+                android:src="@android:drawable/ic_menu_info_details" />
+
+            <com.good.gd.widget.GDTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/get_app_config_button_text"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+        <View style="@style/Theme.GDSampleAppTheme.Separator" />
+
+        <LinearLayout
+            android:id="@+id/action_change_password"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="onClick"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:contentDescription="@string/change_password_button_text"
+                android:src="@android:drawable/ic_menu_edit" />
+
+            <com.good.gd.widget.GDTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/change_password_button_text"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+        <View style="@style/Theme.GDSampleAppTheme.Separator" />
+
+        <LinearLayout
+            android:id="@+id/action_quit"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="onClick"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:contentDescription="@string/quit_button_text"
+                android:src="@android:drawable/ic_delete" />
+
+            <com.good.gd.widget.GDTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/quit_button_text"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

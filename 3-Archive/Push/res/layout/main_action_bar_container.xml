@@ -1,0 +1,100 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/action_view_menu"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:gravity="center" >
+
+    <LinearLayout
+        android:id="@+id/action_open_channel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
+        android:orientation="vertical"
+        android:weightSum="1" >
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="0.9"
+            android:contentDescription="@string/push_open_channel"
+            android:src="@mipmap/ic_open_channel" />
+
+        <com.good.gd.widget.GDTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.3"
+            android:gravity="center"
+            android:text="@string/push_open_channel"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/action_bar_text_size" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/third_seperator"
+        style="@style/Seperator"
+        android:layout_toEndOf="@+id/action_open_channel" />
+
+    <LinearLayout
+        android:id="@+id/action_loopback_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/third_seperator"
+        android:onClick="onClick"
+        android:orientation="vertical"
+        android:weightSum="1" >
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.9"
+            android:contentDescription="@string/push_loopback_message"
+            android:src="@mipmap/ic_loopback_message" />
+
+        <com.good.gd.widget.GDTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.3"
+            android:gravity="center"
+            android:minWidth="100dp"
+            android:text="@string/push_loopback_message"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/action_bar_text_size" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/fourth_seperator"
+        style="@style/Seperator"
+        android:layout_toEndOf="@+id/action_loopback_message" />
+
+    <LinearLayout
+        android:id="@+id/action_close_channel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="2dp"
+        android:layout_toEndOf="@+id/fourth_seperator"
+        android:onClick="onClick"
+        android:orientation="vertical"
+        android:weightSum="1" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="0.9"
+            android:contentDescription="@string/push_close_channel"
+            android:src="@mipmap/ic_close_channel" />
+
+        <com.good.gd.widget.GDTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.3"
+            android:gravity="center"
+            android:text="@string/push_close_channel"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/action_bar_text_size" />
+    </LinearLayout>
+
+</RelativeLayout>

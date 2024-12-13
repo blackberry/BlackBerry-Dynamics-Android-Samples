@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/btn_import_to_ucp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/import_the_certificate_into_ucp" />
+
+    <Button
+        android:id="@+id/btn_undo_import"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/undo_import" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/certificates_list"
+        android:name="com.good.gd.example.appbasedcertimport.CertificatesListFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:context="com.good.gd.example.appbasedcertimport.CertificatesListFragment"
+        tools:listitem="@layout/fragment_certificate_item"></androidx.recyclerview.widget.RecyclerView>
+</LinearLayout>

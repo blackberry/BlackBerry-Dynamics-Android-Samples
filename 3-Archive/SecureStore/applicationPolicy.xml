@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<apd:AppPolicyDefinition
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:apd="urn:AppPolicySchema1.good.com" xsi:schemaLocation="urn:AppPolicySchema1.good.com AppPolicySchema.xsd" >
+    <setting name="policyVersion" >
+        <hidden>
+            <key>version</key>
+            <value>1.0</value>
+        </hidden>
+    </setting>
+    <setting name="com.blackberry.allowSelfAuthentication" >
+        <desc>If there is no Auth Delegate then this setting has no
+            effect. If ticked or checked, the Auth Delegate will no
+            longer be used to unlock this app. Instead, this app will
+            inherit the Auth Delegate's password and it will use an
+            appropriate authentication method to unlock itself.
+
+            If you want to keep the old behaviour, where the app may
+            launch the Auth Delegate, then do not tick or check this
+            setting.
+        </desc>
+        <checkbox>
+            <key>com.blackberry.allowSelfAuthentication</key>
+            <label>Allow self authentication</label>
+            <value>false</value>
+        </checkbox>
+    </setting>
+    <pview>
+        <pe ref="policyVersion" />
+        <pe ref="com.blackberry.allowSelfAuthentication" />
+    </pview>
+</apd:AppPolicyDefinition>
