@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:orientation="horizontal" >
+
+    <ToggleButton
+        android:id="@+id/action_btn_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:checked="true"
+        android:onClick="onClick"
+        android:textOff="@string/CONTAINER"
+        android:textOn="@string/CONTAINER" />
+
+    <ToggleButton
+        android:id="@+id/action_btn_sdcard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:onClick="onClick"
+        android:textOff="@string/SDCARD"
+        android:textOn="@string/SDCARD" />
+
+</LinearLayout>

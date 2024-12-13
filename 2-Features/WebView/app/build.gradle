@@ -1,0 +1,38 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.blackberry.dynamics.sample.webview'
+
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.blackberry.dynamics.sample.webview'
+        minSdk 30
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:12.1.+'
+    implementation 'com.blackberry.blackberrydynamics:android_webview:12.1.+'
+
+    // Other dependencies
+    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+}
+

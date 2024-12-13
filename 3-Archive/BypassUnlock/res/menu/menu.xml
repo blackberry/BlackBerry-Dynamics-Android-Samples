@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:actionLayout="@layout/main_action_bar_container"
+        android:showAsAction="ifRoom"
+        android:title="@string/select_one_of_the_actions"
+        tools:ignore="AppCompatResource" />
+
+</menu>

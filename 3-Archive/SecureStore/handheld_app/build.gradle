@@ -1,0 +1,88 @@
+apply plugin: 'com.android.application'
+
+android {
+
+    namespace "com.good.gd.example.securestore"
+    testNamespace "com.good.gd.example.securestore.tests"
+
+    compileSdk 34
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+            jniLibs.srcDirs = ['libs']
+        }
+
+        androidTest {
+            manifest.srcFile 'tests/AndroidManifest.xml'
+            java.srcDirs = ['tests']
+            assets.srcDirs = ['tests/assets']
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    packagingOptions {
+        exclude 'emptyfolder.txt'
+    }
+
+    signingConfigs {
+        signingConfig {
+            keyAlias 'alias'
+            keyPassword 'keypassword'
+            storeFile file(projectDir.absolutePath + '/keystore')
+            storePassword 'password'
+        }
+    }
+
+    defaultConfig {
+        minSdk 30
+        applicationId "com.good.gd.example.securestore"
+        targetSdk 34
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            testProguardFile 'proguard-test-rules.pro'
+            signingConfig signingConfigs.signingConfig
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:12.1.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_backup_support:12.1.+'
+    androidTestImplementation 'com.blackberry.blackberrydynamics:atsl:12.1.+'
+
+    // We include the common library in Handheld mode so it links against the GDLibrary
+    implementation project(':SecureStore_common_lib')
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.annotation:annotation:1.2.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.android.material:material:1.9.0'
+
+    //Test Implementation Dependencies are used only when building app for android Automated Tests
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
+    androidTestImplementation 'androidx.annotation:annotation:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+    androidTestImplementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+    //In gdHandheld release mode we want to include the WearApp so Gradle will build the Wear APK into the main APK
+    //wearApp project(path: ':SecureStore_Wearable')
+}
+

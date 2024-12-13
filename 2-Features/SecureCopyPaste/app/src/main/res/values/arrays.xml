@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+  
+          http://www.apache.org/licenses/LICENSE-2.0
+  
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <!-- Used in app/menu examples -->
+    <string-array name="entries_list_preference">
+        <item>Alpha Option 01</item>
+        <item>Beta Option 02</item>
+        <item>Charlie Option 03</item>  
+    </string-array>
+
+    <!-- Used in app/menu examples -->
+    <string-array name="entryvalues_list_preference">
+        <item>alpha</item>
+        <item>beta</item>
+        <item>charlie</item>  
+    </string-array>
+
+    <!-- Used to prevent TransactionTooLargeException if the total text size is too large. -->
+    <!-- This issue is not GD specific, the android OS since 'N' version strictly limits the maximum transaction size
+    . -->
+    <integer name="field_limit">100</integer>
+
+    <string-array name="richtext_styles">
+        <item>Bold</item>
+        <item>Italic</item>
+        <item>Underline</item>
+        <item>ForegroundColor</item>
+        <item>BackgrounColor</item>
+        <item>Strikethrough</item>
+        <item>ScaleX</item>
+        <item>Alignment</item>
+        <item>RelativeSize</item>
+        <item>Bullet</item>
+        <item>Quote</item>
+        <item>LeadingMargin</item>
+        <item>URL</item>
+        <item>Typeface</item>
+        <item>Superscript</item>
+        <item>Subscript</item>
+        <item>AbsoluteSize</item>
+        <item>TextAppearance</item>
+        <item>Annotation</item>
+        <item>Suggestion</item>
+        <item>EasyEdit</item>
+        <item>Locale</item>
+    </string-array>
+
+
+
+
+
+</resources>

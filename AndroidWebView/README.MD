@@ -1,2 +1,0 @@
-# BlackBerry Dynamics WebView client sample
-**Note:** This sample has been deprecated and replaced with [BBWebView](https://developer.blackberry.com/devzone/files/blackberry-dynamics/android/namespacecom_1_1blackberry_1_1bbwebview.html), which is included in the BlackBerry Dynamics SDK. Refer to the [WebView_BDSDK](https://github.com/blackberry/BlackBerry-Dynamics-Android-Samples/tree/master/WebView_BDSDK) sample for an example of the use of BBWebView.

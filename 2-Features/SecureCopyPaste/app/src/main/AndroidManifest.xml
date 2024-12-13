@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+
+    <application
+        android:name=".SecureCopyPasteApplication"
+        android:icon="@mipmap/gcs_launcher"
+        android:theme="@style/Theme.GDSampleAppTheme"
+        android:uiOptions="splitActionBarWhenNarrow"
+        android:label="@string/app_name"
+        android:allowBackup="false">
+
+        <activity
+            android:name=".SecureCopyPasteActivity"
+            android:theme="@style/Theme.GDSampleAppTheme.WithInflater"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTask"
+            android:label="@string/app_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".TextWidgetsActivityGD"
+            android:label="@string/activity_title_widgets_gd"
+            android:parentActivityName=".SecureCopyPasteActivity"
+            />
+        <activity
+            android:name=".TextWidgetsActivityAppCompat"
+            android:label="@string/activity_title_widgets_appcompat"
+            android:parentActivityName=".SecureCopyPasteActivity"
+            />
+        <activity
+            android:name=".TextWidgetsActivityAppCompatWithInflater"
+            android:label="@string/activity_title_widgets_appcompat_inflater"
+            android:theme="@style/Theme.GDSampleAppTheme.WithInflater"
+            android:parentActivityName=".SecureCopyPasteActivity"
+            />
+        <activity
+            android:name=".PreferencesActivity"
+            android:label="@string/activity_title_prefs"
+            android:theme="@style/Theme.GDSampleAppTheme.ActionBar"
+            android:parentActivityName=".SecureCopyPasteActivity"
+            />
+        <activity
+            android:name=".RichTextActivity"
+            android:label="@string/activity_title_richtext"
+            android:parentActivityName=".SecureCopyPasteActivity"
+            />
+    </application>
+</manifest>

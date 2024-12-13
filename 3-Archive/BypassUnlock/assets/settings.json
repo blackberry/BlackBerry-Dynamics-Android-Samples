@@ -1,0 +1,25 @@
+{
+    "GDApplicationID":"com.good.example.sdk.bypassunlock",
+    "GDApplicationVersion":"1.0.0.0",
+    "GDLibraryMode": "GDEnterprise",
+    "GDConsoleLogger": [
+        "GDFilterNone",
+        "GDFilterErrors_",
+        "GDFilterWarnings_",
+        "GDFilterInfo_",
+        "GDFilterDetailed_"
+    ],
+    "GDPermissions": [
+        {
+            "Signature": "6a4b3f5542219cfda54115344bf6e3d68fcebb68d4182d20e66bdb19520fd9b0f68be2b9a05cd3ef72f059d5cb9421326c40160b1a06dfb8f45ee64accc82be2be733cb599b687d6b67beba1db5c346a8dcc51583d401a46c97bd837ed7ebbefe3f66b49b7b8cbaff2ead8a09c3a82c426df517839cb446f3808322296b4abeb",
+            "SignatureScheme": "RSAv1",
+            "Permission":
+            {
+                "nativeApplicationId": "com.good.example.sdk.bypassunlock",
+                "GDApplicationId": "com.good.example.sdk.bypassunlock",
+                "BypassUnlockPermission": "1"
+            }
+        }
+    ],
+    "GDBypassUnlockPolicySetting": "GD_SDK_Security_AllowBypassUnlock"
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Secure Store</string>
+    
+    <string name="OK">OK</string>
+    <string name="CANCEL">Cancel</string>
+    <string name="DIR_NAME">Directory Name:</string>
+    <string name="CREATE_FOLDER">Create folder</string>
+    <string name="TURN_BACK">Turn back</string>
+    <string name="MANAGE_CONNECTED_APPS">Manage Connected Applications &#8230;</string>
+    
+    <string name="CONTAINER">Container</string>
+    <string name="SDCARD">SDCard</string>    
+    <string name="MENU_STRING_OPEN">Open</string>
+    <string name="MENU_STRING_DELETE">Delete</string>
+    <string name="MENU_STRING_COPY_TO_CONTAINER">Copy to container</string>
+    <string name="EMPTY_LIST">No files</string>
+    <string name="activate">Activate</string>
+    <string name="remove">Remove</string>
+    <string name="remove_connected_application">Remove Connected Application</string>
+    <string name="activate_application">Activate Application</string>
+    <string name="activate_application_disallowed_by_enterprise">Activate Application Disallowed by Enterprise</string>
+    <string name="application_connected">Application Connected</string>
+    <string name="removed">Removed</string>
+    <string name="not_activated">Not Activated</string>
+    <string name="connected">Connected</string>
+    <string name="not_connected">Not Connected</string>
+
+</resources>

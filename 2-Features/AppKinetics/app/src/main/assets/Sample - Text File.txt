@@ -1,0 +1,31 @@
+Secure Inter-Application Communication
+======================================
+Feature Overview
+----------------
+BlackBerry Dynamics has an inter-application communication feature for secure
+exchange of data and commands between two applications on the same device. The
+feature is based on a proprietary and trade marked technology, AppKinetics.
+
+Feature Description
+-------------------
+AppKinetics provides a data exchange mechanism that is similar to web services:
+
+1.  The "consumer" application sends a service request to a method in the
+    "provider" application. The request can include a number of parameters, and
+    a number of attachments.
+
+2.  The provider application receives the request, and possibly executes some
+    processing.
+
+3.  The provider application can then do one of the following:
+
+    -   Send an empty service response back to the consumer.
+    -   Send a service response with a number of attachments, and a number of
+        parameters.
+    -   Send an error response.
+    -   Send no response.
+
+See the original technical brief, on the application developer portal here:
+https://community.good.com/docs/DOC-1542
+
+(c) 2017 BlackBerry Limited. All rights reserved.

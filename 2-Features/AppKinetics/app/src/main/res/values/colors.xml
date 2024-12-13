@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+   <color name="overwrite_dilog_background">#FFFFFFFF</color>
+   <color name="overwrite_dilog_text_color">#FF2DA6DE</color>
+</resources>

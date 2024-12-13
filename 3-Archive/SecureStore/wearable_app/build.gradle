@@ -1,0 +1,87 @@
+apply plugin: 'com.android.application'
+
+buildscript {
+    repositories {
+        maven { url 'https://enterprise-nexus.rim.net/nexus/content/repositories/central' }
+        maven { url 'https://enterprise-nexus.rim.net/nexus/content/repositories/maven-google' }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.1'
+    }
+}
+
+allprojects {
+    repositories {
+        maven { url 'https://enterprise-nexus.rim.net/nexus/content/repositories/central' }
+        maven { url 'https://enterprise-nexus.rim.net/nexus/content/repositories/maven-google' }
+        maven { url 'https://enterprise-nexus.rim.net/nexus/content/repositories/ebu-releases' }
+        maven { url 'https://enterprise-nexus.rim.net/nexus/content/repositories/ebu-gd-releases' }
+    }
+}
+
+android {
+
+    namespace "com.good.gd.example.securestore"
+
+    compileSdkVersion 34
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    flavorDimensions 'default'
+    productFlavors {
+        AppWithWear {
+            matchingFallbacks = ['gdWearableLib'] // Ensure we can link to SecureStore_common_lib
+        }
+    }
+
+    defaultConfig {
+        applicationId "com.good.gd.example.securestore"
+        minSdkVersion 30
+        targetSdkVersion 34
+    }
+
+    buildTypes {
+        release {
+          	minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+        }
+    }
+}
+
+dependencies {
+
+    implementation project(':GDWearLibrary')
+    // We include the common library in Wearable mode so it links against the GDWearLibrary
+    implementation project(path: ':SecureStore_common_lib')
+
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+
+    //We use the Wearable Support library for the BoxInsetLayout
+//    implementation 'androidx.wear:wear:1.0.0'
+//    implementation 'com.google.android.support:wearable:2.5.0'
+//    compileOnly 'com.google.android.wearable:wearable:2.5.0'
+
+    implementation ('com.google.android.support:wearable:2.5.0') {
+        exclude group: 'com.android.support', module: 'support-compat'
+    }
+    compileOnly ('com.google.android.wearable:wearable:2.5.0') {
+        exclude group: 'com.android.support', module: 'support-compat'
+    }
+}
+

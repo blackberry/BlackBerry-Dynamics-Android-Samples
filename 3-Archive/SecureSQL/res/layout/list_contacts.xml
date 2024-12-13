@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:id="@+id/bbd_secure_sql_UI">
+
+    <include layout="@layout/sample_app_top_bar"/>
+
+    <LinearLayout
+            android:id="@+id/content_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+        <TextView
+                android:id="@+id/itemcount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/TOTAL_COUNT"/>
+        
+        <ListView
+                android:id="@+id/list_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:dividerHeight="1dp"
+                android:longClickable="true"
+                android:layout_below="@+id/itemcount"/>
+
+        <TextView
+                android:id="@+id/empty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/EMPTY_LIST"
+                android:visibility="gone"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/main_app_color">
+
+        <include layout="@layout/main_action_bar_container" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fillViewport="true"
+    android:orientation="vertical"
+    >
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        />
+
+    <!--  -->
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/FIRST_NAME"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#aaaaaa"
+        android:maxLines="1"/>
+    <TextView android:id="@+id/firstName"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textIsSelectable="true"
+        android:maxLines="1"/>
+        
+    <!--  -->
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/SECOND_NAME"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#aaaaaa"
+        android:maxLines="1"/>
+    <TextView android:id="@+id/secondName"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textIsSelectable="true"
+        android:maxLines="1"/>
+
+    <!--  -->
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/PHONE_NUMBER"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#aaaaaa"
+        android:maxLines="1"/>
+    <TextView android:id="@+id/phoneNumber"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textIsSelectable="true"
+        android:maxLines="1"/>
+    
+    <!--  -->
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/NOTES"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#aaaaaa"
+        android:maxLines="1"/>
+    <TextView android:id="@+id/notes"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textIsSelectable="true"
+        />
+
+</LinearLayout>
