@@ -42,7 +42,12 @@ public class InCallActivity extends BaseActivity {
         setSwitchView(R.id.switchView);
 
         View mainView = findViewById(R.id.main_layout);
+        View action = findViewById(R.id.app_bar_action);
+        action.setOnClickListener(view -> {
+            onClick(action);
+        });
 
+        SampleAppActivityUtils.setupAppBar(mainView, getString(R.string.app_name), true);
         SampleAppActivityUtils.adjustViewsIfEdgeToEdgeMode(mainView, null, null);
     }
 }

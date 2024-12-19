@@ -1,1 +1,1 @@
-{"GDApplicationID": "com.blackberry.dynamics.sample", "GDApplicationVersion": "1.0.0.0", "GDLibraryMode": "GDEnterprise", "GDConsoleLogger": ["GDFilterNone", "GDFilterErrors_", "GDFilterWarnings_", "GDFilterInfo_", "GDFilterDetailed_"]}
+{"GDApplicationID":"com.blackberry.dynamics.sample","GDLibraryMode":"GDEnterprise","GDApplicationVersion":"1.0.0.0","GDConsoleLogger":["GDFilterNone","GDFilterErrors_","GDFilterWarnings_","GDFilterInfo_","GDFilterDetailed_"]}

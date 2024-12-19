@@ -29,9 +29,15 @@
      own application, the package name must be changed from "com.example.*"
      to come from a domain that you own or have control over.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          android:versionCode="4"
+          android:versionName="1.4.0.0">
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <!-- Required for start-on-boot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <!--
          This package contains an application...  The 'label' is the name
          to display to the user for the overall application, and provides
@@ -70,8 +76,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service
-            android:name=".GDAuthorizationService" />
+            android:name=".GDAuthorizationService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver android:name="com.good.gd.example.gdinteraction.EventReceiver"
             android:exported="true">
@@ -79,6 +87,7 @@
                 <action android:name="INTENT_ACTION_AWAKE"/>
                 <action android:name="INTENT_ACTION_UNBLOCK"/>
                 <action android:name="INTENT_ACTION_BLOCK"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
     </application>

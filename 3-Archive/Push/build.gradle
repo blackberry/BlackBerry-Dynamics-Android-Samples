@@ -45,8 +45,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     signingConfigs {
@@ -79,16 +79,9 @@ android {
 
 dependencies {
 
-    if (enableBinaryConfiguration.toBoolean()) {
-        def sdkGroupId = 'com.blackberry.blackberrydynamics' + (useDebugSdk.toBoolean() ? '.debug' : '')
-        implementation "$sdkGroupId:android_handheld_platform:$gdSdkVersion"
-        implementation "$sdkGroupId:android_handheld_backup_support:$gdSdkVersion"
-        androidTestImplementation "$sdkGroupId:atsl:$gdSdkVersion"
-    } else {
-        implementation project(':GDLibrary')
-        implementation project(':GDLibrary_BackupSupport')
-        androidTestImplementation project(':DynamicsATSL')
-    }
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:13.0.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_backup_support:13.0.+'
+    androidTestImplementation 'com.blackberry.blackberrydynamics:atsl:13.0.+'
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.annotation:annotation:1.2.0'
@@ -103,4 +96,5 @@ dependencies {
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
     androidTestImplementation 'androidx.legacy:legacy-support-v4:1.0.0'
 }
+
 

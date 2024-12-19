@@ -1,4 +1,4 @@
-/* Copyright (c) 2023 BlackBerry Ltd.
+/* Copyright 2024 BlackBerry Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,143 +11,157 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.good.gd.example.gdinteraction;
 
+import android.app.job.JobInfo;
+import android.app.job.JobParameters;
+import android.app.job.JobScheduler;
+import android.app.job.JobService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.Message;
-import android.os.Process;
-import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 import android.util.Log;
 
-import com.good.gd.GDStateListener;
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+
 import java.util.Map;
 
-
 import com.good.gd.GDAndroid;
+import com.good.gd.GDStateListener;
 
-public class GDAuthorizationService extends Service implements GDStateListener {
-    private static final String TAG = GDAuthorizationService.class.getSimpleName();
+public class GDAuthorizationService extends JobService implements GDStateListener {
+
     private static final int NOTIFICATION_ID = 1;
+    private static final String CHANNEL_ID = "GD_INTERACTION";
 
+    private NotificationManager notificationManager;
     private boolean canRunGDInBackGround = false;
-    private int mStartId;
-    private ServiceHandler mServiceHandler;
+    private boolean isAuthorized = false;
+    private JobParameters jobParameters;
+
+    static void scheduleJob(Context context) {
+
+        final JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
+
+        final JobInfo jobInfo =
+                new JobInfo.Builder(1, new ComponentName(context, GDAuthorizationService.class))
+                           .setExpedited(true)
+                           .build();
+
+        jobScheduler.cancelAll();
+        jobScheduler.schedule(jobInfo);
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+    }
+
+    @Override
+    public boolean onStartJob(JobParameters jobParameters) {
+
+        this.jobParameters = jobParameters;
+
+        notificationManager = getSystemService(NotificationManager.class);
+
+        Log.d(GDInteraction.TAG, "GDAuthorizationService.onStartJob: notificationManager = " + notificationManager);
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
+                                            "GD INTERACTION",
+                                            NotificationManager.IMPORTANCE_DEFAULT);
+        notificationManager.createNotificationChannel(channel);
+
         canRunGDInBackGround = GDAndroid.getInstance().serviceInit(this);
-        HandlerThread thread = new HandlerThread("ServiceStartArguments",
-                Process.THREAD_PRIORITY_BACKGROUND);
-        thread.start();
+        if (canRunGDInBackGround) {
 
-        // Get the HandlerThread's Looper and use it for our Handler
-        Looper mServiceLooper = thread.getLooper();
-        mServiceHandler = new ServiceHandler(mServiceLooper);
+            sendNotification("Authorizing");
+            Log.d(GDInteraction.TAG, "GDAuthorizationService.onStartJob: Authorizing");
 
-        if (Build.VERSION.SDK_INT >= 26) {
-            String CHANNEL_ID = "GD_INTERACTION";
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
-                    "GD INTERACTION",
-                    NotificationManager.IMPORTANCE_DEFAULT);
+            return true;
 
-            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
-
-            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle("GD Interaction")
-                    .setContentText("GD Interaction").build();
-
-            startForeground(NOTIFICATION_ID, notification);
         } else {
-            startForeground(NOTIFICATION_ID, new Notification());
+            sendNotification("Cannot authorize in background");
+            Log.w(GDInteraction.TAG, "GDAuthorizationService.onStartJob: cannot run in background, not authorizing");
+
+            return false;
+        }
+    }
+
+    @Override
+    public boolean onStopJob(JobParameters params) {
+        Log.d(GDInteraction.TAG, "GDAuthorizationService.onStopJob: params = " + params);
+        return false;
+    }
+
+    private void sendNotification(String text) {
+        if (notificationManager.areNotificationsEnabled()) {
+            notificationManager.notify(
+                NOTIFICATION_ID,
+                new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setSmallIcon(R.drawable.gcs_launcher_foreground)
+                    .setContentTitle("GD Interaction")
+                    .setContentText(text)
+                    .build());
+        } else {
+            Log.w(GDInteraction.TAG, "GDAuthorizationService.sendNotification: notifications not allowed!" +
+                                     " Not sending: \"" + text + "\"");
         }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i(TAG,"onDestroy() called");
+        Log.i(GDInteraction.TAG, "GDAuthorizationService.onDestroy() called");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mStartId = startId;
         return START_NOT_STICKY;
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    // Handler that receives messages from the thread started by the Service.
-    // This needs to be done so that long running operations are not run on
-    // the Main thread
-    private final class ServiceHandler extends Handler {
-        ServiceHandler(Looper looper) {
-            super(looper);
-        }
-        @Override
-        public void handleMessage(Message msg) {
-            // Stop the service using the startId, so that we don't stop
-            // the service in the middle of handling another job
-            stopSelf(msg.arg1);
-        }
     }
 
     @Override
     public void onAuthorized() {
-        Log.d(TAG, "onAuthorized() called");
-        if (canRunGDInBackGround) {
-            Log.d(TAG, "The Container can be accessed in the background");
-            Message msg = mServiceHandler.obtainMessage();
-            msg.arg1 = mStartId;
-            mServiceHandler.sendMessage(msg);
-        }
+
+        isAuthorized = true;
+
+        sendNotification("Authorized");
+
+        Log.d(GDInteraction.TAG,
+            "onAuthorized: canRunGDInBackGround=" + canRunGDInBackGround +
+            " canAuthorizeAutonomously=" + GDAndroid.getInstance().canAuthorizeAutonomously(this));
+
+        jobFinished(jobParameters, false);
     }
 
     @Override
     public void onLocked() {
-
     }
 
     @Override
     public void onWiped() {
-
     }
 
     @Override
     public void onUpdateConfig(Map<String, Object> settings) {
-
     }
 
     @Override
     public void onUpdatePolicy(Map<String, Object> policyValues) {
-
     }
 
     @Override
     public void onUpdateServices() {
-
     }
 
     @Override
     public void onUpdateEntitlements() {
-
     }
 }

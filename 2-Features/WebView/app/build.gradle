@@ -27,8 +27,8 @@ android {
 
 dependencies {
 
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:12.1.+'
-    implementation 'com.blackberry.blackberrydynamics:android_webview:12.1.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:13.0.+'
+    implementation 'com.blackberry.blackberrydynamics:android_webview:13.0.+'
 
     // Other dependencies
     implementation 'androidx.appcompat:appcompat:1.3.0'

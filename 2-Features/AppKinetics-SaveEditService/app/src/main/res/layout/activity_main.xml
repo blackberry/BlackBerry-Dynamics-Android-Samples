@@ -1,21 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2024 BlackBerry Limited. All Rights Reserved. -->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bbd_appkinetics_save_edit_service_UI"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-<!-- Copyright (c) Visto Corporation dba Good Technology, 2014. All Rights Reserved. -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:id="@+id/bbd_appkinetics_save_edit_service_UI">
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <include layout="@layout/sample_app_top_bar"/>
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:titleTextColor="?attr/colorOnPrimary"
+            />
 
-    <com.good.gd.widget.GDEditText
-        android:id="@+id/data_view"
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="top|start"
-        android:inputType="textMultiLine|textNoSuggestions"
-        android:scrollbars="vertical"
-        android:fadeScrollbars="false" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:orientation="vertical"
+        android:padding="8dp"
+        >
 
-</LinearLayout>
+        <com.good.gd.widget.GDEditText
+            android:id="@+id/data_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="top|start"
+            android:inputType="textMultiLine|textNoSuggestions"
+            android:scrollbars="vertical"
+            android:fadeScrollbars="false" />
+
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,4 +1,4 @@
-/* Copyright (c) 2023 BlackBerry Ltd.
+/* Copyright 2024 BlackBerry Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,9 +11,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 
  /*
  * This file contains sample code that is licensed according to the BlackBerry Dynamics SDK terms and conditions.
@@ -23,16 +21,20 @@
 package com.good.gd.example.gdinteraction;
 
 import android.app.Application;
+import android.util.Log;
+
 import androidx.appcompat.app.AppCompatDelegate;
 
 import com.good.gd.GDAndroid;
 
 public class GDInteractionApplication extends Application {
-    static final String TAG = GDInteractionApplication.class.getSimpleName();
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        Log.d(GDInteraction.TAG, "GDInteractionApplication.onCreate: canAuthorizeAutonomously=" +
+                                        GDAndroid.getInstance().canAuthorizeAutonomously(this));
 
         // turn off (suppress) night mode for this app
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);

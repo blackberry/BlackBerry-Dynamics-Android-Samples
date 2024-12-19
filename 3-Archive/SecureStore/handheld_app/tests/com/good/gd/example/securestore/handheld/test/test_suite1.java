@@ -60,7 +60,7 @@ public class test_suite1 {
 
         uiAutomatorUtils.launchApp(APP_UNDER_TEST);
 
-        assertTrue("Cannot login or provision", BBDActivationHelper.loginOrActivateApp());
+        assertTrue("Cannot login or provision", BBDActivationHelper.loginOrActivateApp().isSuccessful());
 
         assertTrue("App is not authorized", uiAutomatorUtils.checkGDAuthorized());
 
