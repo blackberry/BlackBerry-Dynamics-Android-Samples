@@ -29,7 +29,6 @@ final class FileUtils {
 
     private static final String folderName = "PackageWatcher_Folder";
     private static final String filename ="packageWatcher.txt";
-    private static final String TAG = "GDInteractionFileUtils:";
 
     static void writeToFile(String data) {
         try {
@@ -40,9 +39,9 @@ final class FileUtils {
                 out.write(data.getBytes());
                 out.flush();
                 out.close();
-                Log.i(TAG, "writeToFile : " + data);
+                Log.i(GDInteraction.TAG, "FileUtils.writeToFile : " + data);
             } else {
-                Log.i(TAG, "Directory was not created");
+                Log.i(GDInteraction.TAG, "FileUtils.writeToFile: directory was not created");
             }
 
         } catch (IOException e) {
@@ -51,7 +50,7 @@ final class FileUtils {
     }
 
     static String readDataFromFile() {
-        Log.i(TAG, "readDataFromFile");
+        Log.i(GDInteraction.TAG, "FileUtils.readDataFromFile");
         final String filePath = folderName + "/" + filename;
         String dataFromFile = "";
         byte data[];
@@ -82,9 +81,9 @@ final class FileUtils {
                 out.flush();
                 out.close();
             }
-            Log.i(TAG, "data wiped");
+            Log.i(GDInteraction.TAG, "FileUtils.clearFileData: data wiped");
         } catch (IOException e) {
-            Log.e("Exception", "clearFileData FAILED" + e.toString());
+            Log.e(GDInteraction.TAG, "FileUtils.clearFileData: FAILED" + e.toString());
         }
     }
 }

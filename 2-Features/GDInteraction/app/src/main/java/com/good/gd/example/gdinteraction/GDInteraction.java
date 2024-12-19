@@ -1,4 +1,4 @@
-/* Copyright (c) 2023 BlackBerry Ltd.
+/* Copyright 2024 BlackBerry Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.core.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
@@ -38,10 +38,17 @@ import android.view.View.OnClickListener;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.good.gd.GDAndroid;
 import com.good.gd.GDAuthDelegateInfo;
 import com.good.gd.GDStateListener;
 import com.good.gd.error.GDError;
+
+import static android.Manifest.permission.POST_NOTIFICATIONS;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 /**
  * GDInteraction activity; shows all incoming events, plus internal events like onPause,
@@ -49,15 +56,19 @@ import com.good.gd.error.GDError;
  */
 public class GDInteraction extends SampleAppActivity implements GDStateListener, OnClickListener {
 
+    public static final String TAG = "GDInteraction";
+
 	private static final String fileReadheading = "Reading package manager log\n";
 	private static final String fileContentCleared = "Package manager log cleared\n";
 	private static final long TEN_SECONDS = 10000;
 	public  static final String BLOCK_ID = "BLOCK_ID";
+    private static final int REQUEST_CODE_POST_NOTIFICATIONS = 113;
 
 	private TextView statusTextView;
 	private ScrollView scroller;
 	private final GDEventHandler gdEventHandler;
 	private int numEventsLogged = 0;
+	private boolean notificationPermissionRequested = false;
 
 	public GDInteraction() {
 		super();
@@ -109,7 +120,39 @@ public class GDInteraction extends SampleAppActivity implements GDStateListener,
 		logAuthDelegate();
 
 		updateFromEventHandler();
+
+        checkNotificationPermission();
 	}
+
+    private void checkNotificationPermission() {
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return;
+        }
+
+        if (!notificationPermissionRequested &&
+			ContextCompat.checkSelfPermission(this, POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{POST_NOTIFICATIONS},
+                        REQUEST_CODE_POST_NOTIFICATIONS);
+
+			notificationPermissionRequested = true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        boolean isGranted = grantResults.length > 0
+                            && grantResults[0] == PERMISSION_GRANTED;
+
+        Log.d(TAG, "onRequestPermissionsResult: isGranted = " + isGranted);
+    }
 
 	// Ask the GDEventHandler for all the events it has ever received, and log
 	// all those
@@ -139,7 +182,7 @@ public class GDInteraction extends SampleAppActivity implements GDStateListener,
 				}
 			});
 		}
-		Log.v(this.getClass().getPackage().getName(), message + "\n");
+		Log.v(TAG, message + "\n");
 	}
 
 	// Write the specified message to the on-screen log (with timestamp), and
@@ -163,7 +206,7 @@ public class GDInteraction extends SampleAppActivity implements GDStateListener,
 				}
 			});
 		}
-		Log.v(this.getClass().getPackage().getName(), message + "\n");
+		Log.v(TAG, message + "\n");
 	}
 
     private void logBlankLine() {

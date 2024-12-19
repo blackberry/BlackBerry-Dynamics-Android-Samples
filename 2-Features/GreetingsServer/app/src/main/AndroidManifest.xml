@@ -46,7 +46,7 @@
             android:theme="@style/Theme.GDSampleAppTheme"
             android:allowBackup="true"
             android:fullBackupContent="@xml/gd_backup_scheme">
-            
+
         <!--
              An Activity in the application - this is something the user
              can launch and interact with.  The "name" attribute is the

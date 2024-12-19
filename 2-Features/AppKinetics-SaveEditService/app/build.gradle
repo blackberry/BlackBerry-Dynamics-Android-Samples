@@ -28,9 +28,9 @@ android {
 
 dependencies {
 
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:12.1.+'
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_backup_support:12.1.+'
-    androidTestImplementation 'com.blackberry.blackberrydynamics:atsl:12.1.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:13.0.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_backup_support:13.0.+'
+    androidTestImplementation 'com.blackberry.blackberrydynamics:atsl:13.0.+'
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.annotation:annotation:1.2.0'

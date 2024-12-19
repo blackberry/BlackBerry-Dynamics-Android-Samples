@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/main_layout">
 
-<RelativeLayout
+    <include layout="@layout/sample_app_top_bar"/>
+
+    <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -60,6 +66,6 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:checked="false"/>
+    </RelativeLayout>
 
-
-</RelativeLayout>
+</LinearLayout>

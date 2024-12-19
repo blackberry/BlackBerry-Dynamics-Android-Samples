@@ -1,4 +1,4 @@
-/* Copyright (c) 2023 BlackBerry Ltd.
+/* Copyright 2024 BlackBerry Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,8 @@ import java.util.Map;
 
 public class SaveEditService extends SampleAppActivity implements GDStateListener {
 
-    private static final String TAG = SaveEditService.class.getSimpleName();
+    public static final String TAG = SaveEditService.class.getSimpleName();
+    
     private static final String FILE_NAME = "DataFile.txt";
     private static final String SERVICE_NAME = "com.good.gdservice.save-edited-file";
     private static final String SERVICE_VERSION = "1.0.0.0";
@@ -154,8 +155,6 @@ public class SaveEditService extends SampleAppActivity implements GDStateListene
                             public void onClick(final DialogInterface dialog,
                                                 final int which) {
                                 dialog.dismiss();
-
-                                finish();
                             }
                         });
         return builder.create();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2023 BlackBerry Ltd.
+/* Copyright 2024 BlackBerry Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,7 @@
  *
  */
 
-
- /**
+/**
  * GDSaveEditServiceListener.java
  */
 package com.good.gd.example.appkinetics.saveeditservice;
@@ -25,8 +24,6 @@ import android.util.Log;
 import com.good.gd.icc.GDServiceListener;
 
 public class GDSaveEditServiceListener implements GDServiceListener {
-
-    private static final String TAG = GDSaveEditServiceListener.class.getSimpleName();
 
     private static GDSaveEditServiceListener instance;
 
@@ -78,17 +75,19 @@ public class GDSaveEditServiceListener implements GDServiceListener {
     @Override
     public void onMessageSent(final String application, final String requestID,
                               final String[] attachments) {
-        Log.d(TAG, "Message was successfully sent!");
+        Log.d(SaveEditService.TAG, "onMessageSent");
     }
 
     @Override
     public void onReceivingAttachments(String application, int numberOfAttachments, String requestID) {
-        Log.d(TAG, "onReceivingAttachments number of attachments: " + numberOfAttachments + " for requestID: " + requestID + "\n");
+        Log.d(SaveEditService.TAG, "onReceivingAttachments number of attachments: " +
+                                    numberOfAttachments + " for requestID: " + requestID + "\n");
     }
     
     @Override
     public void onReceivingAttachmentFile(String application, String path, long size, String requestID) {
-        Log.d(TAG, "onReceivingAttachmentFile attachment: " + path + " size: " + size + " for requestID: " + requestID + "\n");
+        Log.d(SaveEditService.TAG, "onReceivingAttachmentFile attachment: " +
+                                    path + " size: " + size + " for requestID: " + requestID + "\n");
     }
     
     @Override

@@ -42,6 +42,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.good.gd.GDAndroid;
 import com.good.gd.GDStateListener;
@@ -135,10 +136,7 @@ public class Push extends SampleAppActivity implements
 				GDNetworkInfo networkInfo = GDConnectivityManager.getActiveNetworkInfo();
 				updateTitleAndButtons();
 				logConnectionStatus();
-				logStatus( name +
-						" received intent. (isPushChannelAvailable = "
-						+ networkInfo.isPushChannelAvailable()
-						+ ")");
+				logStatus(name + " received GD_CONNECTIVITY_ACTION intent.");
 			}
 		};
 
@@ -149,11 +147,10 @@ public class Push extends SampleAppActivity implements
 	}
 
 	/**
-	 * Add multiple broadcast receivers to listen to GDConnectivityManager.GD_CONNECTIVITY_ACTION intent
+	 * Add a broadcast receiver to listen to GDConnectivityManager.GD_CONNECTIVITY_ACTION intent
 	 */
 	private void addReceivers() {
 		gdConnectivityReceivers.add(registerReceiver("Receiver 1"));
-		gdConnectivityReceivers.add(registerReceiver("Receiver 2"));
 	}
 
 	/**
@@ -212,13 +209,23 @@ public class Push extends SampleAppActivity implements
 		alert.setPositiveButton(android.R.string.ok,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						String message = input.getText().toString();
-						_pushEventHandler.sendLoopbackMessage(message, readNocServerURL());
+                        sendLoopbackMessage(input.getText().toString());
 					}
 				});
 		alert.setNegativeButton(android.R.string.cancel, null);
 		alert.show();
 	}
+
+    private void sendLoopbackMessage(String message) {
+        // check channel status before we actually try to send the message
+        if (_pushEventHandler.isChannelConnected()) {
+            logStatus("send loopback message: \"" + message + "\"");
+            _pushEventHandler.sendLoopbackMessage(message, readNocServerURL());
+        } else {
+            Toast.makeText(this, "Push Channel Not Connected", Toast.LENGTH_SHORT).show();
+            logStatus("send message: push channel is not connected");
+        }
+    }
 
 	/** onChannelOpen - */
 	private void onChannelOpen(String token, String pushChannelHost) {
@@ -254,8 +261,9 @@ public class Push extends SampleAppActivity implements
 	/** logConnectionStatus - logs an UP or DOWN message for the push connection */
 	private void logConnectionStatus() {
 		GDNetworkInfo networkInfo = GDConnectivityManager.getActiveNetworkInfo();
-		logStatus(networkInfo.isPushChannelAvailable() ? "Push connection up"
-				: "Push connection down");
+		logStatus(networkInfo.isPushChannelAvailable()
+                    ? "Push connection available"
+                    : "Push connection not available");
 	}
 
 	/**
@@ -279,7 +287,7 @@ public class Push extends SampleAppActivity implements
 				_scroller.fullScroll(View.FOCUS_DOWN);
 			}
 		});
-		Log.v(this.getClass().getPackage().getName(), message + "\n");
+		Log.v("Push", message + "\n");
 	}
 
 	/**
@@ -408,15 +416,15 @@ public class Push extends SampleAppActivity implements
 		boolean pushConnected = networkInfo.isPushChannelAvailable();
 
 		boolean channelConnected = _pushEventHandler.isChannelConnected();
-		if(pushConnected) {
-			if(channelConnected) {
-				Log.w("Push", "openChannelClicked: channel already connected");
+		if (pushConnected) {
+			if (channelConnected) {
+				logStatus("openChannelClicked: channel already connected");
 			} else {
 				PushChannel channel = _pushEventHandler.connectChannel();
 				registerChannelReceiver(channel);
 			}
 		} else {
-			Log.w("Push", "openChannelClicked: push connection is not established");
+			logStatus("openChannelClicked: push connection is not established");
 		}
 	}
 
@@ -425,14 +433,16 @@ public class Push extends SampleAppActivity implements
 		boolean pushConnected = networkInfo.isPushChannelAvailable();
 
 		boolean channelConnected = _pushEventHandler.isChannelConnected();
-		if(pushConnected) {
-			if(channelConnected) {
+		if (pushConnected) {
+			if (channelConnected) {
 				showPushMessageDialog();
 			} else {
-				Log.w("Push", "openChannelClicked: push channel is not connected");
+                Toast.makeText(this, "Push Channel Not Connected", Toast.LENGTH_SHORT).show();
+				logStatus("openChannelClicked: push channel is not connected");
 			}
 		} else {
-			Log.w("Push", "openChannelClicked: push connection is not established");
+            Toast.makeText(this, "No Push Connection", Toast.LENGTH_SHORT).show();
+			logStatus("openChannelClicked: push connection is not established");
 		}
 	}
 
@@ -445,10 +455,10 @@ public class Push extends SampleAppActivity implements
 			if(channelConnected) {
 				_pushEventHandler.disconnectChannel();
 			} else {
-				Log.w("Push", "openChannelClicked: push channel already closed");
+				logStatus("openChannelClicked: push channel already closed");
 			}
 		} else {
-			Log.w("Push", "openChannelClicked: push connection is not established");
+			logStatus("openChannelClicked: push connection is not established");
 		}
 	}
 

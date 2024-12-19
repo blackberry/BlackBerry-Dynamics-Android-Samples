@@ -6,8 +6,16 @@
         <item name="colorPrimary">@color/bbd_blue</item>
         <item name="colorPrimaryDark">@color/bbd_blue</item>
         <item name="colorAccent">@color/bbd_blue</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="actionMenuTextAppearance">@style/MenuTextAppearance</item>
+        <item name="android:actionMenuTextColor">?attr/colorOnPrimary</item>
         <!-- Status bar color -->
         <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="MenuTextAppearance">
+        <item name="android:textSize">20dp</item>
+        <item name="android:capitalize">none</item>
     </style>
 
 </resources>

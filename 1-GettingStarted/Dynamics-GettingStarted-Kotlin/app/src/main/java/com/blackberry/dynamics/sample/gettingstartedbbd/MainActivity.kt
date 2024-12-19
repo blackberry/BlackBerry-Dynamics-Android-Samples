@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity(), GDStateListener  {
      */
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
-        override fun getItem(position: Int): Fragment? {
+        override fun getItem(position: Int): Fragment {
             // getItem is called to instantiate the fragment for the given page.
             // Return a fragment (defined as a static inner class below).
 
@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity(), GDStateListener  {
                 2 -> HttpFragment.newInstance()
                 3 -> SocketFragment.newInstance()
                 4 -> PolicyFragment.newInstance()
-                else -> null
+                else -> throw RuntimeException()
             }
         }
 

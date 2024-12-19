@@ -65,9 +65,6 @@ public class MainActivity extends AppCompatActivity implements GDStateListener
 
     }
 
-
-
-
     //Update the UI with the latest App Policy information.
     //Called after Good Dynamics has finished initializing and
     //when a new App Policy arrives.

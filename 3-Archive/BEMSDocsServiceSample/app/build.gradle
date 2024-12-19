@@ -20,7 +20,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:12.1.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:13.0.+'
     
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {

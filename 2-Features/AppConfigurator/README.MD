@@ -4,7 +4,7 @@ This sample demonstrates how to utilize custom app policies uploaded to BlackBer
 
 ## Description
 
-BlackBerry Dynamics app configuration can be used to remotely configure a BlackBerry Dynamics application. After adding this sample to your UEM server, upload the included policy file "App Configuration UEM Policy.xml".
+BlackBerry Dynamics app configuration can be used to remotely configure a BlackBerry Dynamics application. After adding this sample to your UEM server, upload the included policy file "AppConfigurator UEM App Policy.xml".
 
 For more information, refer to the BlackBerry Developer Blog: [Custom App Policies in BlackBerry Dynamics Applications](http://devblog.blackberry.com/2016/08/custom-app-policies-in-good-dynamics-applications/)
 

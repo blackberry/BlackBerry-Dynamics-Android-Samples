@@ -15,6 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/app_bar"
+        android:layout_above="@+id/bottom_bar_container"
         android:layout_gravity="center_horizontal"
         android:fadingEdge="none"
         android:fillViewport="true"
@@ -30,17 +31,18 @@
     </ScrollView>
 
     <LinearLayout
+        android:id="@+id/bottom_bar_container"
         android:orientation="vertical"
         android:background="@color/bbd_blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
 
-    <include
-        android:id="@+id/bottom_bar"
-        layout="@layout/main_action_bar_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <include
+            android:id="@+id/bottom_bar"
+            layout="@layout/main_action_bar_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 

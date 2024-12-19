@@ -66,9 +66,6 @@ class PushEventHandler {
 					break;
 				case Close:
 					_token = null;
-
-					// Unregister this receiver, since push channel is closed
-					GDAndroid.getInstance().unregisterReceiver(_localEventReceiver);
 					break;
 			}
 		}

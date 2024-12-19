@@ -63,7 +63,7 @@ public class TestSuite {
 
         uiAutomatorUtils.launchAppUnderTest();
 
-        assertTrue("Failed to provision or login into the app.", BBDActivationHelper.loginOrActivateApp());
+        assertTrue("Failed to provision or login into the app.", BBDActivationHelper.loginOrActivateApp().isSuccessful());
 
         assertTrue("BlackBerry Dynamics SDK is not authorized", uiAutomatorUtils.checkGDAuthorized());
 

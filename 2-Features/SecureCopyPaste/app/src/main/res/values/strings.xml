@@ -57,5 +57,6 @@
     <string name="system_clipboard">System Clipboard</string>
     <string name="clear_all_fields">Clear all fields</string>
     <string name="generate_random_text">Generate random text</string>
+    <string name="clear_pasteboard">Clear pasteboard</string>
 
 </resources>
