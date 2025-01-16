@@ -1,4 +1,4 @@
-/* Copyright (c) 2024 BlackBerry Ltd.
+/* Copyright 2024 BlackBerry Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -33,20 +34,9 @@ import androidx.core.view.WindowInsetsCompat;
 public class SampleAppActivity extends AppCompatActivity {
 
     public void setupAppBar(String appTitle) {
-        TextView title = findViewById(R.id.app_bar_title);
-        title.setText(appTitle);
-    }
-
-    public void setupAppBarAndEnabledBackButton(String appTitle) {
-        TextView title = findViewById(R.id.app_bar_title);
-        title.setText(appTitle);
-
-        ImageView appBarIcon = findViewById(R.id.app_bar_icon);
-        appBarIcon.setImageResource(R.drawable.back_arrow);
-
-        appBarIcon.setOnClickListener(view -> {
-            onBackPressed();
-        });
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(appTitle);
+        setSupportActionBar(toolbar);
     }
 
     /**
@@ -82,31 +72,14 @@ public class SampleAppActivity extends AppCompatActivity {
 
                 ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
                 mlp.topMargin = maxTop;
-
                 v.setLayoutParams(mlp);
 
-                View icon = mainView.findViewById(R.id.app_bar_icon);
-                if (icon != null) {
-                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) icon.getLayoutParams();
+                View toolbar = mainView.findViewById(R.id.toolbar);
+                if (toolbar != null) {
+                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
                     lp.leftMargin = maxLeft;
-                    icon.setLayoutParams(lp);
-                }
-
-                View action = mainView.findViewById(R.id.app_bar_action);
-                if (action != null) {
-                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) action.getLayoutParams();
                     lp.rightMargin = maxRight;
-                    action.setLayoutParams(lp);
-                }
-
-                if (bottomBar != null) {
-
-                    ViewGroup.MarginLayoutParams mlp2 = (ViewGroup.MarginLayoutParams) bottomBar.getLayoutParams();
-                    mlp2.bottomMargin = maxBottom;
-                    mlp2.leftMargin = maxLeft;
-                    mlp2.rightMargin = maxRight;
-
-                    bottomBar.setLayoutParams(mlp2);
+                    toolbar.setLayoutParams(lp);
                 }
 
                 if (contentView != null) {
@@ -114,9 +87,9 @@ public class SampleAppActivity extends AppCompatActivity {
                     ViewGroup.MarginLayoutParams mlp3 = (ViewGroup.MarginLayoutParams) contentView.getLayoutParams();
                     mlp3.leftMargin = maxLeft;
                     mlp3.rightMargin = maxRight;
+                    mlp3.bottomMargin = maxBottom;
 
                     contentView.setLayoutParams(mlp3);
-
                 }
 
                 // Return CONSUMED as we don't need the window insets to keep passing

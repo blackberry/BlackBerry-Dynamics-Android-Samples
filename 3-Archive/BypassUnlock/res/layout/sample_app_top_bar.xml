@@ -38,8 +38,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/app_bar_icon"
+        android:layout_marginRight="10dp"
         android:textSize="11sp"
         android:textColor="@color/white"
-        android:text="@string/select_one_of_the_actions"/>
+        android:text="@string/contacts_string"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

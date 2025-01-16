@@ -57,8 +57,6 @@ import static com.good.gd.GDAppResultCode.GDErrorWiped;
  */
 public class GDEventHandler implements GDAppEventListener {
 
-    private String TAG = GDEventHandler.class.getSimpleName();
-
     private static GDEventHandler _instance = null;
 
     private boolean hasReceivedAuthEvent = false;   // set when we receive an authorized GD event

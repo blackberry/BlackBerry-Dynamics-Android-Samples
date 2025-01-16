@@ -51,14 +51,10 @@ android {
 }
 
 dependencies {
-    if (enableBinaryConfiguration.toBoolean()) {
-        def sdkGroupId = 'com.blackberry.blackberrydynamics' + (useDebugSdk.toBoolean() ? '.debug' : '')
-        implementation "$sdkGroupId:android_handheld_platform:$gdSdkVersion"
-    } else {
-        implementation project(':GDLibrary')
-    }
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:13.0.+'
     
     compile 'com.android.support:appcompat-v7:24.1.1'
 }
+
 
 

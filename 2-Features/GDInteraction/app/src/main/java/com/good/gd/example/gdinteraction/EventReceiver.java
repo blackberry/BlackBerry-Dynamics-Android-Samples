@@ -1,4 +1,4 @@
-/* Copyright (c) 2023 BlackBerry Ltd.
+/* Copyright 2024 BlackBerry Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.good.gd.example.gdinteraction;
@@ -44,6 +43,11 @@ public class EventReceiver extends BroadcastReceiver {
 
         switch (action) {
 
+            // when the phone restarts, treat it the same as an AWAKE action sent manually
+            case Intent.ACTION_BOOT_COMPLETED:
+                processAwakeEvent(context);
+                break;
+
             // adb shell am broadcast -n com.good.gd.example.gdinteraction/.EventReceiver -a INTENT_ACTION_AWAKE
             case INTENT_ACTION_AWAKE:
                 processAwakeEvent(context);
@@ -58,13 +62,11 @@ public class EventReceiver extends BroadcastReceiver {
             case INTENT_ACTION_BLOCK:
                 processBlockEvent();
                 break;
-
         }
     }
 
     private void processAwakeEvent(Context context) {
-        Intent msgIntent = new Intent(context, GDAuthorizationService.class);
-        ContextCompat.startForegroundService(context, msgIntent);
+        GDAuthorizationService.scheduleJob(context);
     }
 
     private void processUnblockEvent() {

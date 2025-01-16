@@ -1,4 +1,4 @@
-/* Copyright (c) 2023 BlackBerry Ltd.
+/* Copyright 2024 BlackBerry Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,6 @@ import com.good.gd.icc.GDServiceListener;
 
 public class SaveEditServiceApplication extends Application {
 
-    private static final String TAG = SaveEditServiceApplication.class.getSimpleName();
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -43,8 +41,10 @@ public class SaveEditServiceApplication extends Application {
         try {
             GDService.setServiceListener(serviceListener);
         } catch (final GDServiceException exception) {
-            Log.e(TAG, "SaveEditServiceApplication::onCreate() " +
-                    "Error Setting GDServiceListener -- " + exception.getMessage() + "\n");
+            Log.e(SaveEditService.TAG,
+                    "SaveEditServiceApplication.onCreate: " +
+                    "Error Setting GDServiceListener: " +
+                    exception.getMessage() + "\n");
         }
     }
 }

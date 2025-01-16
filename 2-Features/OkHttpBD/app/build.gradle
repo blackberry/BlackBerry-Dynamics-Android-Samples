@@ -27,8 +27,8 @@ android {
 
 dependencies {
 
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:12.1.+'
-    androidTestImplementation 'com.blackberry.blackberrydynamics:atsl:12.1.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:13.0.+'
+    androidTestImplementation 'com.blackberry.blackberrydynamics:atsl:13.0.+'
 
     implementation "com.squareup.okhttp3:okhttp:4.9.1"
     implementation "com.squareup.okio:okio:2.9.0"
