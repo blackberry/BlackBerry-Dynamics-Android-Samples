@@ -1,0 +1,13 @@
+BlackBerry-Dynamics-Android/
+├─ .gitignore
+├─ README.md
+├─ build.gradle
+├─ settings.gradle
+└─ app/
+   ├─ build.gradle
+   ├─ src/
+      ├─ main/
+         ├─ AndroidManifest.xml
+         ├─ java/com/example/dynamics/App.kt
+         ├─ java/com/example/dynamics/MainActivity.kt
+         └─ res/layout/activity_main.xml
