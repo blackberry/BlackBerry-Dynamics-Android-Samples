@@ -18,12 +18,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    
 }
 
 dependencies {
 
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:14.0.+'
-    implementation 'com.blackberry.blackberrydynamics:android_webview:14.0.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:15.0.+'
+    implementation 'com.blackberry.blackberrydynamics:android_webview:15.0.+'
 
     // Other dependencies
     implementation 'androidx.appcompat:appcompat:1.3.0'

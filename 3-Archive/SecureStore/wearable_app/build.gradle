@@ -3,8 +3,8 @@ apply from: '${rootProject.projectDir}/../../../../gradle_config/setBuildVersion
 
 buildscript {
     repositories {
-        mavenCentral()
-        google()
+        maven { url 'https://enterprise-nexus.rim.net/nexus/content/repositories/central' }
+        maven { url 'https://enterprise-nexus.rim.net/nexus/content/repositories/maven-google' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.9.1'
@@ -13,9 +13,10 @@ buildscript {
 
 allprojects {
     repositories {
-        mavenCentral()
-        google()
-        maven { url "https://software.download.blackberry.com/repository/maven" }
+        maven { url 'https://enterprise-nexus.rim.net/nexus/content/repositories/central' }
+        maven { url 'https://enterprise-nexus.rim.net/nexus/content/repositories/maven-google' }
+        maven { url 'https://enterprise-nexus.rim.net/nexus/content/repositories/ebu-releases' }
+        maven { url 'https://enterprise-nexus.rim.net/nexus/content/repositories/ebu-gd-releases' }
     }
 }
 

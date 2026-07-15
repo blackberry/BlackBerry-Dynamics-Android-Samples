@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 BlackBerry Limited.
+/* Copyright 2026 BlackBerry Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,11 @@
 package com.blackberry.dynamics.sample.sharedservices;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -93,6 +96,16 @@ public class MainActivity extends AppCompatActivity implements GDStateListener {
         super.onCreate(savedInstanceState);
         GDAndroid.getInstance().activityInit(this);
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // Handle window insets for Toolbar
+        ViewCompat.setOnApplyWindowInsetsListener(toolbar, (v, insets) -> {
+            int topInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
+            v.setPadding(v.getPaddingLeft(), topInset, v.getPaddingRight(), v.getPaddingBottom());
+            return insets;
+        });
 
         this.appPackageName = getPackageName();
 

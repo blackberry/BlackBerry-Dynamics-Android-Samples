@@ -29,11 +29,13 @@ android {
         jvmTarget = '17'
     }
 
+    
+
 }
 
 dependencies {
 
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:14.0.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:15.0.+'
 
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.fragment:fragment-ktx:1.8.5'

@@ -37,11 +37,13 @@ android {
             signingConfig signingConfigs.signingConfig
         }
     }
+
+    
 }
 
 dependencies {
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:14.0.+'
-    androidTestImplementation 'com.blackberry.blackberrydynamics:atsl:14.0.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:15.0.+'
+    androidTestImplementation 'com.blackberry.blackberrydynamics:atsl:15.0.+'
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.annotation:annotation:1.2.0'

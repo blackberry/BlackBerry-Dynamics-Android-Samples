@@ -56,12 +56,14 @@ android {
             signingConfig signingConfigs.signingConfig
         }
     }
+
+    
 }
 
 dependencies {
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:14.0.+'
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_backup_support:14.0.+'
-    androidTestImplementation 'com.blackberry.blackberrydynamics:atsl:14.0.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:15.0.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_backup_support:15.0.+'
+    androidTestImplementation 'com.blackberry.blackberrydynamics:atsl:15.0.+'
 
     // We include the common library in Handheld mode so it links against the GDLibrary
     implementation project(':SecureStore_common_lib')

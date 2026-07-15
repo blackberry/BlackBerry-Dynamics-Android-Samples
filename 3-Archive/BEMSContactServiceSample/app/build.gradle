@@ -25,10 +25,11 @@ android {
     buildFeatures {
         viewBinding true
     }
+    
 }
 
 dependencies {
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:14.0.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:15.0.+'
     
     implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:11.0+'
     implementation 'androidx.appcompat:appcompat:1.5.1'

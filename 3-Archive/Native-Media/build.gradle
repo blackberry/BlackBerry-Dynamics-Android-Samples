@@ -46,10 +46,12 @@ android {
         }
     }
 
+    
+
 }
 
 dependencies {
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:14.0.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:15.0.+'
 
 }
 
