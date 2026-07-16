@@ -1,0 +1,11 @@
+// we apply those configurations to build.gradle files for all-apps-android
+// to override it you can specify the value directly in build.gradle for each project
+
+android {
+    compileSdk 36
+
+    defaultConfig {
+        minSdk 31
+        targetSdk 36
+    }
+}
