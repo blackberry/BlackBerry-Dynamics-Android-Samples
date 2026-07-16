@@ -38,7 +38,7 @@
 
 
     <com.good.gd.widget.GDEditText
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/theUrl"
         android:text="https://developers.blackberry.com/"/>

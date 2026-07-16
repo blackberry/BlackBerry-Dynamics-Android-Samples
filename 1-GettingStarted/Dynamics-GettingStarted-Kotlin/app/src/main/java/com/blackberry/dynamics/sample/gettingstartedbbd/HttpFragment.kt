@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 BlackBerry Limited.
+/* Copyright 2026 BlackBerry Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.blackberry.dynamics.sample.gettingstartedbbd
 
-
 import androidx.fragment.app.Fragment
 import android.os.AsyncTask
 import android.os.Bundle
@@ -26,6 +25,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import com.good.gd.apache.http.HttpEntity
 
 import com.good.gd.apache.http.client.methods.HttpGet
 import com.good.gd.net.GDHttpClient
@@ -34,9 +34,7 @@ import com.good.gd.widget.GDEditText;
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.io.Reader
 import java.io.UnsupportedEncodingException
-
 
 /**
  * A simple [Fragment] subclass.
@@ -96,16 +94,29 @@ class HttpFragment : Fragment() {
     /** Initiates the fetch operation.  */
     @Throws(IOException::class)
     private fun loadFromNetwork(urlString: String): String {
-        var stream: InputStream? = null
-        var str: String
+        var entity: HttpEntity? = null
 
         try {
-            stream = downloadUrl(urlString)
-            str = readIt(stream, 1000)
+            val loadStartTime = System.currentTimeMillis()
+
+            entity = downloadUrl(urlString)
+
+            // note: we have to read metadata before the content is consumed
+            val contentType = entity.contentType
+            val contentLength = entity.contentLength
+            val str = readIt(entity.content, 8192)
+
+            return if (contentType.value.startsWith("text/", true)) str
+                    else "content-type = " + contentType + "\n" +
+                         "content-length = " + contentLength + "\n" +
+                         "load-time = " + ((System.currentTimeMillis() - loadStartTime) / 1000) + "sec"
         } finally {
-            stream?.close()
+            try {
+                entity?.content?.close()
+            } catch (e: IllegalStateException) {
+                // content is probably already closed, we're just being tidy
+            }
         }
-        return str
     }
 
     /**
@@ -116,13 +127,13 @@ class HttpFragment : Fragment() {
      * @throws IOException
      */
     @Throws(IOException::class)
-    private fun downloadUrl(urlString: String): InputStream {
+    private fun downloadUrl(urlString: String): HttpEntity {
 
         val httpclient = GDHttpClient()
         val request = HttpGet(urlString)
         val response = httpclient.execute(request)
 
-        return response.entity.content
+        return response.entity
     }
 
     /** Reads an InputStream and converts it to a String.
@@ -134,11 +145,21 @@ class HttpFragment : Fragment() {
      */
     @Throws(IOException::class)
     private fun readIt(stream: InputStream?, len: Int): String {
-        var reader: Reader? = null
-        reader = InputStreamReader(stream!!, "UTF-8")
+
+        val reader = InputStreamReader(stream!!, "UTF-8")
         val buffer = CharArray(len)
-        reader.read(buffer)
-        return String(buffer)
+
+        // we want to read all the data, but return only the first 'len' characters
+        var retval = ""
+        var firstBlock = true
+        while (reader.read(buffer) != -1) {
+            if (firstBlock) {
+                firstBlock = false
+                retval = String(buffer)
+            }
+        }
+
+        return retval
     }
 
     companion object {

@@ -22,3 +22,4 @@
         <meta-data android:name="GDApplicationVersion" android:value = "1.0.0.0"/>
     </application>
 </manifest>
+
