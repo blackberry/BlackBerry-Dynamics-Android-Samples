@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -71,9 +70,7 @@ public class FileBrowserFragment extends FileBrowserBaseFragment {
     private String emulatedDirectory = "/";
 
     public FileBrowserFragment() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            emulatedDirectory = Environment.getStorageDirectory() + "/emulated/0/";
-        }
+        emulatedDirectory = Environment.getStorageDirectory() + "/emulated/0/";
     }
 
     @Override
@@ -186,27 +183,11 @@ public class FileBrowserFragment extends FileBrowserBaseFragment {
     }
 
     private void handleSDCardAction() {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
-                ((SecureStore) requireActivity()).requestAllFilesPermission();
-            } else if (Environment.isExternalStorageEmulated()) {
-                mCurrentPath = emulatedDirectory;
-                browseToPath(mCurrentPath);
-            }
-        } else {
-            // With Android N and above, we need to check and request permissions in runtime
-            int permission = ContextCompat.checkSelfPermission(mContext
-                    , Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            if (permission == PackageManager.PERMISSION_GRANTED && mCurrentPath != null) {
-                Log.d("onClick", "Permission is granted\n");
-                browseToPath(mCurrentPath);
-            } else {
-                Log.w("onClick", "Permission is denied\n");
-                ActivityCompat.requestPermissions(requireActivity()
-                        , new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}
-                        , PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE);
-            }
+        if (!Environment.isExternalStorageManager()) {
+            ((SecureStore) requireActivity()).requestAllFilesPermission();
+        } else if (Environment.isExternalStorageEmulated()) {
+            mCurrentPath = emulatedDirectory;
+            browseToPath(mCurrentPath);
         }
     }
 
@@ -215,35 +196,29 @@ public class FileBrowserFragment extends FileBrowserBaseFragment {
      */
     @SuppressLint("NonConstantResourceId")
     public void onClick(int id) {
-        switch (id) {
-            case R.id.action_back:
+            if (id == R.id.action_back) {
                 Log.d("onClick", "action_back");
                 upOneLevel();
-                break;
 
-            case R.id.action_create_folder:
+            } else if (id == R.id.action_create_folder) {
                 Log.d("onClick", "action_create_folder");
                 showNewDirUI();
-                break;
 
-            case R.id.action_btn_container:
+            } else if (id == R.id.action_btn_container) {
                 Log.d("onClick", "action_btn_container");
                 FileUtils.getInstance().setMode(FileUtils.MODE_CONTAINER);
                 mCurrentPath = FileUtils.CONTAINER_ROOT;
                 browseToPath(mCurrentPath);
-                break;
 
-            case R.id.action_btn_sdcard:
+            } else if (id == R.id.action_btn_sdcard) {
                 Log.d("onClick", "action_btn_sdcard");
                 FileUtils.getInstance().setMode(FileUtils.MODE_SDCARD);
                 mCurrentPath = FileUtils.SDCARD_ROOT;
                 handleSDCardAction();
-                break;
 
-            case R.id.action_lock:
+            } else if (id == R.id.action_lock) {
                 Log.d("onClick", "action_lock");
                 remoteLock();
-                break;
         }
     }
 
@@ -276,12 +251,7 @@ public class FileBrowserFragment extends FileBrowserBaseFragment {
     }
 
     private void createSomeDummyFilesOnSDCard() {
-        File sdcard;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            sdcard = new File(emulatedDirectory);
-        } else {
-            sdcard = mContext.getExternalFilesDir(null);
-        }
+        File sdcard = new File(emulatedDirectory);
         if (sdcard != null && sdcard.isDirectory()) {
             BaseFileUtils.SDCARD_ROOT = sdcard.getAbsolutePath();
             boolean sampleExists = false;
@@ -297,30 +267,17 @@ public class FileBrowserFragment extends FileBrowserBaseFragment {
                 createSampleTextFile(BaseFileUtils.SDCARD_ROOT);
             }
 
-            // Create sample directories if they do not exist
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                createEmulatedDirectory(Environment.DIRECTORY_ALARMS);
-                createEmulatedDirectory(Environment.DIRECTORY_DCIM);
-                createEmulatedDirectory(Environment.DIRECTORY_DOCUMENTS);
-                createEmulatedDirectory(Environment.DIRECTORY_DOWNLOADS);
-                createEmulatedDirectory(Environment.DIRECTORY_MOVIES);
-                createEmulatedDirectory(Environment.DIRECTORY_MUSIC);
-                createEmulatedDirectory(Environment.DIRECTORY_NOTIFICATIONS);
-                createEmulatedDirectory(Environment.DIRECTORY_PICTURES);
-                createEmulatedDirectory(Environment.DIRECTORY_PODCASTS);
-                createEmulatedDirectory(Environment.DIRECTORY_RINGTONES);
-            } else {
-                mContext.getExternalFilesDir(Environment.DIRECTORY_ALARMS);
-                mContext.getExternalFilesDir(Environment.DIRECTORY_DCIM);
-                mContext.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-                mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-                mContext.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
-                mContext.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
-                mContext.getExternalFilesDir(Environment.DIRECTORY_NOTIFICATIONS);
-                mContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                mContext.getExternalFilesDir(Environment.DIRECTORY_PODCASTS);
-                mContext.getExternalFilesDir(Environment.DIRECTORY_RINGTONES);
-            }
+            // Create sample directories if they do not exist.
+            createEmulatedDirectory(Environment.DIRECTORY_ALARMS);
+            createEmulatedDirectory(Environment.DIRECTORY_DCIM);
+            createEmulatedDirectory(Environment.DIRECTORY_DOCUMENTS);
+            createEmulatedDirectory(Environment.DIRECTORY_DOWNLOADS);
+            createEmulatedDirectory(Environment.DIRECTORY_MOVIES);
+            createEmulatedDirectory(Environment.DIRECTORY_MUSIC);
+            createEmulatedDirectory(Environment.DIRECTORY_NOTIFICATIONS);
+            createEmulatedDirectory(Environment.DIRECTORY_PICTURES);
+            createEmulatedDirectory(Environment.DIRECTORY_PODCASTS);
+            createEmulatedDirectory(Environment.DIRECTORY_RINGTONES);
         }
     }
 
@@ -484,11 +441,9 @@ public class FileBrowserFragment extends FileBrowserBaseFragment {
     }
 
     public void refreshUI() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (Environment.isExternalStorageManager() && Environment.isExternalStorageEmulated()) {
-                mCurrentPath = emulatedDirectory;
-                browseToPath(mCurrentPath);
-            }
+        if (Environment.isExternalStorageManager() && Environment.isExternalStorageEmulated()) {
+            mCurrentPath = emulatedDirectory;
+            browseToPath(mCurrentPath);
         }
     }
 }

@@ -38,7 +38,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -118,14 +117,11 @@ public class Push extends SampleAppActivity implements
     }
 
     private void requestNotificationPermission() {
-        // Request POST_NOTIFICATIONS permission for Android 13+ (API 33+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                        REQUEST_POST_NOTIFICATIONS);
-            }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    REQUEST_POST_NOTIFICATIONS);
         }
     }
 
@@ -432,18 +428,13 @@ public class Push extends SampleAppActivity implements
             showErrorDialog();
         }
 
-        switch (v.getId()) {
-        case R.id.action_open_channel:
+        int id = v.getId();
+        if (id == R.id.action_open_channel) {
             openChannelClicked();
-            break;
-        case R.id.action_loopback_message:
+        } else if (id == R.id.action_loopback_message) {
             sendMessageClicked();
-            break;
-        case R.id.action_close_channel:
+        } else if (id == R.id.action_close_channel) {
             closeChannelClicked();
-            break;
-        default:
-            break;
         }
     }
 

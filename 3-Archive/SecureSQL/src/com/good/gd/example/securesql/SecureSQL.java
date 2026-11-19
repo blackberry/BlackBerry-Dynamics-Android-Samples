@@ -136,14 +136,11 @@ public class SecureSQL extends SampleAppActivity
     }
 
     private void requestNotificationPermission() {
-        // Request POST_NOTIFICATIONS permission for Android 13+ (API 33+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                        REQUEST_POST_NOTIFICATIONS);
-            }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    REQUEST_POST_NOTIFICATIONS);
         }
     }
 
@@ -188,16 +185,13 @@ public class SecureSQL extends SampleAppActivity
             return false;
         }
 
-        switch (item.getItemId()) {
-            case MENU_ITEM_OPEN_ITEM:
-                viewContact(info.id);
-                break;
-            case MENU_ITEM_DELETE_ITEM:
-                deleteContact(info.id);
-                break;
-            case MENU_ITEM_EDIT_ITEM:
-                editContact(info.id);
-                break;
+        int itemId = item.getItemId();
+        if (itemId == MENU_ITEM_OPEN_ITEM) {
+            viewContact(info.id);
+        } else if (itemId == MENU_ITEM_DELETE_ITEM) {
+            deleteContact(info.id);
+        } else if (itemId == MENU_ITEM_EDIT_ITEM) {
+            editContact(info.id);
         }
         return true;
     }
@@ -317,27 +311,22 @@ public class SecureSQL extends SampleAppActivity
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.action_add:
+        int id = v.getId();
+            if (id == R.id.action_add) {
                 startActivityForResult(new Intent(this, EditContactActivity.class),
                         0);
-                break;
 
-            case R.id.action_add_500:
+            } else if (id == R.id.action_add_500) {
                 addManyItemsClicked();
-                break;
 
-            case R.id.action_delete_all:
+            } else if (id == R.id.action_delete_all) {
                 deleteAllClicked();
-                break;
 
-            case R.id.action_heavy_query:
+            } else if (id == R.id.action_heavy_query) {
                 executeQuery();
-                break;
 
-            case R.id.action_settings:
+            } else if (id == R.id.action_settings) {
                 startActivity(new Intent(this, SettingsActivity.class));
-                break;
         }
     }
 

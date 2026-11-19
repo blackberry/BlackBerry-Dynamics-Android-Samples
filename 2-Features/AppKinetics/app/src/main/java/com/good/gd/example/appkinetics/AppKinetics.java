@@ -22,7 +22,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -98,14 +97,11 @@ public class AppKinetics extends SampleAppActivity implements OnClickListener, A
     }
 
     private void requestNotificationPermission() {
-        // Request POST_NOTIFICATIONS permission for Android 13+ (API 33+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                        REQUEST_POST_NOTIFICATIONS);
-            }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    REQUEST_POST_NOTIFICATIONS);
         }
     }
 
@@ -191,21 +187,15 @@ public class AppKinetics extends SampleAppActivity implements OnClickListener, A
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.action_send_to: {
-                sendFiles();
-                break;
-            }
-            case R.id.action_delete: {
-                deleteSelectedFiles();
-                updateFileList();
-                break;
-            }
-            case R.id.action_reset: {
-                resetFileList();
-                updateFileList();
-                break;
-            }
+        int id = v.getId();
+        if (id == R.id.action_send_to) {
+            sendFiles();
+        } else if (id == R.id.action_delete) {
+            deleteSelectedFiles();
+            updateFileList();
+        } else if (id == R.id.action_reset) {
+            resetFileList();
+            updateFileList();
         }
     }
 

@@ -1,6 +1,6 @@
 # BlackBerry Dynamics Android Samples
 
-Samples built with BlackBerry Dynamics SDK 15.0.
+Samples built with BlackBerry Dynamics SDK 15.1.
 
 ## BlackBerry Dynamics Overview
 

@@ -16,7 +16,6 @@
 
 package com.good.gd.example.securesql;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -75,9 +74,7 @@ public class SettingsActivity extends SampleAppActivity implements
     private Settings getSettings(Bundle bundle) {
 
         if(bundle != null && bundle.containsKey(SECURE_SQL_SP)) {
-            Settings s = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                    ? bundle.getParcelable(SECURE_SQL_SP, Settings.class)
-                    : bundle.getParcelable(SECURE_SQL_SP);
+            Settings s = bundle.getParcelable(SECURE_SQL_SP, Settings.class);
             return s;
         }
         return new Settings().loadFromPreferences();
@@ -112,13 +109,11 @@ public class SettingsActivity extends SampleAppActivity implements
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.action_save:
+        int id = v.getId();
+            if (id == R.id.action_save) {
                 actionSave();
-                break;
-            case R.id.action_cancel:
+            } else if (id == R.id.action_cancel) {
                 finish();
-                break;
         }
     }
 

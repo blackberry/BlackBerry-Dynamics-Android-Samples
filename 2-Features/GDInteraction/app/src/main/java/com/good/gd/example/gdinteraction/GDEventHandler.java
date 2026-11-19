@@ -30,7 +30,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.util.Pair;
 
 import com.good.gd.GDAndroid;
@@ -155,10 +154,8 @@ public class GDEventHandler implements GDAppEventListener {
 
             } else if (intent.getAction().equals(GDStateAction.GD_STATE_LOCKED_ACTION)) {
 
-                GDAppResultCode extra = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                        ? intent.getSerializableExtra(GDStateAction.GD_STATE_LOCKED_ACTION, GDAppResultCode.class)
-                        : (GDAppResultCode) intent.getSerializableExtra(
-                                                            GDStateAction.GD_STATE_LOCKED_ACTION);
+                GDAppResultCode extra = intent.getSerializableExtra(
+                        GDStateAction.GD_STATE_LOCKED_ACTION, GDAppResultCode.class);
                 addEventToLog(Arrays.asList("onReceive: LOCKED: extra = " + extra));
                 handleLockedEventSpecial(extra);
             }
