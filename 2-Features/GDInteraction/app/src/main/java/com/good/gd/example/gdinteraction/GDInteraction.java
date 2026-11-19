@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.SpannableString;
@@ -125,10 +124,6 @@ public class GDInteraction extends SampleAppActivity implements GDStateListener,
 	}
 
     private void checkNotificationPermission() {
-        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            return;
-        }
-
         if (!notificationPermissionRequested &&
 			ContextCompat.checkSelfPermission(this, POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
 
@@ -259,30 +254,23 @@ public class GDInteraction extends SampleAppActivity implements GDStateListener,
 
 	@Override
 	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.action_block_for_10_seconds:
+		int id = v.getId();
+		if (id == R.id.action_block_for_10_seconds) {
 			actionBlockFor10Seconds();
-			break;
-		case R.id.action_block_until_broadcast:
+		} else if (id == R.id.action_block_until_broadcast) {
 			actionBlockUntilBroadcast();
-			break;
-		case R.id.action_getfilecontent:
+		} else if (id == R.id.action_getfilecontent) {
 			actionBackgroundFileContent();
-			break;
-		case R.id.action_clearfilecontent:
+		} else if (id == R.id.action_clearfilecontent) {
 			actionClearFileContent();
-			break;
-		case R.id.action_getappconfig:
+		} else if (id == R.id.action_getappconfig) {
 			actionGetAppConfig();
-			break;
-		case R.id.action_change_password:
+		} else if (id == R.id.action_change_password) {
 			actionChangePassword();
-			break;
-		case R.id.action_quit:
+		} else if (id == R.id.action_quit) {
 			logStatus("Quit pressed; Calling finish()");
 			finish();
-		default:
-			break;
+		} else {
 		}
 	}
 

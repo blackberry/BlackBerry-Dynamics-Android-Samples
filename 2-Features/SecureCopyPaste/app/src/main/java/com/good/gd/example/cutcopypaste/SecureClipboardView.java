@@ -24,11 +24,17 @@ import android.util.Log;
 import android.view.ActionMode;
 import android.view.DragEvent;
 import android.view.View;
-import android.widget.EditText;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.good.gd.content.ClipboardManager;
 import com.good.gd.example.cutcopypaste.dlp.SecureActionModeCallback;
+import com.good.gd.widget.GDDLPKeyboardControl;
 
 import java.nio.charset.Charset;
 
@@ -62,7 +68,10 @@ public class SecureClipboardView extends androidx.appcompat.widget.AppCompatEdit
             @Override
             public boolean onLongClick(View view) {
 
-                if (getSelectedText().length() != 0) {
+                // if the selection is empty when we are called, just get the whole thing
+                CharSequence text = getSelectedText();
+
+                if (text.length() != 0) {
 
                     View shadowView = View.inflate(getContext(),R.layout.drag_shadow,null);
                     final int size = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
@@ -70,19 +79,22 @@ public class SecureClipboardView extends androidx.appcompat.widget.AppCompatEdit
                     shadowView.layout(0, 0, shadowView.getMeasuredWidth(), shadowView.getMeasuredHeight());
                     shadowView.invalidate();
 
-                    View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(shadowView);
+                    final int start = getSelectionStart();
+                    final int end = getSelectionEnd();
+                    DragDropLocalState localState = new DragDropLocalState(SecureClipboardView.this, start, end);
 
                     clipboardManager.startDragAndDrop(
-                            ClipData.newPlainText("text", getSelectedText()),
+                            ClipData.newPlainText("text", text),
                             SecureClipboardView.this,
-                            shadowBuilder,//this paramenter will be used if Data Leakage Prevention is off
-                            "Secure Drag and Drop");
+                            null,       // don't provide a shadow, GD will do it for us as required
+                            localState);
                     return true;
                 }
                 return false;
             }
         });
 
+        GDDLPKeyboardControl.getInstance().configureDLPKeyboardOptions(this);
         //set custom callback which removes custom menu items from selection context menu if DLP is on
         //in this view we support only cut,copy,paste,select_all operations
         ActionMode.Callback actionModeCallback = SecureActionModeCallback.newCallback();
@@ -161,11 +173,28 @@ public class SecureClipboardView extends androidx.appcompat.widget.AppCompatEdit
     @Override
     public boolean onDragEvent(DragEvent event) {
 
-        Log.i("SecureClipboardView", "getClipData");
+        Log.i("SecureClipboardView", "onDragEvent: action = " + event.getAction());
 
         switch (event.getAction()){
 
             case DragEvent.ACTION_DROP:
+
+                DragDropLocalState localState = null;
+                Object ls = event.getLocalState();
+                if (ls instanceof DragDropLocalState) {
+                    localState = (DragDropLocalState) ls;
+                }
+
+                TextView destinationTextView = this;
+                if (localState != null) {
+                    // If dropped inside the original selection on the same TextView, discard it.
+                    if (localState.sourceTextView == destinationTextView) {
+                        final int offset = getOffsetForPosition(event.getX(), event.getY());
+                        if (offset >= localState.startPos && offset <= localState.endPos) {
+                            return true;
+                        }
+                    }
+                }
 
                 //Check if secure clipboard can handle the event, currently it can handle only ACTION_DROP events
                 ClipData clipData = clipboardManager.getClipData(event);
@@ -173,25 +202,41 @@ public class SecureClipboardView extends androidx.appcompat.widget.AppCompatEdit
                 if (clipData != null) {
 
                     CharSequence clipText = clipData.getItemAt(0).getText();
-                    Log.d("SecureClipboardView", "getClipData: "+clipText);
+                    Log.d("SecureClipboardView", "onDragEvent: "+clipText);
 
                     int selectionEnd = getSelectionEnd();
                     Editable text = getText();
 
                     text.insert(selectionEnd, clipText);
-
-                    Object localState = event.getLocalState();
-                    if (localState instanceof String) {
-                        Toast.makeText(getContext(),
-                                "DragEvent local state: " + localState, Toast.LENGTH_SHORT)
-                                .show();
-                    }
                     return true;
                 }
                 return false;
 
             default:
                 return super.onDragEvent(event);
+        }
+    }
+
+    @Nullable
+    @Override
+    public InputConnection onCreateInputConnection(@NonNull EditorInfo outAttrs) {
+        InputConnection defaultInputConnection = super.onCreateInputConnection(outAttrs);
+        return GDDLPKeyboardControl.getInstance().configureInputConnection(defaultInputConnection, getContext());
+    }
+
+    /**
+     * Holds drag source TextView and selection bounds. Used on drop to compare source and
+     * destination and ignore drops back into the original selection (same as TextView behavior).
+     */
+    private static class DragDropLocalState {
+        final TextView sourceTextView;
+        final int startPos;
+        final int endPos;
+
+        DragDropLocalState(TextView tv, int start, int end) {
+            sourceTextView = tv;
+            startPos = start;
+            endPos = end;
         }
     }
 }

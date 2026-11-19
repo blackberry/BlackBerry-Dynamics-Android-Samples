@@ -61,24 +61,15 @@ public class MainActivity extends AppCompatActivity implements GDStateListener, 
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.app_bar_action: {
-                Intent intent = new Intent();
-                intent.setClass(this, ContactsActivity.class);
-                startActivity(intent);
-                break;
-            }
-            case R.id.action_block_for_10_seconds: {
-                actionBlockFor10Seconds();
-                break;
-            }
-            case R.id.action_block_until_broadcast: {
-                actionBlockUntilBroadcast();
-                break;
-            }
-            default: {
-                break;
-            }
+        int id = v.getId();
+        if (id == R.id.app_bar_action) {
+            Intent intent = new Intent();
+            intent.setClass(this, ContactsActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.action_block_for_10_seconds) {
+            actionBlockFor10Seconds();
+        } else if (id == R.id.action_block_until_broadcast) {
+            actionBlockUntilBroadcast();
         }
     }
 

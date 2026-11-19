@@ -68,15 +68,13 @@ public class PasswordDialog extends Dialog implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_ok:
+        int id = v.getId();
+            if (id == R.id.btn_ok) {
                 String password = mPassword.getText().toString();
                 dismiss();
                 mResultListener.onResult(password);
-                break;
-            case R.id.btn_cancel:
+            } else if (id == R.id.btn_cancel) {
                 dismiss();
-                break;
         }
     }
 

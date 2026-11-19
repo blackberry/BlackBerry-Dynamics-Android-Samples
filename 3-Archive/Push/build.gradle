@@ -1,15 +1,15 @@
-apply plugin: 'com.android.application'
-apply from: '${rootProject.projectDir}/../../../gradle_config/setBuildVersions.gradle'
-
 buildscript {
     repositories {
         mavenCentral()
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.9.1'
+        classpath 'com.android.tools.build:gradle:9.1.1'
     }
 }
+
+apply plugin: 'com.android.application'
+apply from: '${rootProject.projectDir}/../../../gradle_config/setBuildVersions.gradle'
 
 allprojects {
     repositories {
@@ -66,7 +66,7 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-project.txt'
             testProguardFile 'proguard-test-rules.pro'
             signingConfig signingConfigs.signingConfig
         }
@@ -77,9 +77,9 @@ android {
 
 dependencies {
 
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:15.0.+'
-    implementation 'com.blackberry.blackberrydynamics:android_handheld_backup_support:15.0.+'
-    androidTestImplementation 'com.blackberry.blackberrydynamics:atsl:15.0.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:15.1.+'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_backup_support:15.1.+'
+    androidTestImplementation 'com.blackberry.blackberrydynamics:atsl:15.1.+'
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.annotation:annotation:1.2.0'
@@ -91,7 +91,7 @@ dependencies {
     androidTestImplementation 'androidx.annotation:annotation:1.2.0'
     androidTestImplementation 'androidx.test:rules:1.5.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.3.0'
     androidTestImplementation 'androidx.legacy:legacy-support-v4:1.0.0'
 }
 

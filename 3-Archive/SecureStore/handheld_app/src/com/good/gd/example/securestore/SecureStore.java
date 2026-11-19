@@ -76,14 +76,11 @@ public class SecureStore extends SampleAppActivity implements OnClickListener, A
     }
 
     private void requestNotificationPermission() {
-        // Request POST_NOTIFICATIONS permission for Android 13+ (API 33+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                        REQUEST_POST_NOTIFICATIONS);
-            }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    REQUEST_POST_NOTIFICATIONS);
         }
     }
 
@@ -193,13 +190,11 @@ public class SecureStore extends SampleAppActivity implements OnClickListener, A
     public void onClick(View v) {
         if (m_fragment != null) {
             m_fragment.onClick(v.getId());
-            switch (v.getId()) {
-                case R.id.action_btn_container:
+            int id = v.getId();
+                if (id == R.id.action_btn_container) {
                     updateBtns(R.id.action_btn_container, R.id.action_btn_sdcard);
-                    break;
-                case R.id.action_btn_sdcard:
+                } else if (id == R.id.action_btn_sdcard) {
                     updateBtns(R.id.action_btn_sdcard, R.id.action_btn_container);
-                    break;
             }
         }
 

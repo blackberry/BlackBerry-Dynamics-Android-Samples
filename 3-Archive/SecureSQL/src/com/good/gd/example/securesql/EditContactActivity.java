@@ -102,14 +102,12 @@ public class EditContactActivity extends SampleAppActivity implements GDStateLis
 
 	@Override
 	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.action_save:
+		int id = v.getId();
+		if (id == R.id.action_save) {
 			actionSave();
 			finish();
-			break;
-		case R.id.action_cancel:
+		} else if (id == R.id.action_cancel) {
 			finish();
-			break;
 		}
 	}
 

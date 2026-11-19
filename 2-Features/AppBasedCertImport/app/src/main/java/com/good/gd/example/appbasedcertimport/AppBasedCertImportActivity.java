@@ -107,14 +107,11 @@ public class AppBasedCertImportActivity extends SampleAppActivity implements GDS
     }
 
     private void requestNotificationPermission() {
-        // Request POST_NOTIFICATIONS permission for Android 13+ (API 33+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                        REQUEST_POST_NOTIFICATIONS);
-            }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    REQUEST_POST_NOTIFICATIONS);
         }
     }
 
@@ -354,17 +351,15 @@ public class AppBasedCertImportActivity extends SampleAppActivity implements GDS
     }
 
     public void onCertImportClicked(View view) {
-        switch (view.getId()) {
-            case R.id.btn_cert_import:
+        int id = view.getId();
+            if (id == R.id.btn_cert_import) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 intent.setType("application/x-pkcs12/*");
                 startActivityForResult(intent, CERT_IMPORT_READ_REQUEST_CODE);
-                break;
-            case R.id.btn_finish_import:
+            } else if (id == R.id.btn_finish_import) {
                 Credential.finalizeImport();
-                break;
         }
     }
 

@@ -194,14 +194,12 @@ public class FileViewerActivity extends SampleAppActivity implements OnClickList
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.action_send_to:
+        int id = v.getId();
+            if (id == R.id.action_send_to) {
                 showSendToDialog();
-                break;
-            case R.id.action_delete:
+            } else if (id == R.id.action_delete) {
                 AppKineticsModel.getInstance().deleteFile(_filePath);
                 finish();
-                break;
         }
     }
 }

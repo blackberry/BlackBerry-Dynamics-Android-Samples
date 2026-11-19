@@ -23,7 +23,7 @@ package com.good.gd.example.services.greetings.client;
 
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.Build;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -115,36 +115,27 @@ public class GreetingsClient extends SampleAppActivity implements GDStateListene
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.option_peer:
-                option = GDICCForegroundOptions.PreferPeerInForeground;
-                sendGreetingsView.setText(sendGreetingsTextPreferPeer);
-                break;
-            case R.id.option_no:
-                option = GDICCForegroundOptions.NoForegroundPreference;
-                sendGreetingsView.setText(sendGreetingsTextNoOption);
-                break;
-            case R.id.option_me:
-            default: {
-                option = GDICCForegroundOptions.PreferMeInForeground;
-                sendGreetingsView.setText(sendGreetingsTextPreferMe);
-            }
+        int itemId = item.getItemId();
+        if (itemId == R.id.option_peer) {
+            option = GDICCForegroundOptions.PreferPeerInForeground;
+            sendGreetingsView.setText(sendGreetingsTextPreferPeer);
+        } else if (itemId == R.id.option_no) {
+            option = GDICCForegroundOptions.NoForegroundPreference;
+            sendGreetingsView.setText(sendGreetingsTextNoOption);
+        } else {
+            option = GDICCForegroundOptions.PreferMeInForeground;
+            sendGreetingsView.setText(sendGreetingsTextPreferMe);
         }
         return super.onContextItemSelected(item);
     }
 
     public void requestPermissions() {
         TextView t = findViewById(R.id.status);
-        int TIRAMISU = 33; // the same value as Build.VERSION_CODES.TIRAMISU
-        if (Build.VERSION.SDK_INT >= TIRAMISU) {
-            String POST_NOTIFICATIONS = "android.permission.POST_NOTIFICATIONS"; // the same value as Manifest.permission.POST_NOTIFICATIONS
-            if (checkSelfPermission(POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{POST_NOTIFICATIONS}, PERMISSION_REQUEST);
-            } else {
-                t.setText("Notification permission is granted");
-            }
+        String POST_NOTIFICATIONS = "android.permission.POST_NOTIFICATIONS";
+        if (checkSelfPermission(POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{POST_NOTIFICATIONS}, PERMISSION_REQUEST);
         } else {
-            t.setText("No need to request notificaton permission for Android 12 or earlier");
+            t.setText("Notification permission is granted");
         }
     }
 
@@ -325,30 +316,21 @@ public class GreetingsClient extends SampleAppActivity implements GDStateListene
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.action_bring_to_front:
-                actionBringToFront();
-                break;
-            case R.id.action_send_greetings:
-                actionSendGreetings();
-                break;
-            case R.id.action_send_greeting_with_attachments:
-                actionSendGreetingWithAttachments();
-                break;
-            case R.id.action_bob:
-                actionBob();
-                break;
-            case R.id.action_xavier:
-                actionXavier();
-                break;
-            case R.id.action_open_fingerprint_ui:
-                actionOpenFingerprintUI();
-                break;
-            case R.id.action_request_permissions:
-                requestPermissions();
-                break;
-            default:
-                break;
+        int id = v.getId();
+        if(id == R.id.action_bring_to_front) {
+            actionBringToFront();
+        } else if (id == R.id.action_send_greetings) {
+            actionSendGreetings();
+        } else if (id == R.id.action_send_greeting_with_attachments) {
+            actionSendGreetingWithAttachments();
+        } else  if (id == R.id.action_bob) {
+            actionBob();
+        } else if(id == R.id.action_xavier) {
+            actionXavier();
+        } else if(id == R.id.action_open_fingerprint_ui) {
+            actionOpenFingerprintUI();
+        } else if (id == R.id.action_request_permissions) {
+            requestPermissions();
         }
     }
 

@@ -1,15 +1,15 @@
-apply plugin: 'com.android.application'
-apply from: '${rootProject.projectDir}/../../../../gradle_config/setBuildVersions.gradle'
-
 buildscript {
     repositories {
         maven { url 'https://enterprise-nexus.rim.net/nexus/content/repositories/central' }
         maven { url 'https://enterprise-nexus.rim.net/nexus/content/repositories/maven-google' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.9.1'
+        classpath 'com.android.tools.build:gradle:9.1.1'
     }
 }
+
+apply plugin: 'com.android.application'
+apply from: '${rootProject.projectDir}/../../../../gradle_config/setBuildVersions.gradle'
 
 allprojects {
     repositories {
@@ -55,7 +55,7 @@ android {
     buildTypes {
         release {
           	minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-project.txt'
         }
     }
 }

@@ -67,13 +67,9 @@ public class BaseActivity extends AppCompatActivity implements
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.app_bar_action: {
-                contactsClicked();
-                break;
-            }
-            default: {
-            }
+        int id = v.getId();
+        if (id == R.id.app_bar_action) {
+            contactsClicked();
         }
     }
 

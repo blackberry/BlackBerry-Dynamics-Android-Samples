@@ -20,7 +20,7 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.os.Build;
+
 import android.os.Bundle;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import android.util.Log;
@@ -117,8 +117,8 @@ public class GreetingsServer extends SampleAppActivity
     // BottomNavigationView.OnNavigationItemSelectedListener implementation
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
-        switch (menuItem.getItemId()) {
-            case R.id.action_bring_client_to_front:
+        int itemId = menuItem.getItemId();
+            if (itemId == R.id.action_bring_client_to_front) {
                 Log.d(TAG, "+ bringToFront");
                 try {
                     GDService.bringToFront("com.good.gd.example.services.greetings.client");
@@ -127,26 +127,19 @@ public class GreetingsServer extends SampleAppActivity
                     displayMessage("Error", e.getMessage());
                 }
                 Log.d(TAG, "- bringToFront");
-            break;
-            case R.id.action_request_notifications:
+            } else if (itemId == R.id.action_request_notifications) {
                 requestPermissions();
-                break;
         }
         return false;
     }
     
     private void requestPermissions() {
         TextView t = findViewById(R.id.status);
-        int TIRAMISU = 33; // the same value as Build.VERSION_CODES.TIRAMISU
-        if (Build.VERSION.SDK_INT >= TIRAMISU) {
-            String POST_NOTIFICATIONS = "android.permission.POST_NOTIFICATIONS"; // the same value as Manifest.permission.POST_NOTIFICATIONS
-            if (checkSelfPermission(POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{POST_NOTIFICATIONS}, PERMISSION_REQUEST);
-            } else {
-                t.setText("Notification permission is granted");
-            }
+        String POST_NOTIFICATIONS = "android.permission.POST_NOTIFICATIONS";
+        if (checkSelfPermission(POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{POST_NOTIFICATIONS}, PERMISSION_REQUEST);
         } else {
-            t.setText("No need to request notificaton permission for Android 12 or earlier");
+            t.setText("Notification permission is granted");
         }
     }
 
